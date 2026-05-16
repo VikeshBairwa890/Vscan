@@ -2,242 +2,240 @@
 
 import { useState } from "react";
 import {
-    Globe, Save, Eye, Edit3, Link, Mail, Phone, MapPin,
-    Plus, Trash2, ChevronDown, ChevronUp, Star,
-    Clock, Image as ImageIcon, Users,
-    MessageSquare, HelpCircle, Sparkles, Megaphone, Grid, ExternalLink,
-    Wifi, Coffee, Utensils, Dumbbell, Wind, Shield, Tv, Music, Leaf,
-    Baby, Car, X, CheckCircle2,
-    ImagesIcon,
+    Globe, Edit3, Eye, Save, CheckCircle2, Link, Plus, Trash2,
+    ChevronDown, ChevronUp, Star, Phone, Mail, MapPin, Award, Megaphone, ShoppingBag, Users,
+    Play, FileText, HelpCircle, MessageSquare, Briefcase,
+    Palette, ExternalLink,
 } from "lucide-react";
+import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
+import Image from "next/image";
 
-// ─── THEMES (12 colours) ─────────────────────────────────────────────────────
 const THEMES = {
-    ocean: { p: "#0ea5e9", d: "#0369a1", l: "#f0f9ff", g: "from-sky-500 to-blue-600" },
-    violet: { p: "#7c3aed", d: "#5b21b6", l: "#f5f3ff", g: "from-violet-600 to-purple-500" },
-    emerald: { p: "#059669", d: "#065f46", l: "#ecfdf5", g: "from-emerald-500 to-teal-600" },
-    rose: { p: "#e11d48", d: "#9f1239", l: "#fff1f2", g: "from-rose-500 to-pink-600" },
-    amber: { p: "#d97706", d: "#92400e", l: "#fffbeb", g: "from-amber-500 to-orange-500" },
-    slate: { p: "#475569", d: "#1e293b", l: "#f8fafc", g: "from-slate-600 to-gray-700" },
-    indigo: { p: "#4f46e5", d: "#3730a3", l: "#eef2ff", g: "from-indigo-500 to-blue-600" },
-    fuchsia: { p: "#a21caf", d: "#701a75", l: "#fdf4ff", g: "from-fuchsia-600 to-purple-600" },
-    lime: { p: "#65a30d", d: "#3f6212", l: "#f7fee7", g: "from-lime-500 to-green-500" },
-    cyan: { p: "#0891b2", d: "#164e63", l: "#ecfeff", g: "from-cyan-500 to-sky-600" },
-    crimson: { p: "#dc2626", d: "#991b1b", l: "#fef2f2", g: "from-red-600 to-rose-500" },
-    gold: { p: "#b45309", d: "#78350f", l: "#fefce8", g: "from-yellow-500 to-amber-600" },
+    blue: { primary: "#2563eb", light: "#eff6ff", grad: ["#1d4ed8", "#3b82f6"] },
+    purple: { primary: "#7c3aed", light: "#f5f3ff", grad: ["#6d28d9", "#a78bfa"] },
+    green: { primary: "#16a34a", light: "#f0fdf4", grad: ["#15803d", "#4ade80"] },
+    orange: { primary: "#ea580c", light: "#fff7ed", grad: ["#c2410c", "#fb923c"] },
+    rose: { primary: "#e11d48", light: "#fff1f2", grad: ["#be123c", "#fb7185"] },
+    teal: { primary: "#0d9488", light: "#f0fdfa", grad: ["#0f766e", "#2dd4bf"] },
+    indigo: { primary: "#4338ca", light: "#eef2ff", grad: ["#3730a3", "#818cf8"] },
+    amber: { primary: "#d97706", light: "#fffbeb", grad: ["#b45309", "#fcd34d"] },
+    cyan: { primary: "#0891b2", light: "#ecfeff", grad: ["#0e7490", "#67e8f9"] },
+    pink: { primary: "#db2777", light: "#fdf2f8", grad: ["#be185d", "#f472b6"] },
+    slate: { primary: "#475569", light: "#f8fafc", grad: ["#1e293b", "#64748b"] },
+    emerald: { primary: "#059669", light: "#ecfdf5", grad: ["#047857", "#34d399"] },
 };
-
-const AMENITIES = [
-    { icon: Wifi, label: "Free WiFi" },
-    { icon: Car, label: "Parking" },
-    { icon: Coffee, label: "Coffee" },
-    { icon: Utensils, label: "Food" },
-    { icon: Dumbbell, label: "Gym" },
-    { icon: Wind, label: "AC" },
-    { icon: Shield, label: "Security" },
-    { icon: Tv, label: "TV" },
-    { icon: Music, label: "Music" },
-    { icon: Leaf, label: "Garden" },
-    { icon: Baby, label: "Kid Friendly" },
-];
 
 const uid = () => Math.random().toString(36).slice(2, 8);
 
-const DEF = {
-    name: "Vikesh Studio", tagline: "Professional Services You Can Trust",
-    logo: "", phone: "+91 98765 43210", email: "hello@vikesh.in",
-    address: "123 MG Road, Jaipur, Rajasthan", website: "www.vikesh.in",
-    cta: "Contact Us", theme: "violet",
-    announcement: { on: true, text: "🎉 Special 20% off this month! Book now.", color: "#7c3aed", link: "" },
-    products: [
-        { id: uid(), name: "Web Design Package", price: "₹5,000", desc: "Responsive modern website for your brand.", image: "" },
-        { id: uid(), name: "SEO Management", price: "₹3,000", desc: "Rank higher and grow organic traffic.", image: "" },
+const DEFAULT = {
+    businessName: "Vikesh Studio",
+    tagline: "Professional Services You Can Trust",
+    logo: "",
+    phone: "+91 98765 43210",
+    email: "hello@vikesh.in",
+    address: "123 MG Road, Jaipur, Rajasthan",
+    website: "www.vikesh.in",
+    instagram: "vikesh.studio",
+    facebook: "vikeshstudio",
+    youtube: "",
+    theme: "blue",
+    buttonText: "Contact Us",
+    googleFormLink: "",
+    announcement: { enabled: true, text: "🎉 Special offer: 20% off this week! Call now." },
+    services: [
+        { id: uid(), name: "Web Design", price: "₹5,000", desc: "Beautiful responsive websites", image: "" },
+        { id: uid(), name: "SEO Management", price: "₹3,000", desc: "Rank higher on Google", image: "" },
     ],
-    employees: [
-        { id: uid(), name: "Vikesh Sharma", bio: "Founder & CEO", phone: "+91 98765 43210", email: "vikesh@studio.in", photo: "" },
-        { id: uid(), name: "Priya Mehta", bio: "Lead Designer", phone: "+91 91234 56789", email: "priya@studio.in", photo: "" },
-    ],
-    testimonials: [
-        { id: uid(), name: "Ravi Kumar", company: "TechMart Pvt Ltd", content: "Brilliant service! Our traffic doubled.", stars: 5 },
-        { id: uid(), name: "Sonal Joshi", company: "", content: "Professional team, delivered on time. 👏", stars: 5 },
-    ],
-    media: [
-        { id: uid(), title: "Studio Tour 2024", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
-    ],
-    faqs: [
-        { id: uid(), q: "How long does a website take?", a: "Typically 5–10 business days depending on scope." },
-        { id: uid(), q: "Do you offer support after launch?", a: "Yes! 30 days of free support post-launch." },
-    ],
-    amenities: ["Free WiFi", "Parking", "AC", "Coffee"],
-    formUrl: "",
-    social: { instagram: "vikesh.studio", facebook: "vikeshstudio", youtube: "", twitter: "", linkedin: "" },
     hours: [
         { day: "Mon – Fri", time: "9:00 AM – 7:00 PM", open: true },
         { day: "Saturday", time: "10:00 AM – 5:00 PM", open: true },
         { day: "Sunday", time: "Closed", open: false },
     ],
-    show: {
-        announcement: true, products: true, employees: true, amenities: true,
-        testimonials: true, media: true, faq: true, form: false, contact: true, social: true, hours: true,
+    employees: [
+        { id: uid(), name: "Vikesh Sharma", bio: "Founder & CEO", phone: "+91 98765 43210", email: "vikesh@vikesh.in", image: "" },
+    ],
+    testimonials: [
+        { id: uid(), name: "Ravi Kumar", company: "TechCorp India", content: "Excellent service, very professional! Highly recommended.", stars: 5 },
+        { id: uid(), name: "Priya Singh", company: "", content: "Great results within a week. Will use again!", stars: 5 },
+    ],
+    mediaLinks: [
+        { id: uid(), title: "Our Work Showcase", url: "https://youtube.com/watch?v=dQw4w9WgXcQ" },
+    ],
+    faqs: [
+        { id: uid(), question: "How long does a project take?", answer: "Most projects are completed within 7-14 business days depending on scope." },
+        { id: uid(), question: "Do you offer refunds?", answer: "Yes, we offer a 7-day satisfaction guarantee on all services." },
+    ],
+    amenities: ["Free Consultation", "24/7 Support", "Home Delivery", "Online Payment", "Certified Team", "Instant Response"],
+    showSections: {
+        announcement: true, services: true, hours: true, contact: true,
+        social: true, employees: true, testimonials: true, mediaLinks: true,
+        faqs: true, amenities: true, googleForm: true,
     },
 };
 
 // ─── Atoms ────────────────────────────────────────────────────────────────────
-function Stars({ n, onSet }) {
+function StarRow({ count, onChange }) {
     return (
         <div className="flex gap-0.5">
             {[1, 2, 3, 4, 5].map(i => (
-                <Star key={i} size={onSet ? 18 : 11}
-                    fill={i <= n ? "#facc15" : "none"}
-                    className={`${i <= n ? "text-yellow-400" : "text-gray-300"} ${onSet ? "cursor-pointer" : ""}`}
-                    onClick={() => onSet && onSet(i)} />
+                <Star key={i} size={13}
+                    fill={i <= count ? "#facc15" : "none"}
+                    className={`cursor-pointer ${i <= count ? "text-yellow-400" : "text-gray-300"}`}
+                    onClick={() => onChange && onChange(i)} />
             ))}
         </div>
     );
 }
 
-function getYtId(url) { const m = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/); return m ? m[1] : null; }
-
-function Sec({ icon, title, children, open: initOpen = true }) {
-    const [open, setOpen] = useState(initOpen);
+function Toggle({ label, checked, onChange }) {
     return (
-        <div className="rounded-xl border border-gray-100 overflow-hidden shadow-sm">
-            <button onClick={() => setOpen(!open)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 text-sm font-semibold text-gray-700 transition">
-                <span className="flex items-center gap-2 text-left">{icon}{title}</span>
-                {open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+        <div className="flex items-center justify-between py-0.5">
+            <span className="text-sm text-gray-600">{label}</span>
+            <button onClick={() => onChange(!checked)}
+                className={`w-10 h-5 rounded-full transition-all relative flex-shrink-0 ${checked ? "bg-blue-500" : "bg-gray-200"}`}>
+                <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${checked ? "left-5" : "left-0.5"}`} />
             </button>
-            {open && <div className="p-4 bg-white flex flex-col gap-3">{children}</div>}
         </div>
     );
 }
 
-function Inp({ label, value, onChange, placeholder, type = "text" }) {
+function FInput({ label, value, onChange, placeholder, small }) {
     return (
         <div className="flex flex-col gap-1">
-            {label && <label className="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">{label}</label>}
-            <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-                className="border border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition" />
+            {label && <label className="text-xs text-gray-400 font-medium">{label}</label>}
+            <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+                className={`border border-gray-200 rounded-sm px-3 ${small ? "py-1.5 text-xs" : "py-2 text-sm"} focus:outline-none focus:ring-2 focus:ring-blue-100 transition bg-white`} />
         </div>
     );
 }
 
-function Tgl({ label, checked, onChange }) {
+function FTA({ label, value, onChange, placeholder }) {
     return (
-        <label className="flex items-center justify-between cursor-pointer select-none">
-            <span className="text-sm text-gray-600 font-medium">{label}</span>
-            <div onClick={() => onChange(!checked)}
-                className={`w-11 h-6 rounded-full relative transition-colors ${checked ? "bg-blue-500" : "bg-gray-200"}`}>
-                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${checked ? "left-6" : "left-1"}`} />
-            </div>
-        </label>
+        <div className="flex flex-col gap-1">
+            {label && <label className="text-xs text-gray-400 font-medium">{label}</label>}
+            <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={2}
+                className="border border-gray-200 rounded-sm px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-100 transition bg-white resize-none" />
+        </div>
     );
 }
 
-function Card({ children, onDel }) {
+function CollapseSection({ icon: Icon, title, color = "text-gray-700", children, defaultOpen = true }) {
+    const [open, setOpen] = useState(defaultOpen);
     return (
-        <div className="border border-gray-100 rounded-xl p-3 bg-gray-50 relative flex flex-col gap-2">
-            <button onClick={onDel} className="absolute top-2 right-2 text-gray-300 hover:text-red-400 transition"><Trash2 size={13} /></button>
+        <div className="border border-gray-100 rounded-sm overflow-hidden shadow-sm">
+            <button onClick={() => setOpen(!open)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition">
+                <div className="flex items-center gap-2">
+                    {Icon && <Icon size={14} className={color} />}
+                    <span className={`text-sm font-semibold ${color}`}>{title}</span>
+                </div>
+                {open ? <ChevronUp size={14} className="text-gray-400" /> : <ChevronDown size={14} className="text-gray-400" />}
+            </button>
+            {open && <div className="p-4 flex flex-col gap-3 bg-white">{children}</div>}
+        </div>
+    );
+}
+
+function Card({ children, onDelete }) {
+    return (
+        <div className="border border-gray-100 rounded-sm p-3 bg-gray-50 flex flex-col gap-2 relative pr-7">
             {children}
+            {onDelete && (
+                <button onClick={onDelete} className="absolute top-2.5 right-2.5 text-red-300 hover:text-red-500 transition">
+                    <Trash2 size={13} />
+                </button>
+            )}
         </div>
     );
 }
 
-function AddBtn({ label, onClick }) {
+function AddBtn({ onClick, label }) {
     return (
         <button onClick={onClick}
-            className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 border border-dashed border-blue-200 rounded-lg px-3 py-2 hover:bg-blue-50 transition w-fit">
-            <Plus size={12} />{label}
+            className="flex items-center gap-1.5 text-xs font-semibold border border-dashed border-gray-300 text-gray-400 hover:border-blue-400 hover:text-blue-500 rounded-sm px-3 py-2.5 transition w-full justify-center">
+            <Plus size={13} /> {label}
         </button>
     );
 }
 
-function SHead({ color, icon, label }) {
+// ─── Preview Helpers ──────────────────────────────────────────────────────────
+function PHead({ icon: Icon, label, color }) {
     return (
-        <div className="flex items-center gap-1.5 mb-1">
-            <span style={{ color }}>{icon}</span>
-            <span className="text-[10px] font-black tracking-widest uppercase text-gray-400">{label}</span>
+        <div className="flex items-center gap-1.5 mb-2">
+            {Icon && <Icon size={11} style={{ color }} />}
+            <span className="text-[10px] font-black tracking-widest uppercase" style={{ color }}>{label}</span>
         </div>
     );
 }
 
-// ─── PREVIEW ─────────────────────────────────────────────────────────────────
-function Preview({ d }) {
-    const t = THEMES[d.theme];
+function PRow({ icon: Icon, text, color }) {
+    return (
+        <div className="flex items-start gap-2 text-xs text-gray-600">
+            <Icon size={11} style={{ color }} className="flex-shrink-0 mt-0.5" />
+            <span className="leading-tight">{text}</span>
+        </div>
+    );
+}
+
+// ─── Preview Component ────────────────────────────────────────────────────────
+function Preview({ data }) {
+    const t = THEMES[data.theme] || THEMES.blue;
     const [openFaq, setOpenFaq] = useState(null);
 
+    const ytId = (url) => {
+        const m = url?.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
+        return m ? m[1] : null;
+    };
+
     return (
-        <div className="bg-white" style={{ fontFamily: "'Segoe UI',sans-serif", fontSize: 13 }}>
+        <div className="bg-white text-sm font-sans">
 
             {/* Announcement */}
-            {d.show.announcement && d.announcement.on && d.announcement.text && (
-                <div className="text-white text-center text-[11px] py-2 px-3 font-semibold leading-snug"
-                    style={{ background: d.announcement.color }}>{d.announcement.text}</div>
+            {data.showSections.announcement && data.announcement.enabled && data.announcement.text && (
+                <div className="px-4 py-2 text-center text-[11px] font-bold text-white leading-snug"
+                    style={{ background: `linear-gradient(90deg,${t.grad[0]},${t.grad[1]})` }}>
+                    {data.announcement.text}
+                </div>
             )}
 
             {/* Hero */}
-            <div className={`bg-linear-to-br ${t.g} px-5 pt-7 pb-10 text-white text-center`}>
+            <div className="px-6 pt-8 pb-10 text-white text-center"
+                style={{ background: `linear-gradient(145deg,${t.grad[0]},${t.grad[1]})` }}>
                 <div className="w-20 h-20 rounded-2xl bg-white/20 border-2 border-white/40 mx-auto mb-3 flex items-center justify-center overflow-hidden">
-                    {d.logo
-                        // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={d.logo} alt="" className="w-full h-full object-cover" />
-                        : <span className="text-2xl font-black text-white/90">{d.name.charAt(0)}</span>}
+                    {data.logo
+                        ? <Image src={data.logo} alt="" className="w-full h-full object-cover" />
+                        : <span className="text-3xl font-black text-white/90">{data.businessName.charAt(0)}</span>}
                 </div>
-                <h1 className="text-[20px] font-black tracking-tight leading-tight">{d.name}</h1>
-                <p className="text-white/75 text-xs mt-1">{d.tagline}</p>
-                <button className="mt-4 bg-white text-xs font-bold px-6 py-2.5 rounded-full shadow-lg"
-                    style={{ color: t.d }}>{d.cta}</button>
+                <h1 className="text-xl font-black">{data.businessName}</h1>
+                <p className="text-white/75 text-xs mt-1">{data.tagline}</p>
+                <button className="mt-4 bg-white text-xs font-black px-5 py-2 rounded-full shadow-lg"
+                    style={{ color: t.primary }}>{data.buttonText}</button>
             </div>
-            <svg viewBox="0 0 400 22" className="w-full" preserveAspectRatio="none" height="22">
-                <path d="M0,11 Q100,22 200,11 Q300,0 400,11 L400,0 L0,0 Z" fill={t.p} />
+            <svg viewBox="0 0 400 20" className="w-full -mt-px" preserveAspectRatio="none" height="25">
+                <path d="M0,10 Q100,20 200,10 Q300,0 400,10 L400,0 L0,0 Z" fill={t.grad[0]} />
             </svg>
 
-            <div className="px-4 pb-8 flex flex-col gap-5 mt-2">
+            <div className="px-4 pb-6 flex flex-col gap-5 mt-2">
 
-                {/* Products */}
-                {d.show.products && d.products.length > 0 && (
+                {/* Services */}
+                {data.showSections.services && data.services.length > 0 && (
                     <div>
-                        <SHead color={t.p} icon={<Grid size={12} />} label="Products & Services" />
-                        <div className="flex flex-col gap-2.5">
-                            {d.products.map(p => (
-                                <div key={p.id} className="rounded-xl border border-gray-100 overflow-hidden">
-                                    {p.image
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        ? <img src={p.image} alt={p.name} className="w-full h-28 object-cover" />
-                                        : <div className="w-full h-16 flex items-center justify-center" style={{ background: t.l }}>
-                                            <ImageIcon size={20} style={{ color: t.p, opacity: .3 }} />
-                                        </div>}
-                                    <div className="p-3">
-                                        <div className="flex justify-between items-start gap-2">
-                                            <span className="font-bold text-gray-800 text-xs leading-tight">{p.name || "Product Name"}</span>
-                                            {p.price && <span className="text-xs font-black shrink-0" style={{ color: t.p }}>{p.price}</span>}
-                                        </div>
-                                        {p.desc && <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">{p.desc}</p>}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Team */}
-                {d.show.employees && d.employees.length > 0 && (
-                    <div>
-                        <SHead color={t.p} icon={<Users size={12} />} label="Our Team" />
+                        <PHead icon={ShoppingBag} label="Products & Services" color={t.primary} />
                         <div className="flex flex-col gap-2">
-                            {d.employees.map(e => (
-                                <div key={e.id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100" style={{ background: t.l }}>
-                                    <div className="w-12 h-12 rounded-full shrink-0 overflow-hidden border-2 border-white shadow" style={{ background: t.p }}>
-                                        {e.photo
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            ? <img src={e.photo} alt={e.name} className="w-full h-full object-cover" />
-                                            : <div className="w-full h-full flex items-center justify-center text-white font-black text-sm">{e.name.charAt(0) || "?"}</div>}
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="font-bold text-gray-800 text-xs truncate">{e.name || "Name"}</p>
-                                        <p className="text-[11px] text-gray-400">{e.bio}</p>
-                                        {e.phone && <p className="text-[11px] font-semibold mt-0.5" style={{ color: t.p }}>{e.phone}</p>}
-                                        {e.email && <p className="text-[11px] text-gray-400 truncate">{e.email}</p>}
+                            {data.services.map(s => (
+                                <div key={s.id} className="rounded-xl overflow-hidden border-t border-gray-100 shadow-sm">
+                                    {s.image && <Image src={s.image} alt={s.name} className="w-full h-24 object-cover" />}
+                                    <div className="p-2.5" style={{ background: t.light }}>
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-bold text-gray-800 text-xs">{s.name}</p>
+                                                {s.desc && <p className="text-gray-400 text-[10px] mt-0.5">{s.desc}</p>}
+                                            </div>
+                                            {s.price && (
+                                                <span className="text-[10px] font-black shrink-0 px-2 py-0.5 rounded-full text-white whitespace-nowrap"
+                                                    style={{ background: t.primary }}>{s.price}</span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -246,35 +244,84 @@ function Preview({ d }) {
                 )}
 
                 {/* Amenities */}
-                {d.show.amenities && d.amenities.length > 0 && (
+                {data.showSections.amenities && data.amenities.length > 0 && (
                     <div>
-                        <SHead color={t.p} icon={<Sparkles size={12} />} label="Amenities" />
+                        <PHead icon={Award} label="Amenities" color={t.primary} />
                         <div className="flex flex-wrap gap-1.5">
-                            {d.amenities.map(a => {
-                                const opt = AMENITIES.find(o => o.label === a);
-                                const Icon = opt?.icon || Sparkles;
-                                return (
-                                    <div key={a} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-semibold border"
-                                        style={{ background: t.l, color: t.p, borderColor: t.p + "33" }}>
-                                        <Icon size={10} />{a}
+                            {data.amenities.map((a, i) => (
+                                <span key={i} className="text-[10px] font-semibold px-2 py-1 rounded-full border"
+                                    style={{ color: t.primary, borderColor: t.primary + "50", background: t.light }}>
+                                    ✓ {a}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Hours */}
+                {data.showSections.hours && (
+                    <div>
+                        <PHead icon={null} label="Business Hours" color={t.primary} />
+                        <div className="flex flex-col gap-1.5">
+                            {data.hours.map((h, i) => (
+                                <div key={i} className="flex justify-between text-xs">
+                                    <span className="text-gray-600 font-medium">{h.day}</span>
+                                    <span style={{ color: h.open ? t.primary : "#ef4444" }} className="font-semibold">{h.time}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Team */}
+                {data.showSections.employees && data.employees.length > 0 && (
+                    <div>
+                        <PHead icon={Users} label="Our Team" color={t.primary} />
+                        <div className="flex flex-col gap-2">
+                            {data.employees.map(e => (
+                                <div key={e.id} className="flex items-center gap-3 p-2.5 rounded-xl border border-gray-100" style={{ background: t.light }}>
+                                    <div className="w-11 h-11 rounded-xl shrink-0 flex items-center justify-center overflow-hidden"
+                                        style={{ background: t.primary }}>
+                                        {e.image
+                                            ? <Image src={e.image} alt={e.name} className="w-full h-full object-cover" />
+                                            : <span className="text-white text-base font-black">{e.name.charAt(0)}</span>}
                                     </div>
-                                );
-                            })}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-bold text-gray-800 text-xs">{e.name}</p>
+                                        {e.bio && <p className="text-[10px] font-semibold" style={{ color: t.primary }}>{e.bio}</p>}
+                                        {e.phone && <p className="text-gray-400 text-[10px] flex items-center gap-1 mt-0.5"><Phone size={8} />{e.phone}</p>}
+                                        {e.email && <p className="text-gray-400 text-[10px] flex items-center gap-1"><Mail size={8} />{e.email}</p>}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Contact */}
+                {data.showSections.contact && (
+                    <div>
+                        <PHead icon={Phone} label="Contact" color={t.primary} />
+                        <div className="flex flex-col gap-1.5">
+                            {data.phone && <PRow icon={Phone} text={data.phone} color={t.primary} />}
+                            {data.email && <PRow icon={Mail} text={data.email} color={t.primary} />}
+                            {data.address && <PRow icon={MapPin} text={data.address} color={t.primary} />}
+                            {data.website && <PRow icon={Globe} text={data.website} color={t.primary} />}
                         </div>
                     </div>
                 )}
 
                 {/* Testimonials */}
-                {d.show.testimonials && d.testimonials.length > 0 && (
+                {data.showSections.testimonials && data.testimonials.length > 0 && (
                     <div>
-                        <SHead color={t.p} icon={<MessageSquare size={12} />} label="What Clients Say" />
+                        <PHead icon={MessageSquare} label="Testimonials" color={t.primary} />
                         <div className="flex flex-col gap-2">
-                            {d.testimonials.map(r => (
-                                <div key={r.id} className="p-3 rounded-xl border border-gray-100 bg-gray-50">
-                                    <Stars n={r.stars} />
-                                    <p className="text-[11px] text-gray-500 mt-1 italic leading-relaxed">{r.content}</p>
-                                    <p className="text-[11px] font-bold text-gray-700 mt-1.5">
-                                        — {r.name}{r.company && <span className="font-normal text-gray-400">, {r.company}</span>}
+                            {data.testimonials.map(r => (
+                                <div key={r.id} className="rounded-xl p-3 border border-gray-100 bg-gray-50">
+                                    <StarRow count={r.stars} />
+                                    <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed italic">{r.content}</p>
+                                    <p className="text-xs font-bold text-gray-700 mt-1.5">{r.name}
+                                        {r.company && <span className="text-gray-400 font-normal text-[10px]"> · {r.company}</span>}
                                     </p>
                                 </div>
                             ))}
@@ -283,22 +330,28 @@ function Preview({ d }) {
                 )}
 
                 {/* Media */}
-                {d.show.media && d.media.length > 0 && (
+                {data.showSections.mediaLinks && data.mediaLinks.length > 0 && (
                     <div>
-                        <SHead color={t.p} icon={<ImagesIcon size={12} />} label="Media" />
+                        <PHead icon={Play} label="Media" color={t.primary} />
                         <div className="flex flex-col gap-2">
-                            {d.media.map(m => {
-                                const ytId = getYtId(m.url);
+                            {data.mediaLinks.map(m => {
+                                const vid = ytId(m.url);
                                 return (
-                                    <div key={m.id} className="rounded-xl overflow-hidden border border-gray-100">
-                                        {ytId
-                                            ? <iframe width="100%" height="155" src={`https://www.youtube.com/embed/${ytId}`}
-                                                title={m.title} frameBorder="0" allowFullScreen />
-                                            : <a href={m.url} target="_blank" rel="noreferrer"
-                                                className="flex items-center gap-2 px-3 py-3 text-xs font-semibold text-blue-600 bg-gray-50 hover:underline">
-                                                <ExternalLink size={11} />{m.title || m.url}
-                                            </a>}
-                                        {m.title && ytId && <p className="px-3 py-2 text-[11px] font-semibold text-gray-600">{m.title}</p>}
+                                    <div key={m.id} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                                        {vid ? (
+                                            <div className="relative w-full bg-black" style={{ paddingBottom: "56.25%" }}>
+                                                <iframe className="absolute top-0 left-0 w-full h-full"
+                                                    src={`https://www.youtube.com/embed/${vid}`} title={m.title} frameBorder="0" allowFullScreen />
+                                            </div>
+                                        ) : (
+                                            <a href={m.url} target="_blank" rel="noreferrer"
+                                                className="flex items-center gap-2 p-3 hover:bg-gray-50 transition" style={{ color: t.primary }}>
+                                                <FaYoutube size={14} />
+                                                <span className="text-xs font-semibold truncate">{m.title || m.url}</span>
+                                                <ExternalLink size={10} className="ml-auto text-gray-300 shrink-0" />
+                                            </a>
+                                        )}
+                                        {m.title && vid && <p className="text-xs font-semibold text-gray-700 px-3 py-2 border-t border-gray-50">{m.title}</p>}
                                     </div>
                                 );
                             })}
@@ -307,367 +360,334 @@ function Preview({ d }) {
                 )}
 
                 {/* FAQ */}
-                {d.show.faq && d.faqs.length > 0 && (
+                {data.showSections.faqs && data.faqs.length > 0 && (
                     <div>
-                        <SHead color={t.p} icon={<HelpCircle size={12} />} label="FAQ" />
+                        <PHead icon={HelpCircle} label="FAQ" color={t.primary} />
                         <div className="flex flex-col gap-1.5">
-                            {d.faqs.map((f, i) => (
+                            {data.faqs.map((f, i) => (
                                 <div key={f.id} className="border border-gray-100 rounded-xl overflow-hidden">
-                                    <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                                        className="w-full text-left px-3 py-2.5 flex items-center justify-between text-xs font-semibold text-gray-700">
-                                        <span className="pr-2">{f.q || "Question"}</span>
-                                        {openFaq === i ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+                                    <button className="w-full flex items-center justify-between px-3 py-2.5 text-left transition"
+                                        style={{ background: openFaq === i ? t.light : "white" }}
+                                        onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                                        <span className="text-xs font-semibold text-gray-800 pr-2 leading-snug">{f.question}</span>
+                                        {openFaq === i
+                                            ? <ChevronUp size={12} style={{ color: t.primary }} className="shrink-0" />
+                                            : <ChevronDown size={12} className="shrink-0 text-gray-400" />}
                                     </button>
-                                    {openFaq === i && <div className="px-3 pb-3 text-[11px] text-gray-500 leading-relaxed border-t border-gray-50 pt-2">{f.a}</div>}
+                                    {openFaq === i && (
+                                        <div className="px-3 pb-3">
+                                            <p className="text-[11px] text-gray-500 leading-relaxed">{f.answer}</p>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
                     </div>
                 )}
 
-                {/* Form */}
-                {d.show.form && d.formUrl && (
+                {/* Google Form */}
+                {data.showSections.googleForm && data.googleFormLink && (
                     <div>
-                        <SHead color={t.p} icon={<ExternalLink size={12} />} label="Quick Form" />
-                        <a href={d.formUrl} target="_blank" rel="noreferrer"
-                            className="flex items-center justify-center gap-2 py-3 rounded-xl text-white text-xs font-bold w-full"
-                            style={{ background: t.p }}>
-                            <ExternalLink size={12} /> Fill Our Form
+                        <PHead icon={FileText} label="Enquiry Form" color={t.primary} />
+                        <a href={data.googleFormLink} target="_blank" rel="noreferrer"
+                            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-white text-xs font-bold shadow transition hover:opacity-90"
+                            style={{ background: `linear-gradient(90deg,${t.grad[0]},${t.grad[1]})` }}>
+                            <FileText size={13} /> Fill Enquiry Form <ExternalLink size={10} />
                         </a>
                     </div>
                 )}
 
-                {/* Hours */}
-                {d.show.hours && (
-                    <div>
-                        <SHead color={t.p} icon={<Clock size={12} />} label="Business Hours" />
-                        <div className="flex flex-col gap-1.5">
-                            {d.hours.map((h, i) => (
-                                <div key={i} className="flex justify-between text-xs">
-                                    <span className="text-gray-500">{h.day}</span>
-                                    <span className="font-semibold" style={h.open ? { color: t.p } : { color: "#f87171" }}>{h.time}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Contact */}
-                {d.show.contact && (
-                    <div>
-                        <SHead color={t.p} icon={<Phone size={12} />} label="Contact" />
-                        <div className="flex flex-col gap-1.5">
-                            {[{ I: Phone, v: d.phone }, { I: Mail, v: d.email }, { I: MapPin, v: d.address }, { I: Globe, v: d.website }]
-                                .filter(r => r.v).map(({ I, v }) => (
-                                    <div key={v} className="flex items-center gap-2 text-[11px] text-gray-600">
-                                        <I size={10} style={{ color: t.p, flexShrink: 0 }} />{v}
-                                    </div>
-                                ))}
-                        </div>
-                    </div>
-                )}
-
                 {/* Social */}
-                {d.show.social && Object.values(d.social).some(Boolean) && (
+                {data.showSections.social && (data.instagram || data.facebook || data.youtube) && (
                     <div>
-                        <SHead color={t.p} icon={<ImagesIcon size={12} />} label="Follow Us" />
-                        <div className="flex flex-wrap gap-1.5">
-                            {d.social.instagram && <Chip icon={ImagesIcon} label={d.social.instagram} cls="bg-gradient-to-r from-pink-500 to-orange-400" />}
-                            {d.social.facebook && <Chip icon={ImagesIcon} label={d.social.facebook} cls="bg-blue-600" />}
-                            {d.social.youtube && <Chip icon={ImagesIcon} label={d.social.youtube} cls="bg-red-600" />}
-                            {d.social.twitter && <Chip icon={ImagesIcon} label={d.social.twitter} cls="bg-sky-500" />}
-                            {d.social.linkedin && <Chip icon={ImagesIcon} label={d.social.linkedin} cls="bg-blue-700" />}
+                        <PHead icon={Globe} label="Follow Us" color={t.primary} />
+                        <div className="flex flex-wrap gap-2">
+                            {data.instagram && (
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-[11px] font-bold"
+                                    style={{ background: "linear-gradient(135deg,#e1306c,#fd1d1d,#fcb045)" }}>
+                                    <FaInstagram size={10} /> {data.instagram}
+                                </span>
+                            )}
+                            {data.facebook && (
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-[11px] font-bold bg-blue-600">
+                                    <FaFacebook size={10} /> {data.facebook}
+                                </span>
+                            )}
+                            {data.youtube && (
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-[11px] font-bold bg-red-600">
+                                    <FaYoutube size={10} /> YouTube
+                                </span>
+                            )}
                         </div>
                     </div>
                 )}
 
-                <p className="text-center text-[10px] text-gray-300 pt-2 border-t border-gray-50">
-                    Powered by <span className="font-black" style={{ color: t.p }}>Presence1</span>
-                </p>
+                <div className="text-center text-[10px] text-gray-300 pt-2 border-t border-gray-50">
+                    Powered by <span className="font-bold" style={{ color: t.primary }}>Presence1</span>
+                </div>
             </div>
         </div>
     );
 }
 
-function Chip({ icon: Icon, label, cls }) {
-    return (
-        <div className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-white text-[11px] font-semibold ${cls}`}>
-            <Icon size={10} />{label}
-        </div>
-    );
-}
-
-// ─── MAIN ────────────────────────────────────────────────────────────────────
 export default function MiniWebsiteBuilder() {
-    const [d, setD] = useState(DEF);
+    const [data, setData] = useState(DEFAULT);
     const [tab, setTab] = useState("editor");
     const [saved, setSaved] = useState(false);
+    const [newAmenity, setNewAmenity] = useState("");
 
-    const upd = (k, v) => setD(p => ({ ...p, [k]: v }));
-    const updN = (k, s, v) => setD(p => ({ ...p, [k]: { ...p[k], [s]: v } }));
-    const show = (k, v) => setD(p => ({ ...p, show: { ...p.show, [k]: v } }));
+    const set = (k, v) => setData(d => ({ ...d, [k]: v }));
+    const setShow = (k, v) => setData(d => ({ ...d, showSections: { ...d.showSections, [k]: v } }));
 
-    const updArr = (key, id, f, v) => upd(key, d[key].map(x => x.id === id ? { ...x, [f]: v } : x));
-    const delArr = (key, id) => upd(key, d[key].filter(x => x.id !== id));
+    const addService = () => set("services", [...data.services, { id: uid(), name: "", price: "", desc: "", image: "" }]);
+    const delService = id => set("services", data.services.filter(s => s.id !== id));
+    const updService = (id, f, v) => set("services", data.services.map(s => s.id === id ? { ...s, [f]: v } : s));
 
-    const t = THEMES[d.theme];
+    const addEmployee = () => set("employees", [...data.employees, { id: uid(), name: "", bio: "", phone: "", email: "", image: "" }]);
+    const delEmployee = id => set("employees", data.employees.filter(e => e.id !== id));
+    const updEmployee = (id, f, v) => set("employees", data.employees.map(e => e.id === id ? { ...e, [f]: v } : e));
 
-    const QUICK_SHOWS = [
-        ["announcement", "📢 Announcement"], ["products", "💼 Products"],
-        ["employees", "👥 Team"], ["amenities", "✨ Amenities"],
-        ["testimonials", "⭐ Reviews"], ["media", "🎬 Media"],
-        ["faq", "❓ FAQ"], ["form", "📋 Form"], ["hours", "🕐 Hours"],
-        ["contact", "📞 Contact"], ["social", "📱 Social"],
-    ];
+    const addTestimonial = () => set("testimonials", [...data.testimonials, { id: uid(), name: "", company: "", content: "", stars: 5 }]);
+    const delTestimonial = id => set("testimonials", data.testimonials.filter(t => t.id !== id));
+    const updTestimonial = (id, f, v) => set("testimonials", data.testimonials.map(t => t.id === id ? { ...t, [f]: v } : t));
+
+    const addMedia = () => set("mediaLinks", [...data.mediaLinks, { id: uid(), title: "", url: "" }]);
+    const delMedia = id => set("mediaLinks", data.mediaLinks.filter(m => m.id !== id));
+    const updMedia = (id, f, v) => set("mediaLinks", data.mediaLinks.map(m => m.id === id ? { ...m, [f]: v } : m));
+
+    const addFaq = () => set("faqs", [...data.faqs, { id: uid(), question: "", answer: "" }]);
+    const delFaq = id => set("faqs", data.faqs.filter(f => f.id !== id));
+    const updFaq = (id, f, v) => set("faqs", data.faqs.map(f => f.id === id ? { ...f, [f]: v } : f));
+    const updFaqF = (id, field, v) => set("faqs", data.faqs.map(f => f.id === id ? { ...f, [field]: v } : f));
+
+    const updHour = (i, f, v) => set("hours", data.hours.map((h, idx) => idx === i ? { ...h, [f]: v } : h));
+    const addAmenity = () => { if (newAmenity.trim()) { set("amenities", [...data.amenities, newAmenity.trim()]); setNewAmenity(""); } };
+    const delAmenity = i => set("amenities", data.amenities.filter((_, idx) => idx !== i));
+
+    const t = THEMES[data.theme] || THEMES.blue;
 
     return (
-        <div className="min-h-screen bg-gray-50">
-
-            <div className="flex items-center justify-between  w-full p-2 border-b h-19 z-0">
+        <div className="min-h-screen bg-gray-50 py-5 px-4 sm:px-6 lg:px-5">
+            {/* Topbar */}
+            <div className="flex justify-between items-center px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
                 <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: t.p }}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: t.primary }}>
                         <Globe size={14} className="text-white" />
                     </div>
                     <span className="font-black text-gray-800 text-sm">Mini Website Builder</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="flex md:hidden border border-gray-200 rounded-lg overflow-hidden text-xs">
-                        {["editor", "preview"].map(tb => (
-                            <button key={tb} onClick={() => setTab(tb)}
-                                className={`px-3 py-1.5 flex items-center gap-1 font-semibold capitalize transition ${tab === tb ? "text-white" : "text-gray-400"}`}
-                                style={tab === tb ? { background: t.p } : {}}>
-                                {tb === "editor" ? <Edit3 size={11} /> : <Eye size={11} />}{tb}
-                            </button>
-                        ))}
+                        <button onClick={() => setTab("editor")} className={`px-3 py-1.5 flex items-center gap-1 font-semibold transition ${tab === "editor" ? "text-white" : "text-gray-500"}`}
+                            style={tab === "editor" ? { background: t.primary } : {}}>
+                            <Edit3 size={11} /> Edit
+                        </button>
+                        <button onClick={() => setTab("preview")} className={`px-3 py-1.5 flex items-center gap-1 font-semibold transition ${tab === "preview" ? "text-white" : "text-gray-500"}`}
+                            style={tab === "preview" ? { background: t.primary } : {}}>
+                            <Eye size={11} /> Preview
+                        </button>
                     </div>
                     <button onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all ${saved ? "bg-green-500" : ""}`}
-                        style={!saved ? { background: t.p } : {}}>
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all"
+                        style={{ background: saved ? "#22c55e" : t.primary }}>
                         {saved ? <><CheckCircle2 size={14} /> Saved!</> : <><Save size={14} /> Save</>}
                     </button>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-5 p-4 md:p-6">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-5 mt-5">
 
-                {/* ── EDITOR ── */}
+                {/* Editor */}
                 <div className={`flex-1 flex flex-col gap-3 min-w-0 ${tab === "preview" ? "hidden md:flex" : "flex"}`}>
-
-                    <Sec icon={<Globe size={14} />} title="🏢 Business Info">
-                        <Inp label="Business Name" value={d.name} onChange={v => upd("name", v)} placeholder="Your Business" />
-                        <Inp label="Tagline" value={d.tagline} onChange={v => upd("tagline", v)} placeholder="Short tagline" />
-                        <Inp label="CTA Button" value={d.cta} onChange={v => upd("cta", v)} placeholder="Contact Us" />
-                        <Inp label="Logo URL" value={d.logo} onChange={v => upd("logo", v)} placeholder="https://..." />
-                    </Sec>
-
-                    <Sec icon={<Sparkles size={14} />} title="🎨 Theme Color">
-                        <div className="flex flex-wrap gap-2">
+                    <CollapseSection icon={Palette} title="🎨 Theme Color" color="text-purple-600">
+                        <div className="grid grid-cols-6 gap-2">
                             {Object.entries(THEMES).map(([name, th]) => (
-                                <button key={name} onClick={() => upd("theme", name)} title={name}
-                                    className={`w-9 h-9 rounded-full border-4 transition-all hover:scale-110 ${d.theme === name ? "border-gray-800 scale-110 shadow-lg" : "border-transparent"}`}
-                                    style={{ background: th.p }} />
+                                <button key={name} onClick={() => set("theme", name)} title={name}
+                                    className={`w-full aspect-square rounded-xl border-4 transition-all ${data.theme === name ? "border-gray-800 scale-90 shadow-lg" : "border-transparent hover:scale-95"}`}
+                                    style={{ background: `linear-gradient(135deg,${th.grad[0]},${th.grad[1]})` }} />
                             ))}
                         </div>
-                        <p className="text-xs text-gray-400 capitalize">Selected: <strong>{d.theme}</strong></p>
-                    </Sec>
+                        <p className="text-xs text-center text-gray-400">Selected: <span className="font-bold capitalize text-gray-700">{data.theme}</span></p>
+                    </CollapseSection>
 
-                    <Sec icon={<Megaphone size={14} />} title="📢 Announcement Bar">
-                        <Tgl label="Show Announcement Bar" checked={d.show.announcement} onChange={v => show("announcement", v)} />
-                        <Tgl label="Enable Banner" checked={d.announcement.on} onChange={v => updN("announcement", "on", v)} />
-                        <Inp label="Announcement Text" value={d.announcement.text} onChange={v => updN("announcement", "text", v)} placeholder="🎉 Special offer!" />
-                        <Inp label="Link (optional)" value={d.announcement.link} onChange={v => updN("announcement", "link", v)} placeholder="https://..." />
-                        <div className="flex flex-col gap-1">
-                            <label className="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Background Colour</label>
-                            <div className="flex items-center gap-2">
-                                <input type="color" value={d.announcement.color} onChange={e => updN("announcement", "color", e.target.value)}
-                                    className="w-10 h-9 rounded border border-gray-200 cursor-pointer p-0.5" />
-                                <span className="text-xs text-gray-400 font-mono">{d.announcement.color}</span>
-                            </div>
+                    <CollapseSection icon={Megaphone} title="📢 Announcement Bar" color="text-orange-500" defaultOpen>
+                        <Toggle label="Show Announcement Bar" checked={data.showSections.announcement} onChange={v => setShow("announcement", v)} />
+                        <Toggle label="Active" checked={data.announcement.enabled} onChange={v => set("announcement", { ...data.announcement, enabled: v })} />
+                        <FInput value={data.announcement.text} onChange={v => set("announcement", { ...data.announcement, text: v })} placeholder="🎉 Special offer this week!" />
+                    </CollapseSection>
+
+                    <CollapseSection icon={Briefcase} title="🏢 Business Info" color="text-blue-600">
+                        <FInput label="Business Name" value={data.businessName} onChange={v => set("businessName", v)} placeholder="Your Business" />
+                        <FInput label="Tagline" value={data.tagline} onChange={v => set("tagline", v)} placeholder="Short description" />
+                        <FInput label="CTA Button Text" value={data.buttonText} onChange={v => set("buttonText", v)} placeholder="Contact Us" />
+                        <FInput label="Logo URL" value={data.logo} onChange={v => set("logo", v)} placeholder="https://..." />
+                    </CollapseSection>
+
+
+
+                    <CollapseSection icon={ShoppingBag} title="🛍️ Products & Services" color="text-green-600">
+                        <Toggle label="Show Section" checked={data.showSections.services} onChange={v => setShow("services", v)} />
+                        {data.services.map(s => (
+                            <Card key={s.id} onDelete={() => delService(s.id)}>
+                                <FInput placeholder="Product / Service Name" value={s.name} onChange={v => updService(s.id, "name", v)} small />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <FInput placeholder="Price e.g. ₹999" value={s.price} onChange={v => updService(s.id, "price", v)} small />
+                                </div>
+                                <FTA placeholder="Short description" value={s.desc} onChange={v => updService(s.id, "desc", v)} />
+                                <FInput placeholder="Image URL (optional)" value={s.image} onChange={v => updService(s.id, "image", v)} small />
+                            </Card>
+                        ))}
+                        <AddBtn onClick={addService} label="Add Product / Service" />
+                    </CollapseSection>
+
+                    <CollapseSection icon={Award} title="✅ Amenities" color="text-teal-600" defaultOpen={false}>
+                        <Toggle label="Show Section" checked={data.showSections.amenities} onChange={v => setShow("amenities", v)} />
+                        <div className="flex flex-wrap gap-1.5">
+                            {data.amenities.map((a, i) => (
+                                <span key={i} className="flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2.5 py-1 rounded-full">
+                                    {a}
+                                    <button onClick={() => delAmenity(i)} className="text-red-300 hover:text-red-500 ml-0.5 text-sm leading-none">×</button>
+                                </span>
+                            ))}
                         </div>
-                    </Sec>
-
-                    <Sec icon={<Grid size={14} />} title="💼 Products & Services">
-                        <Tgl label="Show Section" checked={d.show.products} onChange={v => show("products", v)} />
-                        {d.products.map(p => (
-                            <Card key={p.id} onDel={() => delArr("products", p.id)}>
-                                <Inp label="Product Name" value={p.name} onChange={v => updArr("products", p.id, "name", v)} placeholder="Service name" />
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Inp label="Price" value={p.price} onChange={v => updArr("products", p.id, "price", v)} placeholder="₹999" />
-                                </div>
-                                <Inp label="Description" value={p.desc} onChange={v => updArr("products", p.id, "desc", v)} placeholder="Short description..." />
-                                <Inp label="Image URL" value={p.image} onChange={v => updArr("products", p.id, "image", v)} placeholder="https://image.jpg" />
-                            </Card>
-                        ))}
-                        <AddBtn label="Add Product / Service" onClick={() => upd("products", [...d.products, { id: uid(), name: "", price: "", desc: "", image: "" }])} />
-                    </Sec>
-
-                    <Sec icon={<Users size={14} />} title="👥 Team / Employees">
-                        <Tgl label="Show Section" checked={d.show.employees} onChange={v => show("employees", v)} />
-                        {d.employees.map(e => (
-                            <Card key={e.id} onDel={() => delArr("employees", e.id)}>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Inp label="Name" value={e.name} onChange={v => updArr("employees", e.id, "name", v)} placeholder="Full Name" />
-                                    <Inp label="Bio/Designation" value={e.bio} onChange={v => updArr("employees", e.id, "bio", v)} placeholder="CEO / Manager" />
-                                </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Inp label="Phone" value={e.phone} onChange={v => updArr("employees", e.id, "phone", v)} placeholder="+91..." />
-                                    <Inp label="Email" value={e.email} onChange={v => updArr("employees", e.id, "email", v)} placeholder="email@..." />
-                                </div>
-                                <Inp label="Photo URL" value={e.photo} onChange={v => updArr("employees", e.id, "photo", v)} placeholder="https://photo.jpg" />
-                            </Card>
-                        ))}
-                        <AddBtn label="Add Team Member" onClick={() => upd("employees", [...d.employees, { id: uid(), name: "", bio: "", phone: "", email: "", photo: "" }])} />
-                    </Sec>
-
-                    <Sec icon={<Sparkles size={14} />} title="✨ Amenities" open={false}>
-                        <Tgl label="Show Section" checked={d.show.amenities} onChange={v => show("amenities", v)} />
-                        <div className="flex flex-wrap gap-2">
-                            {AMENITIES.map(({ icon: Icon, label }) => {
-                                const active = d.amenities.includes(label);
-                                return (
-                                    <button key={label} onClick={() => upd("amenities", active ? d.amenities.filter(a => a !== label) : [...d.amenities, label])}
-                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${active ? "text-white border-transparent" : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"}`}
-                                        style={active ? { background: t.p } : {}}>
-                                        <Icon size={11} />{label}
-                                    </button>
-                                );
-                            })}
+                        <div className="flex gap-2">
+                            <input value={newAmenity} onChange={e => setNewAmenity(e.target.value)}
+                                onKeyDown={e => e.key === "Enter" && addAmenity()} placeholder="e.g. Free WiFi, Parking"
+                                className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-100" />
+                            <button onClick={addAmenity} className="px-3 py-1.5 rounded-lg text-white text-xs font-bold" style={{ background: t.primary }}>Add</button>
                         </div>
-                    </Sec>
+                    </CollapseSection>
 
-                    <Sec icon={<MessageSquare size={14} />} title="⭐ Testimonials" open={false}>
-                        <Tgl label="Show Section" checked={d.show.testimonials} onChange={v => show("testimonials", v)} />
-                        {d.testimonials.map(r => (
-                            <Card key={r.id} onDel={() => delArr("testimonials", r.id)}>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Inp label="Person Name" value={r.name} onChange={v => updArr("testimonials", r.id, "name", v)} placeholder="Ravi Kumar" />
-                                    <Inp label="Company (optional)" value={r.company} onChange={v => updArr("testimonials", r.id, "company", v)} placeholder="ABC Ltd." />
-                                </div>
-                                <Inp label="Review Content" value={r.content} onChange={v => updArr("testimonials", r.id, "content", v)} placeholder="Great service..." />
-                                <div className="flex items-center gap-2">
-                                    <label className="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Stars</label>
-                                    <Stars n={r.stars} onSet={v => updArr("testimonials", r.id, "stars", v)} />
-                                </div>
-                            </Card>
-                        ))}
-                        <AddBtn label="Add Testimonial" onClick={() => upd("testimonials", [...d.testimonials, { id: uid(), name: "", company: "", content: "", stars: 5 }])} />
-                    </Sec>
-
-                    <Sec icon={<ImagesIcon size={14} />} title="🎬 Media Links" open={false}>
-                        <Tgl label="Show Section" checked={d.show.media} onChange={v => show("media", v)} />
-                        {d.media.map(m => (
-                            <Card key={m.id} onDel={() => delArr("media", m.id)}>
-                                <Inp label="Title" value={m.title} onChange={v => updArr("media", m.id, "title", v)} placeholder="Video title" />
-                                <Inp label="URL (YouTube or any)" value={m.url} onChange={v => updArr("media", m.id, "url", v)} placeholder="https://youtube.com/..." />
-                            </Card>
-                        ))}
-                        <AddBtn label="Add Media Link" onClick={() => upd("media", [...d.media, { id: uid(), title: "", url: "" }])} />
-                    </Sec>
-
-                    <Sec icon={<HelpCircle size={14} />} title="❓ FAQ" open={false}>
-                        <Tgl label="Show Section" checked={d.show.faq} onChange={v => show("faq", v)} />
-                        {d.faqs.map(f => (
-                            <Card key={f.id} onDel={() => delArr("faqs", f.id)}>
-                                <Inp label="Question" value={f.q} onChange={v => updArr("faqs", f.id, "q", v)} placeholder="Frequently asked question?" />
-                                <Inp label="Answer" value={f.a} onChange={v => updArr("faqs", f.id, "a", v)} placeholder="Clear helpful answer..." />
-                            </Card>
-                        ))}
-                        <AddBtn label="Add FAQ" onClick={() => upd("faqs", [...d.faqs, { id: uid(), q: "", a: "" }])} />
-                    </Sec>
-
-                    <Sec icon={<Clock size={14} />} title="🕐 Business Hours" open={false}>
-                        <Tgl label="Show Section" checked={d.show.hours} onChange={v => show("hours", v)} />
-                        {d.hours.map((h, i) => (
-                            <div key={i} className="flex items-center gap-2">
-                                <input value={h.day} onChange={e => upd("hours", d.hours.map((r, idx) => idx === i ? { ...r, day: e.target.value } : r))}
-                                    className="w-24 border border-gray-200 rounded-lg px-2 py-2 text-xs focus:outline-none" />
-                                <input value={h.time} onChange={e => upd("hours", d.hours.map((r, idx) => idx === i ? { ...r, time: e.target.value } : r))}
-                                    className="flex-1 border border-gray-200 rounded-lg px-2 py-2 text-xs focus:outline-none" />
-                                <button onClick={() => upd("hours", d.hours.map((r, idx) => idx === i ? { ...r, open: !r.open } : r))}
-                                    className={`text-[11px] px-2 py-1.5 rounded-full font-bold flex-shrink-0 transition ${h.open ? "bg-green-100 text-green-600" : "bg-red-100 text-red-400"}`}>
+                    <CollapseSection icon={null} title="🕐 Business Hours" color="text-gray-600" defaultOpen={false}>
+                        <Toggle label="Show Section" checked={data.showSections.hours} onChange={v => setShow("hours", v)} />
+                        {data.hours.map((h, i) => (
+                            <div key={i} className="flex items-center gap-1.5">
+                                <input value={h.day} onChange={e => updHour(i, "day", e.target.value)} className="w-24 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none" />
+                                <input value={h.time} onChange={e => updHour(i, "time", e.target.value)} className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none" />
+                                <button onClick={() => updHour(i, "open", !h.open)}
+                                    className={`text-[10px] px-2 py-1 rounded-full font-bold shrink-0 ${h.open ? "bg-green-100 text-green-600" : "bg-red-100 text-red-400"}`}>
                                     {h.open ? "Open" : "Closed"}
                                 </button>
-                                <button onClick={() => upd("hours", d.hours.filter((_, idx) => idx !== i))} className="text-gray-300 hover:text-red-400"><X size={13} /></button>
                             </div>
                         ))}
-                        <AddBtn label="Add Day" onClick={() => upd("hours", [...d.hours, { day: "New Day", time: "9 AM – 5 PM", open: true }])} />
-                    </Sec>
+                    </CollapseSection>
 
-                    <Sec icon={<Phone size={14} />} title="📞 Contact Info" open={false}>
-                        <Tgl label="Show Section" checked={d.show.contact} onChange={v => show("contact", v)} />
-                        <Inp label="Phone" value={d.phone} onChange={v => upd("phone", v)} placeholder="+91 00000 00000" />
-                        <Inp label="Email" value={d.email} onChange={v => upd("email", v)} placeholder="hello@business.com" />
-                        <Inp label="Address" value={d.address} onChange={v => upd("address", v)} placeholder="City, State" />
-                        <Inp label="Website" value={d.website} onChange={v => upd("website", v)} placeholder="www.business.com" />
-                    </Sec>
-
-                    <Sec icon={<ImagesIcon size={14} />} title="📱 Social Media" open={false}>
-                        <Tgl label="Show Section" checked={d.show.social} onChange={v => show("social", v)} />
-                        {[["instagram", "Instagram"], ["facebook", "Facebook"], ["youtube", "YouTube"], ["twitter", "Twitter / X"], ["linkedin", "LinkedIn"]].map(([k, l]) => (
-                            <Inp key={k} label={l} value={d.social[k]} onChange={v => updN("social", k, v)} placeholder="username" />
+                    <CollapseSection icon={Users} title="👥 Team / Employees" color="text-indigo-600" defaultOpen={false}>
+                        <Toggle label="Show Section" checked={data.showSections.employees} onChange={v => setShow("employees", v)} />
+                        {data.employees.map(e => (
+                            <Card key={e.id} onDelete={() => delEmployee(e.id)}>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <FInput placeholder="Full Name" value={e.name} onChange={v => updEmployee(e.id, "name", v)} small />
+                                    <FInput placeholder="Designation / Bio" value={e.bio} onChange={v => updEmployee(e.id, "bio", v)} small />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <FInput placeholder="Phone" value={e.phone} onChange={v => updEmployee(e.id, "phone", v)} small />
+                                    <FInput placeholder="Email" value={e.email} onChange={v => updEmployee(e.id, "email", v)} small />
+                                </div>
+                                <FInput placeholder="Photo URL (optional)" value={e.image} onChange={v => updEmployee(e.id, "image", v)} small />
+                            </Card>
                         ))}
-                    </Sec>
+                        <AddBtn onClick={addEmployee} label="Add Team Member" />
+                    </CollapseSection>
 
-                    <Sec icon={<ExternalLink size={14} />} title="📋 Google Form" open={false}>
-                        <Tgl label="Show Section" checked={d.show.form} onChange={v => show("form", v)} />
-                        <Inp label="Google Form URL" value={d.formUrl} onChange={v => upd("formUrl", v)} placeholder="https://forms.gle/..." />
-                        <p className="text-xs text-gray-400">Customers can tap to fill your Google Form directly from the mini site.</p>
-                    </Sec>
+                    <CollapseSection icon={Phone} title="📞 Contact Info" color="text-blue-500" defaultOpen={false}>
+                        <Toggle label="Show Section" checked={data.showSections.contact} onChange={v => setShow("contact", v)} />
+                        <FInput label="Phone" value={data.phone} onChange={v => set("phone", v)} placeholder="+91 00000 00000" />
+                        <FInput label="Email" value={data.email} onChange={v => set("email", v)} placeholder="hello@business.com" />
+                        <FInput label="Address" value={data.address} onChange={v => set("address", v)} placeholder="City, State" />
+                        <FInput label="Website" value={data.website} onChange={v => set("website", v)} placeholder="www.business.com" />
+                    </CollapseSection>
+
+                    <CollapseSection icon={MessageSquare} title="⭐ Testimonials" color="text-yellow-600" defaultOpen={false}>
+                        <Toggle label="Show Section" checked={data.showSections.testimonials} onChange={v => setShow("testimonials", v)} />
+                        {data.testimonials.map(r => (
+                            <Card key={r.id} onDelete={() => delTestimonial(r.id)}>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <FInput placeholder="Person Name" value={r.name} onChange={v => updTestimonial(r.id, "name", v)} small />
+                                    <FInput placeholder="Company (optional)" value={r.company} onChange={v => updTestimonial(r.id, "company", v)} small />
+                                </div>
+                                <FTA placeholder="What they said..." value={r.content} onChange={v => updTestimonial(r.id, "content", v)} />
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-gray-400">Rating:</span>
+                                    <StarRow count={r.stars} onChange={v => updTestimonial(r.id, "stars", v)} />
+                                </div>
+                            </Card>
+                        ))}
+                        <AddBtn onClick={addTestimonial} label="Add Testimonial" />
+                    </CollapseSection>
+
+                    <CollapseSection icon={FaYoutube} title="🎬 Media Links" color="text-red-600" defaultOpen={false}>
+                        <Toggle label="Show Section" checked={data.showSections.mediaLinks} onChange={v => setShow("mediaLinks", v)} />
+                        {data.mediaLinks.map(m => (
+                            <Card key={m.id} onDelete={() => delMedia(m.id)}>
+                                <FInput placeholder="Video Title" value={m.title} onChange={v => updMedia(m.id, "title", v)} small />
+                                <FInput placeholder="YouTube URL e.g. https://youtube.com/watch?v=..." value={m.url} onChange={v => updMedia(m.id, "url", v)} small />
+                            </Card>
+                        ))}
+                        <AddBtn onClick={addMedia} label="Add Video" />
+                    </CollapseSection>
+
+                    <CollapseSection icon={HelpCircle} title="❓ FAQ" color="text-cyan-600" defaultOpen={false}>
+                        <Toggle label="Show Section" checked={data.showSections.faqs} onChange={v => setShow("faqs", v)} />
+                        {data.faqs.map(f => (
+                            <Card key={f.id} onDelete={() => delFaq(f.id)}>
+                                <FInput placeholder="Question" value={f.question} onChange={v => updFaqF(f.id, "question", v)} small />
+                                <FTA placeholder="Answer" value={f.answer} onChange={v => updFaqF(f.id, "answer", v)} />
+                            </Card>
+                        ))}
+                        <AddBtn onClick={addFaq} label="Add FAQ" />
+                    </CollapseSection>
+
+                    <CollapseSection icon={FileText} title="📋 Google Form / Enquiry" color="text-emerald-600" defaultOpen={false}>
+                        <Toggle label="Show Section" checked={data.showSections.googleForm} onChange={v => setShow("googleForm", v)} />
+                        <FInput label="Google Form URL" value={data.googleFormLink} onChange={v => set("googleFormLink", v)} placeholder="https://forms.google.com/..." />
+                    </CollapseSection>
+
+                    <CollapseSection icon={FaInstagram} title="📱 Social Media" color="text-pink-600" defaultOpen={false}>
+                        <Toggle label="Show Section" checked={data.showSections.social} onChange={v => setShow("social", v)} />
+                        <FInput label="Instagram username" value={data.instagram} onChange={v => set("instagram", v)} placeholder="yourusername" />
+                        <FInput label="Facebook page" value={data.facebook} onChange={v => set("facebook", v)} placeholder="yourpage" />
+                        <FInput label="YouTube channel URL" value={data.youtube} onChange={v => set("youtube", v)} placeholder="https://youtube.com/@channel" />
+                    </CollapseSection>
                 </div>
 
-                {/* ── PREVIEW ── */}
-                <div className={`md:w-85 shrink-0 ${tab === "editor" ? "hidden md:block" : "block"}`}>
-                    <div className="sticky top-20 flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
+                {/* Preview */}
+                <div className={`md:w-[320px] shrink-0 ${tab === "editor" ? "hidden md:block" : "block"}`}>
+                    <div className="sticky top-20">
+                        <div className="flex items-center gap-2 mb-3 justify-center">
                             <Eye size={13} className="text-gray-400" />
-                            <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Live Preview</span>
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Live Preview</span>
                         </div>
-
-                        {/* Phone */}
-                        <div className="mx-auto w-75">
-                            <div className="rounded-[2.8rem] p-3 shadow-2xl" style={{ background: "#111" }}>
-                                <div className="flex justify-center pt-1 pb-2">
-                                    <div className="w-20 h-5 rounded-full bg-black" />
+                        <div className="mx-auto w-72.5">
+                            <div className="rounded-[2.8rem] p-3 shadow-2xl" style={{ background: "#111827" }}>
+                                <div className="flex justify-center py-2">
+                                    <div className="w-16 h-4 rounded-full bg-black" />
                                 </div>
-                                <div className="rounded-[2rem] overflow-hidden bg-white" style={{ maxHeight: "68vh", overflowY: "auto" }}>
-                                    <Preview d={d} />
-                                </div>
-                                <div className="flex justify-center pt-2 pb-1">
-                                    <div className="w-16 h-1 rounded-full bg-gray-700" />
+                                <div
+                                    className="rounded-[2rem] overflow-auto bg-white"
+                                    style={{
+                                        maxHeight: "68vh",
+                                        overflowY: "auto",
+                                        scrollbarWidth: "none",
+                                        msOverflowStyle: "none",
+                                    }}
+                                >
+                                    <Preview data={data} />
                                 </div>
                             </div>
                         </div>
-
-                        {/* Share URL */}
-                        <div className="bg-white border border-gray-100 rounded-xl px-4 py-3 flex items-center gap-2 shadow-sm">
-                            <Link size={13} style={{ color: t.p, flexShrink: 0 }} />
-                            <span className="text-xs text-gray-400 truncate flex-1 font-mono">
-                                presence1.in/<span className="font-black" style={{ color: t.p }}>
-                                    {d.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") || "your-business"}
+                        <div className="mt-4 bg-white border border-gray-100 rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm">
+                            <Link size={13} className="shrink-0" style={{ color: t.primary }} />
+                            <span className="text-xs text-gray-400 truncate flex-1">
+                                presence1.in/<span className="font-bold" style={{ color: t.primary }}>
+                                    {data.businessName.toLowerCase().replace(/\s+/g, "-")}
                                 </span>
                             </span>
-                            <button className="text-xs font-bold shrink-0 hover:underline" style={{ color: t.p }}>Copy</button>
-                        </div>
-
-                        {/* Quick Toggles */}
-                        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3">Quick Toggles</p>
-                            <div className="flex flex-col gap-2">
-                                {QUICK_SHOWS.map(([k, l]) => (
-                                    <div key={k} className="flex items-center justify-between">
-                                        <span className="text-xs text-gray-600">{l}</span>
-                                        <div onClick={() => show(k, !d.show[k])}
-                                            className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${d.show[k] ? "" : "bg-gray-200"}`}
-                                            style={d.show[k] ? { background: t.p } : {}}>
-                                            <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${d.show[k] ? "left-4" : "left-0.5"}`} />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                            <button className="text-xs font-bold hover:underline shrink-0" style={{ color: t.primary }}>Copy</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     );
-}
+}   

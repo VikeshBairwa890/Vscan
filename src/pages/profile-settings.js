@@ -179,7 +179,7 @@ export default function Profile() {
                                                 value={profileData.name}
                                                 onChange={(e) => handleInputChange("name", e.target.value)}
                                                 placeholder="Enter your business name"
-                                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
                                     </div>
@@ -195,7 +195,7 @@ export default function Profile() {
                                             onChange={(e) => handleInputChange("about", e.target.value)}
                                             placeholder="Tell customers about your business..."
                                             rows={4}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         />
                                     </div>
 
@@ -213,7 +213,7 @@ export default function Profile() {
                                                     value={profileData.contact}
                                                     onChange={(e) => handleInputChange("contact", e.target.value)}
                                                     placeholder="+91 12345 67890"
-                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 />
                                             </div>
                                         </div>
@@ -236,7 +236,7 @@ export default function Profile() {
                                                     value={profileData.whatsapp}
                                                     onChange={(e) => handleInputChange("whatsapp", e.target.value)}
                                                     placeholder="+91 12345 67890"
-                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 />
                                             </div>
                                         </div>
@@ -256,7 +256,7 @@ export default function Profile() {
                                                     value={profileData.companyWebsite}
                                                     onChange={(e) => handleInputChange("companyWebsite", e.target.value)}
                                                     placeholder="https://yourbusiness.com"
-                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 />
                                             </div>
                                         </div>
@@ -273,7 +273,7 @@ export default function Profile() {
                                                     value={profileData.googleReviewLink}
                                                     onChange={(e) => handleInputChange("googleReviewLink", e.target.value)}
                                                     placeholder="https://g.page/r/..."
-                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 />
                                             </div>
                                         </div>
@@ -292,7 +292,7 @@ export default function Profile() {
                                                 onChange={(e) => handleInputChange("businessAddress", e.target.value)}
                                                 placeholder="Enter your complete business address"
                                                 rows={3}
-                                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
                                     </div>
@@ -369,7 +369,7 @@ export default function Profile() {
                                             value={profileData.upiId}
                                             onChange={(e) => handleInputChange("upiId", e.target.value)}
                                             placeholder="business@upi"
-                                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         />
                                     </div>
                                     <p className="text-xs text-gray-500">
