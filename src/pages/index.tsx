@@ -8,7 +8,7 @@ export default function Home() {
         <Text.Heading className="text-4xl font-bold mb-4">Welcome to Vscan</Text.Heading>
         <Text.Paragraph className="text-lg mb-6">Your ultimate vulnerability scanning tool.</Text.Paragraph>
         <Button variant="primary" size="lg" onClick={() => alert("Get Started clicked!")}>
-          Get Started
+          Get Started, vikesh!
         </Button>
       </div>
     </>
