@@ -1,10 +1,9 @@
 "use client";
 
-import { Button, Input, Label, TextArea } from "@heroui/react";
+import { Button } from "@heroui/react";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-// import { toast } from "sonner";
-import { Camera, Save, CreditCard, QrCode, Building2, Phone, Mail, Globe, Star, MapPin, Link as LinkIcon } from "lucide-react";
+import { Camera, Save, CreditCard, QrCode, Building2, Phone, Globe, Star, MapPin, Link as LinkIcon } from "lucide-react";
 import { Toaster } from "sonner";
 
 export default function Profile() {
@@ -23,32 +22,14 @@ export default function Profile() {
     const [qrPreview, setQrPreview] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     const logoInputRef = useRef(null);
     const qrInputRef = useRef(null);
 
-    // // Fetch profile data on component mount
-    // useEffect(() => {
-    //     fetchProfileData();
-    // }, []);
-
-    const fetchProfileData = async () => {
-        setIsLoading(true);
-        try {
-            const response = await fetch('/api/profile');
-            if (response.ok) {
-                const data = await response.json();
-                setProfileData(data);
-                if (data.logo) setLogoPreview(data.logo);
-                if (data.paymentQr) setQrPreview(data.paymentQr);
-            }
-        } catch (error) {
-            console.error('Error fetching profile:', error);
-            // toast.error('Failed to load profile data');
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleInputChange = (field, value) => {
         setProfileData(prev => ({ ...prev, [field]: value }));
@@ -74,11 +55,9 @@ export default function Profile() {
                     setQrPreview(data.url);
                     setProfileData(prev => ({ ...prev, paymentQr: data.url }));
                 }
-                // toast.success(`${type === 'logo' ? 'Logo' : 'QR Code'} uploaded successfully`);
             }
         } catch (error) {
             console.error('Error uploading file:', error);
-            // toast.error('Failed to upload file');
         }
     };
 
@@ -92,21 +71,20 @@ export default function Profile() {
             });
 
             if (response.ok) {
-                // toast.success('Profile saved successfully!');
+                console.log('Profile saved');
             } else {
                 throw new Error('Failed to save');
             }
         } catch (error) {
             console.error('Error saving profile:', error);
-            // toast.error('Failed to save profile');
         } finally {
             setIsSaving(false);
         }
     };
 
-    if (isLoading) {
+    if (!mounted || isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
         );
@@ -120,12 +98,12 @@ export default function Profile() {
                     {/* Main Profile Section */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* Profile Information Card */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
                                 <div className="flex justify-between items-center">
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <Profile className="w-5 h-5 text-purple-600" />
+                                            <Building2 className="w-5 h-5 text-purple-600" />
                                             <h2 className="text-xl font-semibold text-gray-800">Profile Information</h2>
                                         </div>
                                         <p className="text-sm text-gray-500 mt-1">Update your business details</p>
@@ -145,7 +123,7 @@ export default function Profile() {
                                 {/* Logo Upload Section */}
                                 <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-gray-50 rounded-xl">
                                     <div className="relative group">
-                                        <div className="w-24 h-24 rounded-full bg-linear-to-r from-blue-500 to-blue-600 p-0.5">
+                                        <div className="w-24 h-24 rounded-full bg-linear-to-r from-blue-200 to-blue-100 p-0.5">
                                             <div className="w-full h-full rounded-full bg-white overflow-hidden">
                                                 {logoPreview ? (
                                                     <Image
@@ -165,6 +143,7 @@ export default function Profile() {
                                         <button
                                             onClick={() => logoInputRef.current?.click()}
                                             className="absolute bottom-0 right-0 p-1.5 bg-blue-600 rounded-full text-white shadow-lg hover:bg-blue-700 transition-all duration-200"
+                                            type="button"
                                         >
                                             <Camera className="w-3 h-3" />
                                         </button>
@@ -189,10 +168,9 @@ export default function Profile() {
                                 <div className="space-y-4">
                                     {/* Name */}
                                     <div className="flex flex-col gap-1">
-                                        <label htmlFor="name" className="text-xs font-medium text-gray-700">
+                                        <label htmlFor="name" className="text-sm font-medium text-gray-700">
                                             Name
                                         </label>
-
                                         <div className="relative">
                                             <Building2 className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                             <input
@@ -201,59 +179,49 @@ export default function Profile() {
                                                 value={profileData.name}
                                                 onChange={(e) => handleInputChange("name", e.target.value)}
                                                 placeholder="Enter your business name"
-                                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
                                     </div>
 
                                     {/* About */}
                                     <div className="flex flex-col gap-1">
-                                        <label htmlFor="about" className="text-xs font-medium text-gray-700">
+                                        <label htmlFor="about" className="text-sm font-medium text-gray-700">
                                             About Business
                                         </label>
-
                                         <textarea
                                             id="about"
                                             value={profileData.about}
                                             onChange={(e) => handleInputChange("about", e.target.value)}
                                             placeholder="Tell customers about your business..."
                                             rows={4}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         />
                                     </div>
 
                                     {/* Contact + WhatsApp */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="flex flex-col gap-1">
-                                            <label
-                                                htmlFor="contact"
-                                                className="text-xs font-medium text-gray-700"
-                                            >
+                                            <label htmlFor="contact" className="text-sm font-medium text-gray-700">
                                                 Contact Number
                                             </label>
-
                                             <div className="relative">
                                                 <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-
                                                 <input
                                                     id="contact"
                                                     type="text"
                                                     value={profileData.contact}
                                                     onChange={(e) => handleInputChange("contact", e.target.value)}
                                                     placeholder="+91 12345 67890"
-                                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 />
                                             </div>
                                         </div>
 
                                         <div className="flex flex-col gap-1">
-                                            <label
-                                                htmlFor="whatsapp"
-                                                className="text-xs font-medium text-gray-700"
-                                            >
+                                            <label htmlFor="whatsapp" className="text-sm font-medium text-gray-700">
                                                 WhatsApp Number
                                             </label>
-
                                             <div className="relative">
                                                 <svg
                                                     className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
@@ -262,14 +230,13 @@ export default function Profile() {
                                                 >
                                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
                                                 </svg>
-
                                                 <input
                                                     id="whatsapp"
                                                     type="text"
                                                     value={profileData.whatsapp}
                                                     onChange={(e) => handleInputChange("whatsapp", e.target.value)}
                                                     placeholder="+91 12345 67890"
-                                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 />
                                             </div>
                                         </div>
@@ -278,49 +245,35 @@ export default function Profile() {
                                     {/* Website + Review */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="flex flex-col gap-1">
-                                            <label
-                                                htmlFor="website"
-                                                className="text-xs font-medium text-gray-700"
-                                            >
+                                            <label htmlFor="website" className="text-sm font-medium text-gray-700">
                                                 Company Website
                                             </label>
-
                                             <div className="relative">
                                                 <Globe className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-
                                                 <input
                                                     id="website"
                                                     type="text"
                                                     value={profileData.companyWebsite}
-                                                    onChange={(e) =>
-                                                        handleInputChange("companyWebsite", e.target.value)
-                                                    }
+                                                    onChange={(e) => handleInputChange("companyWebsite", e.target.value)}
                                                     placeholder="https://yourbusiness.com"
-                                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 />
                                             </div>
                                         </div>
 
                                         <div className="flex flex-col gap-1">
-                                            <label
-                                                htmlFor="review"
-                                                className="text-xs font-medium text-gray-700"
-                                            >
+                                            <label htmlFor="review" className="text-sm font-medium text-gray-700">
                                                 Google Review Link
                                             </label>
-
                                             <div className="relative">
                                                 <Star className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-
                                                 <input
                                                     id="review"
                                                     type="text"
                                                     value={profileData.googleReviewLink}
-                                                    onChange={(e) =>
-                                                        handleInputChange("googleReviewLink", e.target.value)
-                                                    }
+                                                    onChange={(e) => handleInputChange("googleReviewLink", e.target.value)}
                                                     placeholder="https://g.page/r/..."
-                                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 />
                                             </div>
                                         </div>
@@ -328,25 +281,18 @@ export default function Profile() {
 
                                     {/* Address */}
                                     <div className="flex flex-col gap-1">
-                                        <label
-                                            htmlFor="address"
-                                            className="text-xs font-medium text-gray-700"
-                                        >
+                                        <label htmlFor="address" className="text-sm font-medium text-gray-700">
                                             Business Address
                                         </label>
-
                                         <div className="relative">
                                             <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-
                                             <textarea
                                                 id="address"
                                                 value={profileData.businessAddress}
-                                                onChange={(e) =>
-                                                    handleInputChange("businessAddress", e.target.value)
-                                                }
+                                                onChange={(e) => handleInputChange("businessAddress", e.target.value)}
                                                 placeholder="Enter your complete business address"
                                                 rows={3}
-                                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
                                     </div>
@@ -357,7 +303,7 @@ export default function Profile() {
 
                     {/* Payment Settings Section */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
                             <div className="px-6 py-4 bg-linear-to-r from-green-50 to-emerald-50 border-b border-gray-100">
                                 <div className="flex items-center gap-2">
                                     <CreditCard className="w-5 h-5 text-green-600" />
@@ -391,6 +337,7 @@ export default function Profile() {
                                             <button
                                                 onClick={() => qrInputRef.current?.click()}
                                                 className="absolute -bottom-2 -right-2 p-1.5 bg-green-600 rounded-full text-white shadow-lg hover:bg-green-700 transition-all duration-200"
+                                                type="button"
                                             >
                                                 <Camera className="w-3 h-3" />
                                             </button>
@@ -411,26 +358,20 @@ export default function Profile() {
 
                                 {/* UPI ID */}
                                 <div className="space-y-3">
-                                    <label
-                                        htmlFor="upiId"
-                                        className="text-sm font-medium text-gray-700"
-                                    >
+                                    <label htmlFor="upiId" className="text-sm font-medium text-gray-700">
                                         UPI ID
                                     </label>
-
                                     <div className="relative">
                                         <LinkIcon className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-
                                         <input
                                             id="upiId"
                                             type="text"
                                             value={profileData.upiId}
                                             onChange={(e) => handleInputChange("upiId", e.target.value)}
                                             placeholder="business@upi"
-                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         />
                                     </div>
-
                                     <p className="text-xs text-gray-500">
                                         Enter your UPI ID to receive payments directly
                                     </p>

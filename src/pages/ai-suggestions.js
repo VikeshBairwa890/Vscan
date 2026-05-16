@@ -43,18 +43,18 @@ export default function AISEOManager() {
         }, 2000);
     };
 
-    if (!mounted) {
-        return (
-            <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-        );
-    }
+    // if (!mounted) {
+    //     return (
+    //         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
+    //             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50">
             <Toaster position="top-right" richColors />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-5 py-5">
+           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-5 py-5">
                 {/* Header Section - Same as other pages */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100">

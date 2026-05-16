@@ -10,9 +10,9 @@ export default function BillingSubscription() {
     const [verified, setVerified] = useState(false);
     const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    // useEffect(() => {
+    //     setMounted(true);
+    // }, []);
 
     const handleVerify = () => {
         if (!txnId.trim()) return;
@@ -26,13 +26,13 @@ export default function BillingSubscription() {
         }, 1500);
     };
 
-    if (!mounted) {
-        return (
-            <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-        );
-    }
+    // if (!mounted) {
+    //     return (
+    //         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
+    //             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50">
@@ -42,7 +42,7 @@ export default function BillingSubscription() {
                     {/* LEFT SIDE - 2 columns */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* Current Plan Card */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
                                 <div className="flex items-center gap-2">
                                     <Crown className="w-5 h-5 text-blue-600" />
@@ -54,7 +54,7 @@ export default function BillingSubscription() {
                             <div className="p-6">
                                 <div className="flex items-start justify-between flex-wrap gap-4">
                                     <div className="flex items-start gap-4">
-                                        <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                                        <div className="w-14 h-14 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
                                             <CreditCard className="w-7 h-7 text-white" />
                                         </div>
                                         <div>
@@ -99,7 +99,7 @@ export default function BillingSubscription() {
                         </div>
 
                         {/* Features Card */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="px-6 py-4 bg-linear-to-r from-emerald-50 to-teal-50 border-b border-gray-100">
                                 <div className="flex items-center justify-between">
                                     <div>
@@ -143,7 +143,7 @@ export default function BillingSubscription() {
                         </div>
 
                         {/* Verify Payment Card */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="px-6 py-4 bg-linear-to-r from-purple-50 to-pink-50 border-b border-gray-100">
                                 <h3 className="text-xl font-semibold text-gray-800">
                                     Verify Payment
@@ -218,7 +218,7 @@ export default function BillingSubscription() {
                     {/* RIGHT SIDE - Pricing Card */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-6">
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                                 {/* Header */}
                                 <div className="px-6 py-4 bg-linear-to-r from-amber-50 to-yellow-50 border-b border-gray-100">
                                     <div className="flex items-center gap-2">
@@ -255,7 +255,7 @@ export default function BillingSubscription() {
                                     <p className="text-xs uppercase tracking-[0.2em] text-gray-400 mb-4 font-medium">
                                         Scan to Pay
                                     </p>
-                                    <div className="w-48 h-48 bg-white rounded-2xl border border-gray-200 p-3 flex items-center justify-center shadow-md">
+                                    <div className="w-48 h-48 bg-white rounded-xl border border-gray-200 p-3 flex items-center justify-center shadow-md">
                                         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
                                             <rect x="0" y="0" width="30" height="30" fill="black" rx="3" />
                                             <rect x="4" y="4" width="22" height="22" fill="white" rx="2" />

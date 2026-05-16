@@ -1,3 +1,4 @@
+'use client';
 import { Button, Input, InputGroup, Tabs, TextField } from "@heroui/react";
 import { Copy, Download, Globe, Star, User, LayoutGrid, ArrowRight, MessageCircle, CheckCircle2, QrCode, Share2, Eye, RefreshCw, Sparkles } from "lucide-react";
 import Image from "next/image";
@@ -207,7 +208,7 @@ export default function SmartQR() {
             </div>
 
             <div className="relative group">
-                <div className="bg-white p-4 rounded-2xl shadow-xl border border-gray-100">
+                <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100">
                     {qrCodes[type]?.qrCode ? (
                         <div className="relative">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -284,18 +285,25 @@ export default function SmartQR() {
             <div className="mt-6 grid grid-cols-2 gap-4 w-full max-w-md">
                 <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-3 text-center">
                     <Eye className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-                    <p className="text-2xl font-bold text-gray-800">0</p>
+                    <p className="text-xl font-bold text-gray-800">0</p>
                     <p className="text-xs text-gray-600">Total Scans</p>
                 </div>
                 <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-xl p-3 text-center">
                     <Share2 className="w-5 h-5 text-green-600 mx-auto mb-1" />
-                    <p className="text-2xl font-bold text-gray-800">0</p>
+                    <p className="text-xl font-bold text-gray-800">0</p>
                     <p className="text-xs text-gray-600">Total Shares</p>
                 </div>
             </div>
         </div>
     );
 
+    // if (!mounted) {
+    //     return (
+    //         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
+    //             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    //         </div>
+    //     );
+    // }
     return (
         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50">
             <Toaster position="top-right" richColors />
@@ -303,7 +311,7 @@ export default function SmartQR() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div className="space-y-6">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
                                 <div className="flex items-center gap-2">
                                     <Sparkles className="w-5 h-5 text-purple-600" />
@@ -354,7 +362,7 @@ export default function SmartQR() {
 
                     <div className="flex flex-col items-center justify-start gap-4">
                         <div className="sticky top-6">
-                            <div className="bg-linear-to-br from-gray-900 to-gray-800 rounded-3xl p-4 shadow-2xl">
+                            <div className="bg-linear-to-br from-gray-900 to-gray-800 rounded-xl p-4 shadow-xl">
                                 <div className="text-center mb-4">
                                     <h3 className="text-white font-semibold">Live Preview</h3>
                                     <p className="text-gray-400 text-xs">How customers see your smart menu</p>
@@ -362,7 +370,7 @@ export default function SmartQR() {
 
                                 {/* Phone Frame */}
                                 <div
-                                    className="relative w-[320px] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 mx-auto"
+                                    className="relative w-[320px] rounded-[1rem] overflow-hidden shadow-xl border border-white/10 mx-auto"
                                     style={{
                                         background: "linear-linear(160deg, #0f172a 0%, #0d1526 60%, #0a1020 100%)",
                                         boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)",
@@ -376,7 +384,7 @@ export default function SmartQR() {
                                     {/* Content */}
                                     <div className="px-5 pb-8 pt-4 flex flex-col items-center gap-4">
                                         {/* Logo */}
-                                        <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
+                                        <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
                                             {businessData.logo ? (
                                                 <Image
                                                     src={businessData.logo}
@@ -410,7 +418,7 @@ export default function SmartQR() {
                                                         onMouseEnter={() => setHovered(idx)}
                                                         onMouseLeave={() => setHovered(null)}
                                                         className={`
-                                                            w-full flex items-center gap-3 px-3.5 py-3.5 rounded-2xl
+                                                            w-full flex items-center gap-3 px-3.5 py-3.5 rounded-xl
                                                             border transition-all duration-200 cursor-pointer text-left
                                                             ${hovered === idx
                                                                 ? "border-white/20 bg-white/10 scale-[1.02]"
