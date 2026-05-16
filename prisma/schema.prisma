@@ -1,0 +1,263 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+// User model for authentication
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  password        String           // Hashed password
+  name            String?
+  role            UserRole         @default(BUSINESS)
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  // Relationships
+  businessProfile BusinessProfile?
+  sessions        Session[]
+  
+  @@index([email])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([sessionToken])
+}
+model BusinessProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Business Information
+  businessName     String?
+  about            String?  @db.Text
+  category         String?
+  subCategory      String?
+  
+  // Contact Information
+  contactNumber    String?
+  whatsappNumber   String?
+  email            String?
+  businessAddress  String?  @db.Text
+  city             String?
+  state            String?
+  pincode          String?
+  country          String?  @default("India")
+  
+  // Online Presence
+  website          String?
+  googleReviewLink String?
+  instagram        String?
+  facebook         String?
+  twitter          String?
+  linkedin         String?
+  
+  // Business Hours
+  mondayHours      String?
+  tuesdayHours     String?
+  wednesdayHours   String?
+  thursdayHours    String?
+  fridayHours      String?
+  saturdayHours    String?
+  sundayHours      String?
+  
+  // Media
+  logo             String?   // URL to logo image
+  coverImage       String?   // URL to cover image
+  gallery          String[]  // Array of image URLs
+  
+  // Payment Settings
+  upiId            String?
+  paymentQrCode    String?   // URL to QR code image
+  
+  // AI Generated Content
+  aiGeneratedDesc  String?   @db.Text
+  aiKeywords       String[]
+  
+  // SEO Settings
+  seoTitle         String?
+  seoDescription   String?   @db.Text
+  
+  // Status
+  isPublished      Boolean   @default(false)
+  viewCount        Int       @default(0)
+  shareCount       Int       @default(0)
+  
+  // Timestamps
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  // Relationships
+  services         Service[]
+  reviews          Review[]
+  qrCodes          QrCode[]
+  aiContents       AiContent[]
+  subscription     Subscription?
+  activityLogs     ActivityLog[]
+  
+  @@index([userId])
+  @@index([businessName])
+  @@index([category])
+}
+// Services offered by business
+model Service {
+  id               String   @id @default(cuid())
+  businessProfileId String
+  businessProfile  BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  
+  name             String
+  description      String?  @db.Text
+  price            String?
+  duration         String?
+  isPopular        Boolean  @default(false)
+  order            Int      @default(0)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([businessProfileId])
+}
+// Reviews and ratings
+model Review {
+  id               String   @id @default(cuid())
+  businessProfileId String
+  businessProfile  BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  
+  customerName     String?
+  customerEmail    String?
+  rating           Int      // 1-5 stars
+  comment          String?  @db.Text
+  aiGenerated      Boolean  @default(false)
+  isPublished      Boolean  @default(true)
+  
+  createdAt        DateTime @default(now())
+  
+  @@index([businessProfileId])
+  @@index([rating])
+}
+
+// QR Codes generated for business
+model QrCode {
+  id               String   @id @default(cuid())
+  businessProfileId String
+  businessProfile  BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  
+  type             QrType   // PROFILE, BUSINESS_CARD, PAYMENT
+  code             String   @unique  // Unique QR code identifier
+  url              String   // Redirect URL
+  imageUrl         String?  // QR code image URL
+  scanCount        Int      @default(0)
+  
+  createdAt        DateTime @default(now())
+  expiresAt        DateTime?
+  
+  @@index([businessProfileId])
+  @@index([code])
+  @@index([type])
+}
+// User activity logs
+model ActivityLog {
+  id               String   @id @default(cuid())
+  userId           String?
+  businessProfileId String?
+  businessProfile  BusinessProfile? @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  
+  action           String   // CREATE, UPDATE, DELETE, VIEW, SHARE
+  entity           String   // PROFILE, SERVICE, QR_CODE, REVIEW
+  entityId         String?
+  details          Json?    // Additional details as JSON
+  
+  ipAddress        String?
+  userAgent        String?
+  
+  createdAt        DateTime @default(now())
+  
+  @@index([userId])
+  @@index([businessProfileId])
+  @@index([createdAt])
+  @@index([action])
+  @@index([entity])
+}
+
+// AI Content Generation History
+model AiContent {
+  id               String   @id @default(cuid())
+  businessProfileId String
+  businessProfile  BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  
+  type             AiType   // DESCRIPTION, SERVICE, REVIEW, SEO
+  input            String   @db.Text
+  output           String   @db.Text
+  model            String   // gpt-3.5-turbo, gpt-4, etc.
+  tokensUsed       Int
+  cost             Float?
+  
+  createdAt        DateTime @default(now())
+  
+  @@index([businessProfileId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// Subscription plans (for future monetization)
+model Subscription {
+  id               String   @id @default(cuid())
+  businessProfileId String  @unique
+  businessProfile  BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  
+  plan             PlanType @default(FREE)
+  startDate        DateTime @default(now())
+  endDate          DateTime?
+  isActive         Boolean  @default(true)
+  
+  features         Json?    // JSON of enabled features
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([businessProfileId])
+  @@index([plan])
+  @@index([isActive])
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  BUSINESS
+}
+
+enum QrType {
+  PROFILE
+  BUSINESS_CARD
+  PAYMENT
+}
+
+enum AiType {
+  DESCRIPTION
+  SERVICE
+  REVIEW
+  SEO
+}
+
+enum PlanType {
+  FREE
+  BASIC
+  PREMIUM
+  ENTERPRISE
+}
