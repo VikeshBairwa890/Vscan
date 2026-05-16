@@ -6,32 +6,32 @@ const menus = [
     {
         name: "Profile Settings",
         icon: User,
-        link: "/profile-settings",
+        link: "/app/profile-settings",
     },
     {
         name: "Mini-Website",
         icon: LayoutDashboard,
-        link: "/mini-website",
+        link: "/app/mini-website",
     },
     {
         name: "Smart QR",
         icon: QrCode,
-        link: "/smart-qr",
+        link: "/app/smart-qr",
     },
     {
         name: "Analytics",
         icon: BarChart3,
-        link: "/analytics",
+        link: "/app/analytics",
     },
     {
         name: "AI Suggestions",
         icon: Sparkles,
-        link: "/ai-suggestions",
+        link: "/app/ai-suggestions",
     },
     {
         name: "Billing",
         icon: CreditCard,
-        link: "/billing",
+        link: "/app/billing",
     },
 ];
 
