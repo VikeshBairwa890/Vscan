@@ -7,7 +7,7 @@ import {
     Play, FileText, HelpCircle, MessageSquare, Briefcase,
     Palette, ExternalLink,
 } from "lucide-react";
-import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import Image from "next/image";
 
 const THEMES = {
@@ -467,9 +467,8 @@ export default function MiniWebsiteBuilder() {
     const t = THEMES[data.theme] || THEMES.blue;
 
     return (
-        <div className="min-h-screen bg-gray-50 py-5 px-4 sm:px-6 lg:px-5">
-            {/* Topbar */}
-            <div className="flex justify-between items-center px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
+        <>
+            <div className="flex justify-between items-center px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100 rounded-xl">
                 <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: t.primary }}>
                         <Globe size={14} className="text-white" />
@@ -495,7 +494,7 @@ export default function MiniWebsiteBuilder() {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-5 mt-5">
+            <div className=" flex flex-col md:flex-row gap-5 mt-5">
 
                 {/* Editor */}
                 <div className={`flex-1 flex flex-col gap-3 min-w-0 ${tab === "preview" ? "hidden md:flex" : "flex"}`}>
@@ -688,6 +687,6 @@ export default function MiniWebsiteBuilder() {
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }   

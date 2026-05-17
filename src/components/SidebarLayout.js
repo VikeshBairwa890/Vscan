@@ -39,7 +39,7 @@ export default function Sidebar({ children }) {
     const [open, setOpen] = useState(false);
 
     return (
-        <div className="flex min-h-screen bg-gray-100">
+        <div className="flex min-h-screen">
 
             {open && (<div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setOpen(false)} />)}
 
@@ -74,7 +74,7 @@ export default function Sidebar({ children }) {
             </aside>
 
             <div className="flex-1 lg:ml-70">
-                <div className="sticky top-0 z-30 flex items-center justify-between border-b bg-white px-4 py-4 lg:hidden">
+                <div className="sticky top-0 z-30 flex items-center justify-between border-b px-4 py-4 lg:hidden">
                     <button onClick={() => setOpen(true)}>
                         <Menu size={30} />
                     </button>

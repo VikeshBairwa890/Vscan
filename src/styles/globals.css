@@ -15,13 +15,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #ffffff;
     --foreground: #ededed;
   }
 }
 
 body {
-  background: #05050f;
+  background: #ffffff;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
   color: var(--foreground);

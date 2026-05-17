@@ -3,7 +3,7 @@ import { Button, Input, InputGroup, Tabs, TextField } from "@heroui/react";
 import { Copy, Download, Globe, Star, User, LayoutGrid, ArrowRight, MessageCircle, CheckCircle2, QrCode, Share2, Eye, RefreshCw, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import QRCode from "qrcode";
 
 const menuItems = [
@@ -305,181 +305,177 @@ export default function SmartQR() {
     //     );
     // }
     return (
-        <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50">
-            <Toaster position="top-right" richColors />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-5 py-5">
+        <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
+                            <div className="flex items-center gap-2">
+                                <Sparkles className="w-5 h-5 text-purple-600" />
+                                <h2 className="text-xl font-semibold text-gray-800">QR Code Generator</h2>
+                            </div>
+                            <p className="text-sm text-gray-500 mt-1">Generate dynamic QR codes for different purposes</p>
+                        </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="space-y-6">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div className="px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
-                                <div className="flex items-center gap-2">
-                                    <Sparkles className="w-5 h-5 text-purple-600" />
-                                    <h2 className="text-xl font-semibold text-gray-800">QR Code Generator</h2>
+                        <Tabs selectedKey={activeTab} onSelectionChange={setActiveTab} className="w-full" >
+                            <div className="px-6 pt-4 border-b border-gray-100">
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => setActiveTab("smart-menu")}
+                                        className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "smart-menu" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+                                    >
+                                        Smart Menu
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab("reviews")}
+                                        className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "reviews" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+                                    >
+                                        Reviews
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab("contact-info")}
+                                        className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "contact-info" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+                                    >
+                                        Contact Info
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab("website")}
+                                        className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "website" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+                                    >
+                                        Website
+                                    </button>
                                 </div>
-                                <p className="text-sm text-gray-500 mt-1">Generate dynamic QR codes for different purposes</p>
                             </div>
 
-                            <Tabs selectedKey={activeTab} onSelectionChange={setActiveTab} className="w-full" >
-                                <div className="px-6 pt-4 border-b border-gray-100">
-                                    <div className="flex gap-4">
-                                        <button
-                                            onClick={() => setActiveTab("smart-menu")}
-                                            className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "smart-menu" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                                        >
-                                            Smart Menu
-                                        </button>
-                                        <button
-                                            onClick={() => setActiveTab("reviews")}
-                                            className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "reviews" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                                        >
-                                            Reviews
-                                        </button>
-                                        <button
-                                            onClick={() => setActiveTab("contact-info")}
-                                            className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "contact-info" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                                        >
-                                            Contact Info
-                                        </button>
-                                        <button
-                                            onClick={() => setActiveTab("website")}
-                                            className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "website" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                                        >
-                                            Website
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="p-6">
-                                    {activeTab === "smart-menu" && renderQRPanel("smart-menu", "Smart Menu QR Code", "Scan to access interactive smart menu")}
-                                    {activeTab === "reviews" && renderQRPanel("reviews", "Reviews QR Code", "Scan to leave a Google review")}
-                                    {activeTab === "contact-info" && renderQRPanel("contact-info", "Contact Info QR Code", "Scan to save contact details")}
-                                    {activeTab === "website" && renderQRPanel("website", "Website QR Code", "Scan to visit mini website")}
-                                </div>
-                            </Tabs>
-                        </div>
+                            <div className="p-6">
+                                {activeTab === "smart-menu" && renderQRPanel("smart-menu", "Smart Menu QR Code", "Scan to access interactive smart menu")}
+                                {activeTab === "reviews" && renderQRPanel("reviews", "Reviews QR Code", "Scan to leave a Google review")}
+                                {activeTab === "contact-info" && renderQRPanel("contact-info", "Contact Info QR Code", "Scan to save contact details")}
+                                {activeTab === "website" && renderQRPanel("website", "Website QR Code", "Scan to visit mini website")}
+                            </div>
+                        </Tabs>
                     </div>
+                </div>
 
-                    <div className="flex flex-col items-center justify-start gap-4">
-                        <div className="sticky top-6">
-                            <div className="bg-linear-to-br from-gray-900 to-gray-800 rounded-xl p-4 shadow-xl">
-                                <div className="text-center mb-4">
-                                    <h3 className="text-white font-semibold">Live Preview</h3>
-                                    <p className="text-gray-400 text-xs">How customers see your smart menu</p>
+                <div className="flex flex-col items-center justify-start gap-4">
+                    <div className="sticky top-6">
+                        <div className="bg-linear-to-br from-gray-900 to-gray-800 rounded-xl p-4 shadow-xl">
+                            <div className="text-center mb-4">
+                                <h3 className="text-white font-semibold">Live Preview</h3>
+                                <p className="text-gray-400 text-xs">How customers see your smart menu</p>
+                            </div>
+
+                            {/* Phone Frame */}
+                            <div
+                                className="relative w-[320px] rounded-[1rem] overflow-hidden shadow-xl border border-white/10 mx-auto"
+                                style={{
+                                    background: "linear-linear(160deg, #0f172a 0%, #0d1526 60%, #0a1020 100%)",
+                                    boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)",
+                                }}
+                            >
+                                {/* Notch */}
+                                <div className="flex justify-center pt-3 pb-1">
+                                    <div className="w-20 h-5 rounded-full bg-black/80" />
                                 </div>
 
-                                {/* Phone Frame */}
-                                <div
-                                    className="relative w-[320px] rounded-[1rem] overflow-hidden shadow-xl border border-white/10 mx-auto"
-                                    style={{
-                                        background: "linear-linear(160deg, #0f172a 0%, #0d1526 60%, #0a1020 100%)",
-                                        boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)",
-                                    }}
-                                >
-                                    {/* Notch */}
-                                    <div className="flex justify-center pt-3 pb-1">
-                                        <div className="w-20 h-5 rounded-full bg-black/80" />
+                                {/* Content */}
+                                <div className="px-5 pb-8 pt-4 flex flex-col items-center gap-4">
+                                    {/* Logo */}
+                                    <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
+                                        {businessData.logo ? (
+                                            <Image
+                                                src={businessData.logo}
+                                                alt="Business Logo"
+                                                width={80}
+                                                height={80}
+                                                className="object-cover w-full h-full"
+                                            />
+                                        ) : (
+                                            <span className="text-[10px] font-semibold text-gray-400 tracking-wide text-center leading-tight">
+                                                Your<br />LOGO
+                                            </span>
+                                        )}
                                     </div>
 
-                                    {/* Content */}
-                                    <div className="px-5 pb-8 pt-4 flex flex-col items-center gap-4">
-                                        {/* Logo */}
-                                        <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
-                                            {businessData.logo ? (
-                                                <Image
-                                                    src={businessData.logo}
-                                                    alt="Business Logo"
-                                                    width={80}
-                                                    height={80}
-                                                    className="object-cover w-full h-full"
-                                                />
-                                            ) : (
-                                                <span className="text-[10px] font-semibold text-gray-400 tracking-wide text-center leading-tight">
-                                                    Your<br />LOGO
-                                                </span>
-                                            )}
-                                        </div>
+                                    {/* Name & Subtitle */}
+                                    <div className="text-center">
+                                        <h1 className="text-white text-xl font-bold tracking-tight">{businessData.name}</h1>
+                                        <p className="text-[10px] text-slate-400 tracking-[0.15em] uppercase mt-0.5 font-medium">
+                                            Welcome! How can we help?
+                                        </p>
+                                    </div>
 
-                                        {/* Name & Subtitle */}
-                                        <div className="text-center">
-                                            <h1 className="text-white text-xl font-bold tracking-tight">{businessData.name}</h1>
-                                            <p className="text-[10px] text-slate-400 tracking-[0.15em] uppercase mt-0.5 font-medium">
-                                                Welcome! How can we help?
-                                            </p>
-                                        </div>
-
-                                        {/* Menu Items */}
-                                        <div className="w-full flex flex-col gap-2.5 mt-1">
-                                            {menuItems.map((item, idx) => {
-                                                const Icon = item.icon;
-                                                return (
-                                                    <button
-                                                        key={idx}
-                                                        onMouseEnter={() => setHovered(idx)}
-                                                        onMouseLeave={() => setHovered(null)}
-                                                        className={`
+                                    {/* Menu Items */}
+                                    <div className="w-full flex flex-col gap-2.5 mt-1">
+                                        {menuItems.map((item, idx) => {
+                                            const Icon = item.icon;
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    onMouseEnter={() => setHovered(idx)}
+                                                    onMouseLeave={() => setHovered(null)}
+                                                    className={`
                                                             w-full flex items-center gap-3 px-3.5 py-3.5 rounded-xl
                                                             border transition-all duration-200 cursor-pointer text-left
                                                             ${hovered === idx
-                                                                ? "border-white/20 bg-white/10 scale-[1.02]"
-                                                                : "border-white/5 bg-white/5"
-                                                            }
+                                                            ? "border-white/20 bg-white/10 scale-[1.02]"
+                                                            : "border-white/5 bg-white/5"
+                                                        }
                                                         `}
-                                                        style={{
-                                                            backdropFilter: "blur(10px)",
-                                                        }}
-                                                    >
-                                                        <div className={`
+                                                    style={{
+                                                        backdropFilter: "blur(10px)",
+                                                    }}
+                                                >
+                                                    <div className={`
                                                             w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0
                                                             bg-linear-to-br ${item.color}
                                                         `}>
-                                                            <Icon size={16} className={item.iconColor} />
-                                                        </div>
+                                                        <Icon size={16} className={item.iconColor} />
+                                                    </div>
 
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-white text-sm font-semibold leading-tight">{item.title}</p>
-                                                            <p className="text-slate-400 text-[11px] mt-0.5 leading-tight">{item.subtitle}</p>
-                                                        </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-white text-sm font-semibold leading-tight">{item.title}</p>
+                                                        <p className="text-slate-400 text-[11px] mt-0.5 leading-tight">{item.subtitle}</p>
+                                                    </div>
 
-                                                        <ArrowRight
-                                                            size={14}
-                                                            className={`flex-shrink-0 transition-all duration-200 ${hovered === idx ? "text-white translate-x-0.5" : "text-slate-500"}`}
-                                                        />
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-
-                                        {/* Verified Badge */}
-                                        <div className="flex items-center gap-1.5 mt-2">
-                                            <CheckCircle2 size={10} className="text-emerald-400" />
-                                            <span className="text-[9px] text-slate-500 tracking-[0.12em] uppercase font-medium">
-                                                Presence1 Verified
-                                            </span>
-                                        </div>
+                                                    <ArrowRight
+                                                        size={14}
+                                                        className={`flex-shrink-0 transition-all duration-200 ${hovered === idx ? "text-white translate-x-0.5" : "text-slate-500"}`}
+                                                    />
+                                                </button>
+                                            );
+                                        })}
                                     </div>
 
-                                    {/* Chat FAB */}
-                                    <div className="absolute bottom-6 right-5">
-                                        <a
-                                            href={`https://wa.me/${businessData.whatsappNumber}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-10 h-10 rounded-full bg-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/30 hover:bg-emerald-300 transition-colors"
-                                        >
-                                            <MessageCircle size={18} className="text-white" fill="white" />
-                                        </a>
+                                    {/* Verified Badge */}
+                                    <div className="flex items-center gap-1.5 mt-2">
+                                        <CheckCircle2 size={10} className="text-emerald-400" />
+                                        <span className="text-[9px] text-slate-500 tracking-[0.12em] uppercase font-medium">
+                                            Presence1 Verified
+                                        </span>
                                     </div>
                                 </div>
-                            </div>
 
-                            <p className="text-[11px] text-slate-400 tracking-wide text-center mt-4">
-                                Interactive Mobile Preview
-                            </p>
+                                {/* Chat FAB */}
+                                <div className="absolute bottom-6 right-5">
+                                    <a
+                                        href={`https://wa.me/${businessData.whatsappNumber}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-10 h-10 rounded-full bg-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/30 hover:bg-emerald-300 transition-colors"
+                                    >
+                                        <MessageCircle size={18} className="text-white" fill="white" />
+                                    </a>
+                                </div>
+                            </div>
                         </div>
+
+                        <p className="text-[11px] text-slate-400 tracking-wide text-center mt-4">
+                            Interactive Mobile Preview
+                        </p>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }
