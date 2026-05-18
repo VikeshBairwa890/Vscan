@@ -5,13 +5,56 @@ import AuthFormContainer from '@/components/auth/auth-form-container'
 import AuthInput from '@/components/auth/auth-input'
 import AuthLayout from '@/components/auth/AuthLayout'
 import AuthSwitcher from '@/components/auth/auth-switcher'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  })
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+  async function handleSubmit() {
+    try {
+      const response = await fetch("/api/auth/login-post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        toast.error("Something went wrong", {
+          description: "Please try again later"
+        });
+        return;
+      }
+      const responseBody = await response.json();
+      if (responseBody.success == false) {
+        toast.error(responseBody.message);
+        return;
+      }
+      toast.success(responseBody.message);
+      setTimeout(() => {
+        router.push('/app/analytics');
+      }, 1000);
+    } catch (error) {
+      toast.error("Something went wrong", {
+        description: "Please try again later"
+      });
+    }
+
+  }
   return (
     <AuthLayout>
 
       <AuthFormContainer>
-      <AuthSwitcher />
+        <AuthSwitcher />
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
@@ -33,11 +76,17 @@ export default function LoginPage() {
               label="Email"
               type="email"
               placeholder="you@example.com"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
             />
             <AuthInput
               label="Password"
               type="password"
               placeholder="••••••••"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
             />
 
             <div className="flex items-center justify-end">
@@ -46,7 +95,7 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <button className="w-full rounded-lg bg-blue-500 py-2.5 text-sm font-medium text-white transition duration-150 hover:bg-slate-700 active:scale-[0.99] dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200">
+            <button onClick={handleSubmit} className="w-full rounded-lg bg-blue-500 py-2.5 text-sm font-medium text-white transition duration-150 hover:bg-slate-700 active:scale-[0.99] dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200">
               Continue
             </button>
           </div>

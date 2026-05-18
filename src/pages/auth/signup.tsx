@@ -6,12 +6,16 @@ import AuthFormContainer from '@/components/auth/auth-form-container'
 import AuthInput from '@/components/auth/auth-input'
 import AuthLayout from '@/components/auth/AuthLayout'
 import AuthSwitcher from '@/components/auth/auth-switcher'
+import { toast } from 'sonner'
+import { useRouter } from 'next/router'
 
 export default function SignupPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
+    confirmPassword: '',
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,6 +23,38 @@ export default function SignupPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  async function handleSubmit() {
+    try {
+      const response = await fetch("/api/auth/signup-post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        toast.error("Something went wrong", {
+          description: "Please try again later"
+        });
+        return;
+      }
+
+      const responseBody = await response.json();
+      if (responseBody.success == false) {
+        toast.error(responseBody.message);
+        return;
+      }
+      toast.success(responseBody.message);
+      setTimeout(() => {
+        router.push('/auth/login');
+      }, 1000);
+    } catch (error) {
+      toast.error("Something went wrong", {
+        description: "Please try again later"
+      });
+    }
+
+  }
   return (
     <AuthLayout>
 
@@ -64,8 +100,16 @@ export default function SignupPage() {
               value={formData.password}
               onChange={handleChange}
             />
+            <AuthInput
+              label="Confirm Password"
+              type="password"
+              placeholder="••••••••"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+            />
 
-            <button className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-medium text-white transition duration-150 hover:bg-slate-700 active:scale-[0.99] dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200">
+            <button onClick={handleSubmit} className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-medium text-white transition duration-150 hover:bg-slate-700 active:scale-[0.99] dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200">
               Create account
             </button>
           </div>

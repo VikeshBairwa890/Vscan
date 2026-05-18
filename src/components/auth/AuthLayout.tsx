@@ -114,9 +114,9 @@ export default function AuthLayout({ children }: Props) {
         {/* RIGHT SIDE */}
         <div className="relative flex items-center justify-center bg-[#FCFCFD] px-2 lg:px-12">
           {/* subtle pattern */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.08),transparent_30%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.08),transparent_30%)]" />
 
-          <div className="w-full lg:w-135">
+          <div className="relative z-10 w-full lg:w-135">
             {children}
           </div>
         </div>
