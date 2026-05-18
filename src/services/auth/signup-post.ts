@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/prisma";
 
 interface SignupInterface {
     fullName: string;
@@ -24,6 +25,37 @@ export default class Signup {
         if (data.password !== data.confirmPassword) {
             return { success: false, message: "Passwords do not match" }
         }
-        return { success: true, message: "Signup successful", data: data };
+        try {
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: data.email,
+                },
+            });
+            if (user) {
+                return { success: false, message: "User already exists" }
+            }
+            const createdUser = await prisma.user.create({
+                data: {
+                    name: data.fullName,
+                    email: data.email,
+                    password: data.password,
+                },
+            });
+            if (!createdUser || createdUser == null || createdUser == undefined) {
+                return { success: false, message: "Signup failed" }
+            }
+            const business = await prisma.businessProfile.create({
+                data: {
+                    userId: createdUser.id,
+                    businessName: data.fullName,
+                },
+            });
+            if (!business || business == null || business == undefined) {
+                return { success: false, message: "Signup failed" }
+            }
+            return { success: true, message: "Signup successful", data: createdUser, business };
+        } catch (error) {
+            return { success: false, message: "Something went wrong" }
+        }
     }
 }

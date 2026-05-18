@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import { Toaster } from 'sonner'
 
 interface Props {
   children: React.ReactNode
@@ -117,6 +118,8 @@ export default function AuthLayout({ children }: Props) {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.08),transparent_30%)]" />
 
           <div className="relative z-10 w-full lg:w-135">
+            <Toaster position="top-right" richColors />
+
             {children}
           </div>
         </div>

@@ -29,12 +29,11 @@ export default function LoginPage() {
         body: JSON.stringify(formData),
       });
       if (!response.ok) {
-        toast.error("Something went wrong", {
-          description: "Please try again later"
-        });
+        toast.error("Something went wrong");
         return;
       }
       const responseBody = await response.json();
+      console.log(responseBody)
       if (responseBody.success == false) {
         toast.error(responseBody.message);
         return;
@@ -44,9 +43,7 @@ export default function LoginPage() {
         router.push('/app/analytics');
       }, 1000);
     } catch (error) {
-      toast.error("Something went wrong", {
-        description: "Please try again later"
-      });
+      toast.error("Something went wrong");
     }
 
   }
