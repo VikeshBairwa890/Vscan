@@ -25,6 +25,7 @@ model User {
   // Relationships
   businessProfile BusinessProfile?
   sessions        Session[]
+  paymentTransactions PaymentTransaction[]
   
   @@index([email])
 }
@@ -227,12 +228,40 @@ model Subscription {
   
   features         Json?    // JSON of enabled features
   
+  transactions     PaymentTransaction[]
+  
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   
   @@index([businessProfileId])
   @@index([plan])
   @@index([isActive])
+}
+model PaymentTransaction {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  orderId          String   @unique
+  paymentSessionId String?
+  amount           Float
+  currency         String   @default("INR")
+  status           String   // PENDING, PAID, FAILED, CANCELLED
+  paymentMethod    String?
+  
+  subscriptionId   String?
+  subscription     Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  
+  planType         PlanType @default(PREMIUM)
+  startDate        DateTime?
+  endDate          DateTime?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([orderId])
+  @@index([status])
 }
 
 // Enums
@@ -260,3 +289,4 @@ enum PlanType {
   PREMIUM
   ENTERPRISE
 }
+

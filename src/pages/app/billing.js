@@ -3,16 +3,90 @@
 import { CreditCard, CheckCircle2, ShieldCheck, Building2, Sparkles, Crown, Zap, ArrowRight, QrCode } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { load } from '@cashfreepayments/cashfree-js';
+import { useRouter } from "next/router";
 
 export default function BillingSubscription() {
     const [txnId, setTxnId] = useState("");
     const [verifying, setVerifying] = useState(false);
     const [verified, setVerified] = useState(false);
     const [mounted, setMounted] = useState(false);
+    
+    // Cashfree states
+    const [cashfree, setCashfree] = useState(null);
+    const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+    const router = useRouter();
 
-    // useEffect(() => {
-    //     setMounted(true);
-    // }, []);
+    useEffect(() => {
+        const initializeCashfree = async () => {
+            const cf = await load({
+                mode: process.env.NODE_ENV === 'production' ? "production" : "sandbox"
+            });
+            setCashfree(cf);
+        };
+        initializeCashfree();
+    }, []);
+
+    // Check for order_id in URL to verify payment
+    useEffect(() => {
+        if (!router.isReady) return;
+        const { order_id } = router.query;
+        if (order_id) {
+            verifyCashfreeOrder(order_id);
+        }
+    }, [router.isReady, router.query]);
+
+    const verifyCashfreeOrder = async (orderId) => {
+        try {
+            setVerifying(true);
+            const response = await fetch('/api/cashfree/verify-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: orderId })
+            });
+            const data = await response.json();
+            
+            if (data.order_status === 'PAID') {
+                setVerified(true);
+                toast.success("Payment verified successfully!");
+                router.replace('/app/billing', undefined, { shallow: true });
+            } else {
+                toast.error(`Payment status: ${data.order_status}`);
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to verify payment");
+        } finally {
+            setVerifying(false);
+        }
+    };
+
+    const handleCashfreePayment = async () => {
+        try {
+            setIsCreatingOrder(true);
+            const response = await fetch('/api/cashfree/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: 3499 })
+            });
+            const data = await response.json();
+            
+            if (data.payment_session_id && cashfree) {
+                let checkoutOptions = {
+                    paymentSessionId: data.payment_session_id,
+                    redirectTarget: "_self"
+                };
+                cashfree.checkout(checkoutOptions);
+            } else {
+                toast.error(data.message || "Failed to initialize payment");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("An error occurred during payment");
+        } finally {
+            setIsCreatingOrder(false);
+        }
+    };
 
     const handleVerify = () => {
         if (!txnId.trim()) return;
@@ -25,15 +99,6 @@ export default function BillingSubscription() {
             toast.success("Payment verified successfully!");
         }, 1500);
     };
-
-    // if (!mounted) {
-    //     return (
-    //         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
-    //             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    //         </div>
-    //     );
-    // }
-
     return (
         <>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -243,8 +308,22 @@ export default function BillingSubscription() {
                                     </h2>
                                     <p className="text-sm text-gray-500 mt-2">One-time yearly payment</p>
                                 </div>
-                                <button className="w-full mt-6 py-3 bg-linear-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
-                                    Upgrade Now
+                                <button 
+                                    onClick={handleCashfreePayment}
+                                    disabled={isCreatingOrder}
+                                    className="w-full mt-6 py-3 bg-linear-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex justify-center items-center gap-2"
+                                >
+                                    {isCreatingOrder ? (
+                                        <>
+                                            <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                            </svg>
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        "Upgrade Now"
+                                    )}
                                 </button>
                             </div>
 
