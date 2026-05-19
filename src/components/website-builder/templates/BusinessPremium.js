@@ -9,13 +9,7 @@ import {
 import Image from "next/image";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { getTheme } from "../theme";
-const G = {
-  gold: "#c9a84c",
-  goldLight: "#e8cc80",
-  goldDim: "#8a6f2e",
-  goldBg: "rgba(201,168,76,0.08)",
-  goldBorder: "rgba(201,168,76,0.22)",
-};
+
 
 function Stars({ n = 5, size = "w-3 h-3" }) {
   return (
@@ -27,7 +21,7 @@ function Stars({ n = 5, size = "w-3 h-3" }) {
   );
 }
 
-function GoldLine() {
+function GoldLine({ G }) {
   return (
     <div className="flex items-center gap-3 my-7">
       <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, transparent, ${G.gold}55)` }} />
@@ -37,7 +31,7 @@ function GoldLine() {
   );
 }
 
-function SectionTitle({ label, sub }) {
+function SectionTitle({ label, sub, G }) {
   return (
     <div className="mb-7">
       <div className="flex items-center gap-2.5 mb-1.5">
@@ -49,7 +43,7 @@ function SectionTitle({ label, sub }) {
   );
 }
 
-function FAQItem({ q, a }) {
+function FAQItem({ q, a, G }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border-b border-white/5 last:border-0">
@@ -76,8 +70,22 @@ function FAQItem({ q, a }) {
 
 export default function BusinessPremium({ data }) {
   const b = data;
-  const th = getTheme(b.theme);
+  const th = getTheme(b.theme || "gold");
   const ss = b.showSections;
+
+  const hexToRgb = (hex) => {
+    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? `${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)}` : '201,168,76';
+  };
+  const rgb = hexToRgb(th.primary);
+
+  const G = {
+    gold: th.primary,
+    goldLight: th.light,
+    goldDim: th.grad[0],
+    goldBg: `rgba(${rgb},0.08)`,
+    goldBorder: `rgba(${rgb},0.22)`,
+  };
 
   const [scrollY, setScrollY] = useState(0);
   const [announce, setAnnounce] = useState(true);
@@ -115,18 +123,8 @@ export default function BusinessPremium({ data }) {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen max-w-md mx-auto relative overflow-x-hidden"
-      style={{ background: "#080808", color: "#ffffff", fontFamily: "'DM Sans', sans-serif" }}>
-
-      {/* Google Font */}
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&display=swap');`}</style>
-
-      {/* ── ambient texture ─────────────────────────── */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]"
-        style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: "200px" }} />
-      {/* gold top glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-96 h-48 pointer-events-none z-0 blur-[80px]"
-        style={{ background: `radial-gradient(ellipse, ${G.gold}18 0%, transparent 70%)` }} />
+    <div className="min-h-screen max-w-md mx-auto relative overflow-x-hidden" style={{ background: th.background || "#080808", color: th.text || "#ffffff", fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-96 h-48 pointer-events-none z-0 blur-[80px]" />
 
       {/* ── ANNOUNCEMENT ──────────────────────────────── */}
       {ss.announcement && b.announcement?.enabled && announce && (
@@ -142,8 +140,8 @@ export default function BusinessPremium({ data }) {
       )}
 
       {/* ── STICKY NAV ────────────────────────────────── */}
-      <nav className={`sticky top-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#080808]/95 backdrop-blur-2xl" : "bg-transparent"}`}
-        style={scrolled ? { borderBottom: `1px solid ${G.goldBorder}` } : {}}>
+      <nav className={`sticky top-0 z-50 transition-all duration-500 ${scrolled ? "backdrop-blur-2xl" : "bg-transparent"}`}
+        style={scrolled ? { background: `${th.background || "#080808"}f2`, borderBottom: `1px solid ${G.goldBorder}` } : {}}>
         <div className="flex items-center justify-between px-5 py-3.5">
           {/* wordmark */}
           <div className="flex items-center gap-2.5">
@@ -282,17 +280,17 @@ export default function BusinessPremium({ data }) {
         )}
       </section>
 
-      <GoldLine />
+      <GoldLine G={G} />
 
       {/* ── SERVICES ──────────────────────────────────── */}
       {ss.services && b.services?.length > 0 && (
         <section id="services" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Our Services" sub="Click to enquire on WhatsApp" />
+          <SectionTitle label="Our Services" sub="Click to enquire on WhatsApp" G={G} />
           <div className="space-y-3">
             {b.services.map((svc, i) => (
               <button key={svc.id} onClick={whatsapp}
                 className="w-full text-left flex items-center gap-4 p-4 rounded-2xl border transition-all hover:border-[#c9a84c44] hover:bg-[rgba(201,168,76,0.04)] active:scale-[0.99]"
-                style={{ background: "#0f0f0f", borderColor: "rgba(255,255,255,0.07)" }}>
+                style={{ background: th.cardBg || "#0f0f0f", borderColor: th.border || "rgba(255,255,255,0.07)" }}>
                 {/* number badge */}
                 <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border"
                   style={{ borderColor: G.goldBorder, background: G.goldBg }}>
@@ -316,17 +314,17 @@ export default function BusinessPremium({ data }) {
         </section>
       )}
 
-      <GoldLine />
+      <GoldLine G={G} />
 
       {/* ── TEAM ──────────────────────────────────────── */}
       {ss.employees && b.employees?.length > 0 && (
         <section id="team" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Our Team" />
+          <SectionTitle label="Our Team" G={G} />
           <div className="space-y-3">
             {b.employees.map((emp) => (
               <div key={emp.id}
                 className="flex items-center gap-4 p-4 rounded-2xl border"
-                style={{ background: "#0f0f0f", borderColor: "rgba(255,255,255,0.07)" }}>
+                style={{ background: th.cardBg || "#0f0f0f", borderColor: th.border || "rgba(255,255,255,0.07)" }}>
                 <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border"
                   style={{ borderColor: G.goldBorder }}>
                   {emp.image
@@ -363,12 +361,12 @@ export default function BusinessPremium({ data }) {
         </section>
       )}
 
-      <GoldLine />
+      <GoldLine G={G} />
 
       {/* ── TESTIMONIALS ──────────────────────────────── */}
       {ss.testimonials && b.testimonials?.length > 0 && (
         <section id="testimonials" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Client Reviews" />
+          <SectionTitle label="Client Reviews" G={G} />
           <div className="space-y-4">
             {b.testimonials.map((rv) => (
               <div key={rv.id} className="relative p-5 rounded-2xl border overflow-hidden"
@@ -395,19 +393,19 @@ export default function BusinessPremium({ data }) {
         </section>
       )}
 
-      <GoldLine />
+      <GoldLine G={G} />
 
       {/* ── MEDIA LINKS ───────────────────────────────── */}
       {ss.mediaLinks && b.mediaLinks?.length > 0 && (
         <section className="px-5 pb-10">
-          <SectionTitle label="Media & Links" />
+          <SectionTitle label="Media & Links" G={G} />
           <div className="space-y-2.5">
             {b.mediaLinks.map((m) => {
               const isYt = m.url?.includes("youtube") || m.url?.includes("youtu.be");
               return (
                 <button key={m.id} onClick={() => open(m.url)}
                   className="w-full flex items-center gap-3.5 p-4 rounded-2xl border text-left transition-all hover:bg-white/3 active:scale-[0.99]"
-                  style={{ background: "#0f0f0f", borderColor: "rgba(255,255,255,0.07)" }}>
+                  style={{ background: th.cardBg || "#0f0f0f", borderColor: th.border || "rgba(255,255,255,0.07)" }}>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
                     style={{ background: isYt ? "rgba(239,68,68,0.1)" : G.goldBg, borderColor: isYt ? "rgba(239,68,68,0.3)" : G.goldBorder }}>
                     {isYt ? <PlayCircle className="w-5 h-5 text-red-400" /> : <Link2 className="w-5 h-5" style={{ color: G.gold }} />}
@@ -424,13 +422,13 @@ export default function BusinessPremium({ data }) {
         </section>
       )}
 
-      <GoldLine />
+      <GoldLine G={G} />
 
       {/* ── HOURS ─────────────────────────────────────── */}
       {ss.hours && b.hours?.length > 0 && (
         <section id="hours" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Business Hours" />
-          <div className="rounded-2xl border overflow-hidden" style={{ background: "#0f0f0f", borderColor: G.goldBorder }}>
+          <SectionTitle label="Business Hours" G={G} />
+          <div className="rounded-2xl border overflow-hidden" style={{ background: th.cardBg || "#0f0f0f", borderColor: G.goldBorder }}>
             {b.hours.map((h, i) => (
               <div key={h.day}
                 className={`flex items-center justify-between px-5 py-4 ${i < b.hours.length - 1 ? "border-b" : ""}`}
@@ -455,12 +453,12 @@ export default function BusinessPremium({ data }) {
         </section>
       )}
 
-      <GoldLine />
+      <GoldLine G={G} />
 
       {/* ── AMENITIES ─────────────────────────────────── */}
       {ss.amenities && b.amenities?.length > 0 && (
         <section id="amenities" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="What We Offer" />
+          <SectionTitle label="What We Offer" G={G} />
           <div className="grid grid-cols-2 gap-2">
             {b.amenities.map((am) => (
               <div key={am} className="flex items-center gap-3 p-3.5 rounded-xl border"
@@ -473,24 +471,24 @@ export default function BusinessPremium({ data }) {
         </section>
       )}
 
-      <GoldLine />
+      <GoldLine G={G} />
 
       {/* ── FAQ ───────────────────────────────────────── */}
       {ss.faqs && b.faqs?.length > 0 && (
         <section id="faq" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Frequently Asked" />
-          <div className="rounded-2xl border px-5" style={{ background: "#0f0f0f", borderColor: G.goldBorder }}>
-            {b.faqs.map((faq) => <FAQItem key={faq.id} q={faq.question} a={faq.answer} />)}
+          <SectionTitle label="Frequently Asked" G={G} />
+          <div className="rounded-2xl border px-5" style={{ background: th.cardBg || "#0f0f0f", borderColor: G.goldBorder }}>
+            {b.faqs.map((faq) => <FAQItem key={faq.id} q={faq.question} a={faq.answer} G={G} />)}
           </div>
         </section>
       )}
 
-      <GoldLine />
+      <GoldLine G={G} />
 
       {/* ── CONTACT ───────────────────────────────────── */}
       {ss.contact && (
         <section id="contact" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Get In Touch" />
+          <SectionTitle label="Get In Touch" G={G} />
           <div className="space-y-2">
             {[
               b.phone && { icon: Phone, label: "Phone", value: b.phone, fn: call },
@@ -500,7 +498,7 @@ export default function BusinessPremium({ data }) {
             ].filter(Boolean).map((row) => (
               <button key={row.label} onClick={row.fn}
                 className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl border text-left transition-all hover:bg-white/3"
-                style={{ background: "#0f0f0f", borderColor: "rgba(255,255,255,0.07)" }}>
+                style={{ background: th.cardBg || "#0f0f0f", borderColor: th.border || "rgba(255,255,255,0.07)" }}>
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
                   style={{ background: G.goldBg, borderColor: G.goldBorder }}>
                   <row.icon className="w-4 h-4" style={{ color: G.gold }} />
@@ -519,7 +517,7 @@ export default function BusinessPremium({ data }) {
       {/* ── SOCIAL ────────────────────────────────────── */}
       {ss.social && (b.instagram || b.facebook || b.youtube) && (
         <section className="px-5 pb-8">
-          <SectionTitle label="Follow Us" />
+          <SectionTitle label="Follow Us" G={G} />
           <div className="flex gap-2.5">
             {b.instagram && (
               <button onClick={() => open(`https://instagram.com/${b.instagram}`)}
@@ -581,7 +579,7 @@ export default function BusinessPremium({ data }) {
 
       {/* ── STICKY BOTTOM BAR ─────────────────────────── */}
       <div className="sticky bottom-0 w-full z-50 px-4 pb-6 pt-3"
-        style={{ background: "linear-gradient(to top, #080808 60%, transparent)" }}>
+        style={{ background: `linear-gradient(to top, ${th.background || "#080808"} 60%, transparent)` }}>
         <div className="flex gap-2.5">
           <button onClick={call}
             className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-bold border transition-all hover:bg-white/5 active:scale-[0.98]"

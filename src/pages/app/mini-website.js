@@ -280,19 +280,13 @@ export default function MiniWebsiteBuilder() {
     const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2200); };
 
     return (
-        <div className="min-h-screen" style={{ background: "#f8f9fb" }}>
-            <header
-                className="sticky top-0 z-40 backdrop-blur-xl border-b"
-                style={{ background: "rgba(255,255,255,0.92)", borderColor: "rgba(0,0,0,0.06)" }}
-            >
-                <div className="max-w-screen-xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
-
+        <div className="min-h-screen">
+            <header className="sticky top-0 z-40 backdrop-blur-xl border-b">
+                <div className="h-14 flex items-center justify-between gap-4">
                     {/* Brand */}
                     <div className="flex items-center gap-2.5 flex-shrink-0">
-                        <div
-                            className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0"
-                            style={{ background: `linear-gradient(135deg,${t.grad[0]},${t.grad[1]})` }}
-                        >
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0"
+                            style={{ background: `linear-gradient(135deg,${t.grad[0]},${t.grad[1]})` }}>
                             <Globe size={15} className="text-white" />
                         </div>
                         <div className="hidden sm:flex flex-col leading-none">
@@ -343,7 +337,7 @@ export default function MiniWebsiteBuilder() {
                     </button>
                 </div>
             </header>
-            <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-5">
+            <div className="max-w-screen-xl mx-auto mt-5">
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
 
                     <div className={`flex-1 min-w-0 flex flex-col gap-2.5 ${mobileTab === "preview" ? "hidden lg:flex" : "flex"} `}>
