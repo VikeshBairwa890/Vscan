@@ -268,7 +268,7 @@ export default function ChatbotOverlay() {
                           {/* Question */}
                           <QuestionCard
                             question={
-                              currentQuestion.question
+                              currentQuestion.question ?? ""
                             }
                           />
 
@@ -320,7 +320,7 @@ export default function ChatbotOverlay() {
                             "single-select" && (
                             <div className="space-y-6">
                               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                                {currentQuestion.options.map(
+                                {(currentQuestion.options ?? []).map(
                                   (
                                     option: any
                                   ) => (
