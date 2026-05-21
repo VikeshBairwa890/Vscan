@@ -196,7 +196,7 @@ vscan/
 │   ├── pages/
 │   │   ├── admin/               # Admin Dashboard view
 │   │   ├── api/                 # API controllers (Auth, Cashfree order creation)
-│   │   ├── app/                 # User core application pages (Dashboard, Mini-Website, Smart-QR, AI)
+│   │   ├── app/                 # User core application pages (Dashboard, Onboarding, Mini-Website, Smart-QR, AI)
 │   │   ├── auth/                # Authentication views (Login & SignUp)
 │   │   ├── profile/             # Profile views & rendering templates
 │   │   ├── index.jsx            # High-converting Landing Page
