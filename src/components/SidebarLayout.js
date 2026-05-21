@@ -4,6 +4,11 @@ import { Menu, X, User, LayoutDashboard, QrCode, BarChart3, Sparkles, CreditCard
 import { Button } from "@heroui/react";
 const menus = [
     {
+        name: "Dashboard",
+        icon: BarChart3,
+        link: "/app/dashboard",
+    },
+    {
         name: "Profile Settings",
         icon: User,
         link: "/app/profile-settings",
@@ -17,11 +22,6 @@ const menus = [
         name: "Smart QR",
         icon: QrCode,
         link: "/app/smart-qr",
-    },
-    {
-        name: "Analytics",
-        icon: BarChart3,
-        link: "/app/analytics",
     },
     {
         name: "AI Suggestions",

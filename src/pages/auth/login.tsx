@@ -40,7 +40,7 @@ export default function LoginPage() {
       }
       toast.success(responseBody.message);
       setTimeout(() => {
-        router.push('/app/analytics');
+        router.push('/app/dashboard');
       }, 1000);
     } catch (error) {
       toast.error("Something went wrong");

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import { TrendingUp, Clock, List, ChevronDown } from "lucide-react";
+import ChatbotOverlay from "@/components/onboarding/ChatbotOverlay";
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
 const trafficData = {
@@ -58,13 +59,35 @@ const TABS = ["Today", "7 Days", "30 Days", "All Time"];
 
 export default function PerformanceDashboard() {
   const [activeTab, setActiveTab] = useState("30 Days");
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const completed = localStorage.getItem("onboardingCompleted");
+    if (!completed) {
+      setIsFirstLogin(true);
+    }
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (isFirstLogin) {
+    return <ChatbotOverlay onComplete={() => setIsFirstLogin(false)} />;
+  }
+
   const stats = statsByRange[activeTab];
 
   return (
     <>
-
       <div className="flex flex-col gap-3 mb-5">
-        <h1 className="text-xl font-bold text-gray-900">Performance</h1>
+        <h1 className="text-xl font-bold text-gray-900">Performance Dashboard</h1>
         <div className="flex gap-1">
           {TABS.map((tab) => (
             <button
@@ -118,7 +141,6 @@ export default function PerformanceDashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
           <p className="text-sm font-bold text-gray-700 mb-4">Traffic Trend</p>
           <ResponsiveContainer width="100%" height={180}>
@@ -220,7 +242,6 @@ export default function PerformanceDashboard() {
           </div>
         </div>
       </div>
-
     </>
   );
 }

@@ -11,6 +11,11 @@ import { SidebarMenuItem } from "@/types/sidebar";
 
 export const userSidebarMenu: SidebarMenuItem[] = [
   {
+    name: "Dashboard",
+    icon: BarChart3,
+    link: "/app/dashboard",
+  },
+  {
     name: "Profile Settings",
     icon: User,
     link: "/app/profile-settings",
@@ -24,11 +29,6 @@ export const userSidebarMenu: SidebarMenuItem[] = [
     name: "Smart QR",
     icon: QrCode,
     link: "/app/smart-qr",
-  },
-  {
-    name: "Analytics",
-    icon: BarChart3,
-    link: "/app/analytics",
   },
   {
     name: "AI Suggestions",

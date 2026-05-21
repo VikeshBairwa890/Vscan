@@ -18,9 +18,11 @@ import QuestionCard from "./QuestionCard";
 import OptionCard from "./OptionCard";
 import ServiceChip from "./ServiceChip";
 
-const STORAGE_KEY = "vscan-onboarding";
+interface ChatbotOverlayProps {
+  onComplete?: () => void;
+}
 
-export default function ChatbotOverlay() {
+export default function ChatbotOverlay({ onComplete }: ChatbotOverlayProps) {
   const [step, setStep] = useState(0);
 
   const [answers, setAnswers] = useState<any>(
@@ -49,7 +51,7 @@ export default function ChatbotOverlay() {
 
   const dynamicServices =
     servicesByCategory[
-      answers.category as keyof typeof servicesByCategory
+    answers.category as keyof typeof servicesByCategory
     ] || [];
 
   useEffect(() => {
@@ -60,7 +62,7 @@ export default function ChatbotOverlay() {
     if (!isLoaded) return;
 
     localStorage.setItem(
-      STORAGE_KEY,
+      "onboardingProgress",
       JSON.stringify({
         step,
         answers,
@@ -138,6 +140,9 @@ export default function ChatbotOverlay() {
       "FINAL ONBOARDING DATA:",
       answers
     );
+    if (onComplete) {
+      onComplete();
+    }
   };
 
   if (!isLoaded) return null;
@@ -168,15 +173,15 @@ export default function ChatbotOverlay() {
               {/* Progress */}
               {currentQuestion.type !==
                 "welcome" && (
-                <div className="border-b border-zinc-100 px-6 py-5 md:px-10">
-                  <ProgressBar
-                    current={step - 1}
-                    total={
-                      questions.length - 1
-                    }
-                  />
-                </div>
-              )}
+                  <div className="border-b border-zinc-100 px-6 py-5 md:px-10">
+                    <ProgressBar
+                      current={step - 1}
+                      total={
+                        questions.length - 1
+                      }
+                    />
+                  </div>
+                )}
 
               {/* Scroll Area */}
               <div className="flex min-h-0 flex-1 overflow-y-auto">
@@ -204,271 +209,271 @@ export default function ChatbotOverlay() {
                       {/* WELCOME */}
                       {currentQuestion.type ===
                         "welcome" && (
-                        <div className="flex min-h-[70vh] flex-col items-center justify-center text-center">
-                          <motion.div
-                            initial={{
-                              scale: 0.8,
-                              opacity: 0,
-                            }}
-                            animate={{
-                              scale: 1,
-                              opacity: 1,
-                            }}
-                            transition={{
-                              delay: 0.1,
-                            }}
-                            className="mb-8 flex h-32 w-32 items-center justify-center rounded-[40px] bg-gradient-to-br from-violet-500 to-indigo-500 text-6xl text-white shadow-2xl"
-                          >
-                            ✨
-                          </motion.div>
+                          <div className="flex min-h-[70vh] flex-col items-center justify-center text-center">
+                            <motion.div
+                              initial={{
+                                scale: 0.8,
+                                opacity: 0,
+                              }}
+                              animate={{
+                                scale: 1,
+                                opacity: 1,
+                              }}
+                              transition={{
+                                delay: 0.1,
+                              }}
+                              className="mb-8 flex h-32 w-32 items-center justify-center rounded-[40px] bg-gradient-to-br from-violet-500 to-indigo-500 text-6xl text-white shadow-2xl"
+                            >
+                              ✨
+                            </motion.div>
 
-                          <h1 className="mb-5 text-5xl font-bold tracking-tight text-zinc-900">
-                            Welcome to Vscan AI
-                          </h1>
+                            <h1 className="mb-5 text-5xl font-bold tracking-tight text-zinc-900">
+                              Welcome to Vscan AI
+                            </h1>
 
-                          <p className="mb-10 max-w-2xl text-lg leading-relaxed text-zinc-500">
-                            We’ll help you setup your
-                            business profile in less
-                            than 2 minutes.
-                          </p>
+                            <p className="mb-10 max-w-2xl text-lg leading-relaxed text-zinc-500">
+                              We’ll help you setup your
+                              business profile in less
+                              than 2 minutes.
+                            </p>
 
-                          <button
-                            onClick={() =>
-                              setStep(
-                                (prev) =>
-                                  prev + 1
-                              )
-                            }
-                            className="rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02]"
-                          >
-                            Start Setup
-                          </button>
-                        </div>
-                      )}
+                            <button
+                              onClick={() =>
+                                setStep(
+                                  (prev) =>
+                                    prev + 1
+                                )
+                              }
+                              className="rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02]"
+                            >
+                              Start Setup
+                            </button>
+                          </div>
+                        )}
 
                       {/* QUESTIONS */}
                       {currentQuestion.type !==
                         "welcome" && (
-                        <>
-                          {/* Back */}
-                          <button
-                            onClick={() =>
-                              setStep((prev) =>
-                                Math.max(
-                                  prev - 1,
-                                  0
+                          <>
+                            {/* Back */}
+                            <button
+                              onClick={() =>
+                                setStep((prev) =>
+                                  Math.max(
+                                    prev - 1,
+                                    0
+                                  )
                                 )
-                              )
-                            }
-                            className="mb-6 text-sm font-medium text-zinc-500 transition hover:text-zinc-900"
-                          >
-                            ← Back
-                          </button>
+                              }
+                              className="mb-6 text-sm font-medium text-zinc-500 transition hover:text-zinc-900"
+                            >
+                              ← Back
+                            </button>
 
-                          {/* Question */}
-                          <QuestionCard
-                            question={
-                              currentQuestion.question ?? ""
-                            }
-                          />
+                            {/* Question */}
+                            <QuestionCard
+                              question={
+                                currentQuestion.question ?? ""
+                              }
+                            />
 
-                          {/* TEXT */}
-                          {currentQuestion.type ===
-                            "text" && (
-                            <div className="space-y-5">
-                              <input
-                                type="text"
-                                value={input}
-                                onChange={(e) =>
-                                  setInput(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Type here..."
-                                className="w-full rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-lg text-zinc-900 outline-none transition-all duration-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
-                              />
-
-                              <div className="flex items-center gap-3">
-                                {currentQuestion.optional && (
-                                  <button
-                                    onClick={() =>
-                                      handleNext("")
-                                    }
-                                    className="rounded-2xl border border-zinc-200 px-6 py-4 font-medium text-zinc-600 transition hover:bg-zinc-100"
-                                  >
-                                    Skip
-                                  </button>
-                                )}
-
-                                <button
-                                  onClick={() =>
-                                    input.trim() &&
-                                    handleNext(
-                                      input
-                                    )
-                                  }
-                                  className="rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-4 font-medium text-white shadow-lg transition-all duration-200 hover:scale-[1.01]"
-                                >
-                                  Continue
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* SINGLE SELECT */}
-                          {currentQuestion.type ===
-                            "single-select" && (
-                            <div className="space-y-6">
-                              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                                {(currentQuestion.options ?? []).map(
-                                  (
-                                    option: any
-                                  ) => (
-                                    <OptionCard
-                                      key={
-                                        option.value
-                                      }
-                                      label={
-                                        option.label
-                                      }
-                                      description={
-                                        option.description
-                                      }
-                                      icon={
-                                        option.icon
-                                      }
-                                      selected={
-                                        answers[
-                                          currentQuestion
-                                            .key
-                                        ] ===
-                                        option.value
-                                      }
-                                      onClick={() => {
-                                        if (
-                                          option.value ===
-                                          "Other"
-                                        ) {
-                                          setShowOtherInput(
-                                            true
-                                          );
-
-                                          return;
-                                        }
-
-                                        handleNext(
-                                          option.value
-                                        );
-                                      }}
-                                    />
-                                  )
-                                )}
-                              </div>
-
-                              {showOtherInput && (
-                                <div className="space-y-4">
+                            {/* TEXT */}
+                            {currentQuestion.type ===
+                              "text" && (
+                                <div className="space-y-5">
                                   <input
                                     type="text"
-                                    value={
-                                      otherInput
-                                    }
+                                    value={input}
                                     onChange={(e) =>
-                                      setOtherInput(
-                                        e.target
-                                          .value
+                                      setInput(
+                                        e.target.value
                                       )
                                     }
-                                    placeholder="Enter your business category..."
-                                    className="w-full rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-lg outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                                    placeholder="Type here..."
+                                    className="w-full rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-lg text-zinc-900 outline-none transition-all duration-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
                                   />
+
+                                  <div className="flex items-center gap-3">
+                                    {currentQuestion.optional && (
+                                      <button
+                                        onClick={() =>
+                                          handleNext("")
+                                        }
+                                        className="rounded-2xl border border-zinc-200 px-6 py-4 font-medium text-zinc-600 transition hover:bg-zinc-100"
+                                      >
+                                        Skip
+                                      </button>
+                                    )}
+
+                                    <button
+                                      onClick={() =>
+                                        input.trim() &&
+                                        handleNext(
+                                          input
+                                        )
+                                      }
+                                      className="rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-4 font-medium text-white shadow-lg transition-all duration-200 hover:scale-[1.01]"
+                                    >
+                                      Continue
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+
+                            {/* SINGLE SELECT */}
+                            {currentQuestion.type ===
+                              "single-select" && (
+                                <div className="space-y-6">
+                                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                                    {(currentQuestion.options ?? []).map(
+                                      (
+                                        option: any
+                                      ) => (
+                                        <OptionCard
+                                          key={
+                                            option.value
+                                          }
+                                          label={
+                                            option.label
+                                          }
+                                          description={
+                                            option.description
+                                          }
+                                          icon={
+                                            option.icon
+                                          }
+                                          selected={
+                                            answers[
+                                            currentQuestion
+                                              .key
+                                            ] ===
+                                            option.value
+                                          }
+                                          onClick={() => {
+                                            if (
+                                              option.value ===
+                                              "Other"
+                                            ) {
+                                              setShowOtherInput(
+                                                true
+                                              );
+
+                                              return;
+                                            }
+
+                                            handleNext(
+                                              option.value
+                                            );
+                                          }}
+                                        />
+                                      )
+                                    )}
+                                  </div>
+
+                                  {showOtherInput && (
+                                    <div className="space-y-4">
+                                      <input
+                                        type="text"
+                                        value={
+                                          otherInput
+                                        }
+                                        onChange={(e) =>
+                                          setOtherInput(
+                                            e.target
+                                              .value
+                                          )
+                                        }
+                                        placeholder="Enter your business category..."
+                                        className="w-full rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-lg outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                                      />
+
+                                      <button
+                                        onClick={() =>
+                                          otherInput.trim() &&
+                                          handleNext(
+                                            otherInput
+                                          )
+                                        }
+                                        className="rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-4 font-medium text-white"
+                                      >
+                                        Continue
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                            {/* MULTI SELECT */}
+                            {currentQuestion.type ===
+                              "multi-select" && (
+                                <div>
+                                  <div className="mb-8 flex flex-wrap gap-3">
+                                    {dynamicServices.map(
+                                      (
+                                        option: string
+                                      ) => (
+                                        <ServiceChip
+                                          key={
+                                            option
+                                          }
+                                          label={
+                                            option
+                                          }
+                                          selected={selectedServices.includes(
+                                            option
+                                          )}
+                                          onClick={() =>
+                                            handleServiceToggle(
+                                              option
+                                            )
+                                          }
+                                        />
+                                      )
+                                    )}
+                                  </div>
+
+                                  {showOtherInput && (
+                                    <div className="mb-6 space-y-4">
+                                      <input
+                                        type="text"
+                                        value={
+                                          otherInput
+                                        }
+                                        onChange={(e) =>
+                                          setOtherInput(
+                                            e.target
+                                              .value
+                                          )
+                                        }
+                                        placeholder="Add custom service..."
+                                        className="w-full rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-lg outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                                      />
+
+                                      <button
+                                        onClick={
+                                          handleAddOtherService
+                                        }
+                                        className="rounded-2xl bg-zinc-900 px-5 py-3 font-medium text-white"
+                                      >
+                                        Add Service
+                                      </button>
+                                    </div>
+                                  )}
 
                                   <button
                                     onClick={() =>
-                                      otherInput.trim() &&
                                       handleNext(
-                                        otherInput
+                                        selectedServices
                                       )
                                     }
-                                    className="rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-4 font-medium text-white"
+                                    className="rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-4 font-medium text-white shadow-lg transition-all duration-200 hover:scale-[1.01]"
                                   >
                                     Continue
                                   </button>
                                 </div>
                               )}
-                            </div>
-                          )}
-
-                          {/* MULTI SELECT */}
-                          {currentQuestion.type ===
-                            "multi-select" && (
-                            <div>
-                              <div className="mb-8 flex flex-wrap gap-3">
-                                {dynamicServices.map(
-                                  (
-                                    option: string
-                                  ) => (
-                                    <ServiceChip
-                                      key={
-                                        option
-                                      }
-                                      label={
-                                        option
-                                      }
-                                      selected={selectedServices.includes(
-                                        option
-                                      )}
-                                      onClick={() =>
-                                        handleServiceToggle(
-                                          option
-                                        )
-                                      }
-                                    />
-                                  )
-                                )}
-                              </div>
-
-                              {showOtherInput && (
-                                <div className="mb-6 space-y-4">
-                                  <input
-                                    type="text"
-                                    value={
-                                      otherInput
-                                    }
-                                    onChange={(e) =>
-                                      setOtherInput(
-                                        e.target
-                                          .value
-                                      )
-                                    }
-                                    placeholder="Add custom service..."
-                                    className="w-full rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-lg outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
-                                  />
-
-                                  <button
-                                    onClick={
-                                      handleAddOtherService
-                                    }
-                                    className="rounded-2xl bg-zinc-900 px-5 py-3 font-medium text-white"
-                                  >
-                                    Add Service
-                                  </button>
-                                </div>
-                              )}
-
-                              <button
-                                onClick={() =>
-                                  handleNext(
-                                    selectedServices
-                                  )
-                                }
-                                className="rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-4 font-medium text-white shadow-lg transition-all duration-200 hover:scale-[1.01]"
-                              >
-                                Continue
-                              </button>
-                            </div>
-                          )}
-                        </>
-                      )}
+                          </>
+                        )}
                     </motion.div>
                   </AnimatePresence>
                 </div>
