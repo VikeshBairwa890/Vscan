@@ -2,9 +2,10 @@ import {
   User,
   LayoutDashboard,
   QrCode,
-  BarChart3,
   Sparkles,
   CreditCard,
+  TrendingUp,
+  Globe,
 } from "lucide-react";
 
 import { SidebarMenuItem } from "@/types/sidebar";
@@ -12,17 +13,12 @@ import { SidebarMenuItem } from "@/types/sidebar";
 export const userSidebarMenu: SidebarMenuItem[] = [
   {
     name: "Dashboard",
-    icon: BarChart3,
+    icon: LayoutDashboard,
     link: "/app/dashboard",
   },
   {
-    name: "Profile Settings",
-    icon: User,
-    link: "/app/profile-settings",
-  },
-  {
-    name: "Mini-Website",
-    icon: LayoutDashboard,
+    name: "My Website",
+    icon: Globe,
     link: "/app/mini-website",
   },
   {
@@ -31,13 +27,23 @@ export const userSidebarMenu: SidebarMenuItem[] = [
     link: "/app/smart-qr",
   },
   {
-    name: "AI Suggestions",
+    name: "AI Studio",
     icon: Sparkles,
     link: "/app/ai-suggestions",
   },
   {
-    name: "Billing",
+    name: "Analytics",
+    icon: TrendingUp,
+    link: "/app/analytics",
+  },
+  {
+    name: "Subscriptions",
     icon: CreditCard,
     link: "/app/billing",
+  },
+  {
+    name: "Profile & Settings",
+    icon: User,
+    link: "/app/profile-settings",
   },
 ];

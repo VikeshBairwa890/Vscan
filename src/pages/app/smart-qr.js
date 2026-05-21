@@ -1,481 +1,628 @@
-'use client';
-import { Button, Input, InputGroup, Tabs, TextField } from "@heroui/react";
-import { Copy, Download, Globe, Star, User, LayoutGrid, ArrowRight, MessageCircle, CheckCircle2, QrCode, Share2, Eye, RefreshCw, Sparkles } from "lucide-react";
-import Image from "next/image";
+"use client";
+
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
+import {
+  Copy, Download, Globe, Star, User, LayoutGrid, ArrowRight,
+  MessageCircle, CheckCircle2, QrCode, Share2, Eye, RefreshCw,
+  Sparkles, Lock, ArrowLeft, Printer, ShieldAlert, Award, FileText
+} from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
+import { Link } from "@heroui/react";
+
+const uid = () => Math.random().toString(36).slice(2, 8);
 
 const menuItems = [
-    {
-        id: "review",
-        icon: Star,
-        title: "Leave a Review",
-        subtitle: "How was your experience?",
-        color: "from-emerald-700/60 to-emerald-900/40",
-        iconColor: "text-emerald-400",
-        link: "/review",
-    },
-    {
-        id: "business-card",
-        icon: User,
-        title: "Business Card",
-        subtitle: "Save contact info",
-        color: "from-slate-700/60 to-slate-800/40",
-        iconColor: "text-slate-300",
-        link: "/business-card",
-    },
-    {
-        id: "website",
-        icon: LayoutGrid,
-        title: "Mini Website",
-        subtitle: "Services, Hours & More",
-        color: "from-slate-700/60 to-slate-800/40",
-        iconColor: "text-slate-300",
-        link: "/website",
-    },
+  {
+    id: "review",
+    icon: Star,
+    title: "Leave a Review",
+    subtitle: "How was your experience?",
+    color: "from-emerald-700/60 to-emerald-900/40",
+    iconColor: "text-emerald-400",
+    link: "/review",
+  },
+  {
+    id: "business-card",
+    icon: User,
+    title: "Business Card",
+    subtitle: "Save contact info",
+    color: "from-slate-700/60 to-slate-800/40",
+    iconColor: "text-slate-300",
+    link: "/business-card",
+  },
+  {
+    id: "website",
+    icon: LayoutGrid,
+    title: "Mini Website",
+    subtitle: "Services, Hours & More",
+    color: "from-slate-700/60 to-slate-800/40",
+    iconColor: "text-slate-300",
+    link: "/website",
+  },
 ];
 
 export default function SmartQR() {
-    const [activeTab, setActiveTab] = useState("smart-menu");
-    const [hovered, setHovered] = useState(null);
-    const [qrCodes, setQrCodes] = useState({});
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [mounted, setMounted] = useState(false);
-    const [baseUrl, setBaseUrl] = useState("");
-    const [businessData, setBusinessData] = useState({
-        name: "vikesh",
-        logo: null,
-        whatsappNumber: "+919876543210",
-        website: "https://business.example.com",
-        reviewLink: "https://g.page/r/example",
-        miniWebsiteLink: "https://business.example.com/website",
-    });
+  const router = useRouter();
+  const canvasRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isPremium, setIsPremium] = useState(false);
 
-    // useEffect(() => {
-    //     setMounted(true);
-    //     setBaseUrl(window.location.origin);
-    //     fetchBusinessData();
-    // }, []);
+  // Configuration States
+  const [qrDestination, setQrDestination] = useState("smart-menu");
+  const [customUrl, setCustomUrl] = useState("");
+  const [primaryColor, setPrimaryColor] = useState("#4f46e5");
+  const [secondaryColor, setSecondaryColor] = useState("#4f46e5");
+  const [gradientEnabled, setGradientEnabled] = useState(false);
+  const [qrDesignPattern, setQrDesignPattern] = useState("classic"); // classic, rounded, blocky
+  const [selectedFlyerLayout, setSelectedFlyerLayout] = useState("table-stand"); // table-stand, counter-card, business-card
 
-    const fetchBusinessData = async () => {
-        try {
-            const response = await fetch('/api/business/profile');
-            if (response.ok) {
-                const data = await response.json();
-                setBusinessData(prev => ({ ...prev, ...data }));
-            }
-        } catch (error) {
-            toast.error('Failed to fetch business data');
-            console.error('Error fetching business data:', error);
+  // Business Profile Info
+  const [businessData, setBusinessData] = useState({
+    name: "Vikesh Studio",
+    logo: "",
+    whatsappNumber: "+91 98765 43210",
+    website: "https://vscan.biz/vikesh-studio",
+    reviewLink: "https://g.page/r/example",
+    miniWebsiteLink: "https://vscan.biz/vikesh-studio",
+  });
+
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  // Fetch status on mount
+  useEffect(() => {
+    setMounted(true);
+    const fetchStatus = async () => {
+      const userStr = localStorage.getItem("currentUser");
+      if (!userStr) {
+        router.push("/auth/login");
+        return;
+      }
+      try {
+        const user = JSON.parse(userStr);
+        const res = await fetch(`/api/business/status?userId=${user.id}`);
+        if (res.ok) {
+          const statusData = await res.json();
+          setIsPremium(statusData.subscription?.isActive || false);
+          if (statusData.hasProfile) {
+            setBusinessData(prev => ({
+              ...prev,
+              name: statusData.businessName || prev.name,
+              logo: statusData.logo || prev.logo,
+              reviewLink: statusData.googleReviewLink || prev.reviewLink,
+              miniWebsiteLink: `https://vscan.biz/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
+            }));
+          }
         }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStatus();
+  }, []);
+
+  // Compute redirect url based on selection
+  const getRedirectUrl = () => {
+    switch (qrDestination) {
+      case "smart-menu":
+        return `${businessData.miniWebsiteLink}?tab=menu`;
+      case "reviews":
+        return businessData.reviewLink || "https://google.com";
+      case "website":
+        return businessData.miniWebsiteLink;
+      case "custom":
+        return customUrl || "https://vscan.biz";
+      default:
+        return businessData.miniWebsiteLink;
+    }
+  };
+
+  // Redraw QR code when design or URL changes
+  useEffect(() => {
+    if (!mounted || loading) return;
+
+    const drawQR = async () => {
+      const text = getRedirectUrl();
+      try {
+        // Generate QR code raw lines
+        const dataUrl = await QRCode.toDataURL(text, {
+          width: 350,
+          margin: 1,
+          color: {
+            dark: gradientEnabled ? primaryColor : primaryColor,
+            light: "#ffffff",
+          },
+          errorCorrectionLevel: "H",
+        });
+        setQrCodeDataUrl(dataUrl);
+
+        // Render custom styling using Canvas API
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw gradient background
+            const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            grad.addColorStop(0, primaryColor);
+            grad.addColorStop(1, gradientEnabled ? secondaryColor : primaryColor);
+
+            // Paint QR Code image on Canvas
+            const img = new window.Image();
+            img.src = dataUrl;
+            img.onload = () => {
+              // Draw rounded background panel
+              ctx.fillStyle = "#ffffff";
+              ctx.beginPath();
+              ctx.roundRect(0, 0, canvas.width, canvas.height, 24);
+              ctx.fill();
+
+              // Draw QR
+              ctx.drawImage(img, 15, 15, canvas.width - 30, canvas.height - 30);
+
+              // Draw center logo circle overlay
+              const center = canvas.width / 2;
+              ctx.fillStyle = "#ffffff";
+              ctx.beginPath();
+              ctx.arc(center, center, 28, 0, 2 * Math.PI);
+              ctx.fill();
+
+              // Border
+              ctx.strokeStyle = primaryColor;
+              ctx.lineWidth = 2;
+              ctx.stroke();
+
+              // Draw a tiny scan badge icon or center label
+              ctx.fillStyle = primaryColor;
+              ctx.beginPath();
+              ctx.arc(center, center, 22, 0, 2 * Math.PI);
+              ctx.fill();
+
+              ctx.fillStyle = "#ffffff";
+              ctx.font = "bold 9px sans-serif";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText("SCAN", center, center);
+            };
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
     };
 
-    const generateQRCode = async (type, url) => {
-        try {
-            const qrDataUrl = await QRCode.toDataURL(url, {
-                width: 300,
-                margin: 2,
-                color: {
-                    dark: '#000000',
-                    light: '#ffffff',
-                },
-                errorCorrectionLevel: 'H',
-            });
-            return qrDataUrl;
-        } catch (error) {
-            console.error('Error generating QR code:', error);
-            toast.error('Failed to generate QR code');
-            return null;
-        }
-    };
+    drawQR();
+  }, [mounted, loading, qrDestination, customUrl, primaryColor, secondaryColor, gradientEnabled, qrDesignPattern]);
 
-    const handleGenerateQR = async (type) => {
-        setIsGenerating(true);
-        try {
-            let url = "";
-            switch (type) {
-                case "smart-menu":
-                    url = `${baseUrl}/smart-menu/${businessData.name}`;
-                    break;
-                case "reviews":
-                    url = businessData.reviewLink;
-                    break;
-                case "contact-info":
-                    url = `${baseUrl}/contact/${businessData.name}`;
-                    break;
-                case "website":
-                    url = businessData.miniWebsiteLink;
-                    break;
-                default:
-                    url = businessData.website;
-            }
-
-            const qrDataUrl = await generateQRCode(type, url);
-
-            if (qrDataUrl) {
-                setQrCodes(prev => ({
-                    ...prev,
-                    [type]: { type, url, qrCode: qrDataUrl }
-                }));
-                toast.success(`${type} QR code generated successfully!`);
-            }
-        } catch (error) {
-            console.error('Error generating QR:', error);
-            toast.error('Failed to generate QR code');
-        } finally {
-            setIsGenerating(false);
-        }
-    };
-
-    const downloadQRCode = async (type) => {
-        const qrData = qrCodes[type];
-        if (!qrData?.qrCode) {
-            toast.error('Please generate QR code first');
-            return;
-        }
-
-        try {
-            const link = document.createElement('a');
-            link.download = `${type}-qr-code.png`;
-            link.href = qrData.qrCode;
-            link.click();
-            toast.success('QR code downloaded successfully!');
-        } catch (error) {
-            console.error('Error downloading QR:', error);
-            toast.error('Failed to download QR code');
-        }
-    };
-
-    const copyToClipboard = async (text) => {
-        try {
-            await navigator.clipboard.writeText(text);
-            toast.success('Link copied to clipboard!');
-        } catch (error) {
-            toast.error('Failed to copy link');
-        }
-    };
-
-    const shareQRCode = async (type) => {
-        const qrData = qrCodes[type];
-        if (!qrData?.qrCode) {
-            toast.error('Please generate QR code first');
-            return;
-        }
-
-        try {
-            const response = await fetch(qrData.qrCode);
-            const blob = await response.blob();
-            const file = new File([blob], `${type}-qr.png`, { type: 'image/png' });
-
-            if (navigator.share) {
-                await navigator.share({
-                    title: `${type} QR Code`,
-                    text: `Scan this QR code to access ${type}`,
-                    files: [file],
-                });
-                toast.success('Shared successfully!');
-            } else {
-                toast.info('Share not supported on this device');
-            }
-        } catch (error) {
-            console.error('Error sharing:', error);
-        }
-    };
-
-    const getQRUrl = (type) => {
-        if (!mounted) return "";
-
-        switch (type) {
-            case "smart-menu":
-                return `${baseUrl}/smart-menu/${businessData.name}`;
-            case "reviews":
-                return businessData.reviewLink;
-            case "contact-info":
-                return `${baseUrl}/contact/${businessData.name}`;
-            case "website":
-                return businessData.miniWebsiteLink;
-            default:
-                return businessData.website;
-        }
-    };
-
-    const renderQRPanel = (type, title, description) => (
-        <div className="flex flex-col items-center justify-center p-6">
-            <div className="text-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-                <p className="text-sm text-gray-500 mt-1">{description}</p>
-            </div>
-
-            <div className="relative group">
-                <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100">
-                    {qrCodes[type]?.qrCode ? (
-                        <div className="relative">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={qrCodes[type].qrCode}
-                                alt={`${type} QR Code`}
-                                width={250}
-                                height={250}
-                                className="rounded-lg w-62.5 h-62.5"
-                            />
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                                <button
-                                    onClick={() => downloadQRCode(type)}
-                                    className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                                >
-                                    <Download className="w-5 h-5 text-gray-800" />
-                                </button>
-                                <button
-                                    onClick={() => shareQRCode(type)}
-                                    className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                                >
-                                    <Share2 className="w-5 h-5 text-gray-800" />
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="w-62.5 h-62.5 bg-gray-50 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                            <QrCode className="w-16 h-16 text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-500">No QR generated</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-                <Button
-                    onPress={() => handleGenerateQR(type)}
-                    isLoading={isGenerating}
-                    className="bg-purple-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-6 "
-                    variant="tertiary"
-                    startContent={!isGenerating && <RefreshCw className="w-4 h-4" />}
-                >
-                    Generate QR
-                </Button>
-                {qrCodes[type]?.qrCode && (
-                    <Button
-                        onPress={() => downloadQRCode(type)}
-                        variant="primary-outline"
-                        className="bg-linear-to-r from-blue-600 to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-6"
-                        startContent={<Download className="w-4 h-4" />}
-                    >
-                        Download
-                    </Button>
-                )}
-            </div>
-
-            {mounted && (
-                <div className="mt-6 w-full max-w-md">
-                    <div className="flex items-center h-12 border border-gray-200 rounded-sm bg-white overflow-hidden shadow-sm">
-
-                        <div className="px-4 text-gray-400">
-                            <Globe className="w-4 h-4" />
-                        </div>
-
-                        <input type="text" readOnly value={getQRUrl(type)} className="  flex-1   h-full bg-transparent text-sm   text-gray-700  outline-none  border-0  px-2 " />
-
-                        <button onClick={() => copyToClipboard(getQRUrl(type))} className=" h-full px-4  border-l border-gray-200  hover:bg-gray-50  transition-colors flex items-center  justify-center cursor-pointer  " >
-                            <Copy className="w-4 h-4 text-gray-500" />
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            <div className="mt-6 grid grid-cols-2 gap-4 w-full max-w-md">
-                <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-3 text-center">
-                    <Eye className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-                    <p className="text-xl font-bold text-gray-800">0</p>
-                    <p className="text-xs text-gray-600">Total Scans</p>
-                </div>
-                <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-xl p-3 text-center">
-                    <Share2 className="w-5 h-5 text-green-600 mx-auto mb-1" />
-                    <p className="text-xl font-bold text-gray-800">0</p>
-                    <p className="text-xs text-gray-600">Total Shares</p>
-                </div>
-            </div>
-        </div>
-    );
-
-    // if (!mounted) {
-    //     return (
-    //         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
-    //             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    //         </div>
-    //     );
-    // }
+  if (!mounted || loading) {
     return (
-        <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
-                            <div className="flex items-center gap-2">
-                                <Sparkles className="w-5 h-5 text-purple-600" />
-                                <h2 className="text-xl font-semibold text-gray-800">QR Code Generator</h2>
-                            </div>
-                            <p className="text-sm text-gray-500 mt-1">Generate dynamic QR codes for different purposes</p>
-                        </div>
-
-                        <Tabs selectedKey={activeTab} onSelectionChange={setActiveTab} className="w-full" >
-                            <div className="px-6 pt-4 border-b border-gray-100">
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => setActiveTab("smart-menu")}
-                                        className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "smart-menu" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                                    >
-                                        Smart Menu
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab("reviews")}
-                                        className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "reviews" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                                    >
-                                        Reviews
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab("contact-info")}
-                                        className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "contact-info" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                                    >
-                                        Contact Info
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab("website")}
-                                        className={`pb-2 px-1 text-sm font-medium transition-colors relative ${activeTab === "website" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                                    >
-                                        Website
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="p-6">
-                                {activeTab === "smart-menu" && renderQRPanel("smart-menu", "Smart Menu QR Code", "Scan to access interactive smart menu")}
-                                {activeTab === "reviews" && renderQRPanel("reviews", "Reviews QR Code", "Scan to leave a Google review")}
-                                {activeTab === "contact-info" && renderQRPanel("contact-info", "Contact Info QR Code", "Scan to save contact details")}
-                                {activeTab === "website" && renderQRPanel("website", "Website QR Code", "Scan to visit mini website")}
-                            </div>
-                        </Tabs>
-                    </div>
-                </div>
-
-                <div className="flex flex-col items-center justify-start gap-4">
-                    <div className="sticky top-6">
-                        <div className="bg-linear-to-br from-gray-900 to-gray-800 rounded-xl p-4 shadow-xl">
-                            <div className="text-center mb-4">
-                                <h3 className="text-white font-semibold">Live Preview</h3>
-                                <p className="text-gray-400 text-xs">How customers see your smart menu</p>
-                            </div>
-
-                            {/* Phone Frame */}
-                            <div
-                                className="relative w-[320px] rounded-[1rem] overflow-hidden shadow-xl border border-white/10 mx-auto"
-                                style={{
-                                    background: "linear-linear(160deg, #0f172a 0%, #0d1526 60%, #0a1020 100%)",
-                                    boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)",
-                                }}
-                            >
-                                {/* Notch */}
-                                <div className="flex justify-center pt-3 pb-1">
-                                    <div className="w-20 h-5 rounded-full bg-black/80" />
-                                </div>
-
-                                {/* Content */}
-                                <div className="px-5 pb-8 pt-4 flex flex-col items-center gap-4">
-                                    {/* Logo */}
-                                    <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
-                                        {businessData.logo ? (
-                                            <Image
-                                                src={businessData.logo}
-                                                alt="Business Logo"
-                                                width={80}
-                                                height={80}
-                                                className="object-cover w-full h-full"
-                                            />
-                                        ) : (
-                                            <span className="text-[10px] font-semibold text-gray-400 tracking-wide text-center leading-tight">
-                                                Your<br />LOGO
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Name & Subtitle */}
-                                    <div className="text-center">
-                                        <h1 className="text-white text-xl font-bold tracking-tight">{businessData.name}</h1>
-                                        <p className="text-[10px] text-slate-400 tracking-[0.15em] uppercase mt-0.5 font-medium">
-                                            Welcome! How can we help?
-                                        </p>
-                                    </div>
-
-                                    {/* Menu Items */}
-                                    <div className="w-full flex flex-col gap-2.5 mt-1">
-                                        {menuItems.map((item, idx) => {
-                                            const Icon = item.icon;
-                                            return (
-                                                <button
-                                                    key={idx}
-                                                    onMouseEnter={() => setHovered(idx)}
-                                                    onMouseLeave={() => setHovered(null)}
-                                                    className={`
-                                                            w-full flex items-center gap-3 px-3.5 py-3.5 rounded-xl
-                                                            border transition-all duration-200 cursor-pointer text-left
-                                                            ${hovered === idx
-                                                            ? "border-white/20 bg-white/10 scale-[1.02]"
-                                                            : "border-white/5 bg-white/5"
-                                                        }
-                                                        `}
-                                                    style={{
-                                                        backdropFilter: "blur(10px)",
-                                                    }}
-                                                >
-                                                    <div className={`
-                                                            w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0
-                                                            bg-linear-to-br ${item.color}
-                                                        `}>
-                                                        <Icon size={16} className={item.iconColor} />
-                                                    </div>
-
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-white text-sm font-semibold leading-tight">{item.title}</p>
-                                                        <p className="text-slate-400 text-[11px] mt-0.5 leading-tight">{item.subtitle}</p>
-                                                    </div>
-
-                                                    <ArrowRight
-                                                        size={14}
-                                                        className={`flex-shrink-0 transition-all duration-200 ${hovered === idx ? "text-white translate-x-0.5" : "text-slate-500"}`}
-                                                    />
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-
-                                    {/* Verified Badge */}
-                                    <div className="flex items-center gap-1.5 mt-2">
-                                        <CheckCircle2 size={10} className="text-emerald-400" />
-                                        <span className="text-[9px] text-slate-500 tracking-[0.12em] uppercase font-medium">
-                                            Presence1 Verified
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Chat FAB */}
-                                <div className="absolute bottom-6 right-5">
-                                    <a
-                                        href={`https://wa.me/${businessData.whatsappNumber}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-10 h-10 rounded-full bg-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/30 hover:bg-emerald-300 transition-colors"
-                                    >
-                                        <MessageCircle size={18} className="text-white" fill="white" />
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <p className="text-[11px] text-slate-400 tracking-wide text-center mt-4">
-                            Interactive Mobile Preview
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </>
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-400"></div>
+      </div>
     );
+  }
+
+  // Handle color preset selection
+  const selectStylePreset = (primary, secondary, isGrad, isPrem) => {
+    if (isPrem && !isPremium) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    setPrimaryColor(primary);
+    setSecondaryColor(secondary);
+    setGradientEnabled(isGrad);
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(getRedirectUrl());
+      toast.success("Redirect link copied!");
+    } catch (err) {
+      toast.error("Failed to copy link");
+    }
+  };
+
+  const printFlyer = () => {
+    const printContent = document.getElementById("flyer-print-area")?.innerHTML;
+    const originalContent = document.body.innerHTML;
+    if (printContent) {
+      const win = window.open("", "_blank");
+      win?.document.write(`
+        <html>
+          <head>
+            <title>Print Vscan QR Flyer</title>
+            <script src="https://cdn.tailwindcss.com"></script>
+          </head>
+          <body class="bg-white text-black p-10 flex items-center justify-center min-h-screen" onload="window.print(); window.close();">
+            <div class="border-8 border-indigo-600 rounded-3xl p-10 max-w-xl text-center flex flex-col items-center">
+              <h1 class="text-4xl font-extrabold text-indigo-900 tracking-tight">${businessData.name}</h1>
+              <p class="text-slate-500 uppercase tracking-widest text-xs font-bold mt-2">Scan QR to connect</p>
+              <div class="my-8 flex justify-center border-4 border-indigo-100 p-4 rounded-3xl">
+                <img src="${qrCodeDataUrl}" class="w-80 h-80" />
+              </div>
+              <p class="text-lg font-bold text-slate-800">Scan for Menu, Payments & Reviews</p>
+              <p class="text-xs text-slate-400 mt-2">Powered by Vscan Smart QR</p>
+            </div>
+          </body>
+        </html>
+      `);
+      win?.document.close();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white py-6 px-4 md:px-8 space-y-6 relative overflow-hidden font-sans">
+      <div className="absolute top-[-10%] right-[-10%] w-[300px] h-[300px] rounded-full bg-indigo-500/5 blur-[80px]" />
+
+      {/* Upgrade Paywall Modal */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4">
+          <div className="bg-slate-800 border border-slate-700/80 max-w-md w-full rounded-3xl p-6 text-center space-y-4">
+            <div className="w-12 h-12 bg-amber-400/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-400/20">
+              <Lock size={22} className="animate-bounce" />
+            </div>
+            <h3 className="text-xl font-bold text-white">Unlock Premium QR Gradients</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Custom premium gradient themes, logo center badges, and editable high-res A4 flyer download templates are reserved for Pro plan subscribers.
+            </p>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="flex-1 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-750 text-xs font-bold transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowUpgradeModal(false);
+                  router.push("/app/billing");
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-500/25"
+              >
+                <Sparkles size={13} /> Upgrade Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Header & Step Tracker */}
+      <div className="border-b border-slate-800 pb-5 space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+              Smart QR Customizer
+            </h1>
+            <p className="text-slate-400 text-sm mt-1">Configure routing rules, styles, and printable customer flyers.</p>
+          </div>
+
+          {/* Stepper Progress bar */}
+          <div className="flex items-center gap-2 bg-slate-800/40 border border-slate-700/50 rounded-2xl p-1.5">
+            {[1, 2, 3].map((step) => (
+              <button
+                key={step}
+                onClick={() => setCurrentStep(step)}
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition ${currentStep === step
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-500 hover:text-slate-300"
+                  }`}
+              >
+                Step {step}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Wizard Layout split */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+        {/* Left Side: Setup Panel */}
+        <div className="lg:col-span-7 space-y-6">
+
+          {/* STEP 1: DESTINATION SETUP */}
+          {currentStep === 1 && (
+            <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 space-y-5 backdrop-blur-md">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                1. Select QR Code Destination
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { id: "smart-menu", title: "Smart Menu", desc: "Show interactive digital services menu", icon: LayoutGrid },
+                  { id: "reviews", title: "Reviews Page", desc: "Redirect to Google Maps review page", icon: Star },
+                  { id: "website", title: "Mini Website", desc: "Store home page with contact & hours", icon: Globe },
+                  { id: "custom", title: "Custom URL Link", desc: "Enter custom destination url", icon: Link },
+                ].map((dest) => (
+                  <div
+                    key={dest.id}
+                    onClick={() => setQrDestination(dest.id)}
+                    className={`p-4 rounded-2xl border transition-all cursor-pointer ${qrDestination === dest.id
+                        ? "bg-indigo-500/10 border-indigo-500 text-indigo-400"
+                        : "bg-slate-900/30 border-slate-800 hover:border-slate-750 text-slate-400"
+                      }`}
+                  >
+                    <dest.icon size={18} className="mb-2" />
+                    <h3 className="font-bold text-sm text-white">{dest.title}</h3>
+                    <p className="text-[11px] text-slate-500 mt-1">{dest.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Form Input fields depending on destination selection */}
+              <div className="space-y-4 pt-2">
+                {qrDestination === "custom" && (
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Custom redirect URL</label>
+                    <input
+                      value={customUrl}
+                      onChange={(e) => setCustomUrl(e.target.value)}
+                      placeholder="https://mywebsite.com/offer"
+                      className="border border-slate-750 bg-slate-900/50 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                )}
+                {qrDestination === "reviews" && (
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Google Review Link</label>
+                    <input
+                      value={businessData.reviewLink}
+                      onChange={(e) => setBusinessData({ ...businessData, reviewLink: e.target.value })}
+                      placeholder="https://g.page/r/..."
+                      className="border border-slate-750 bg-slate-900/50 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Action Button */}
+              <div className="flex justify-end pt-4 border-t border-slate-700/30">
+                <button
+                  onClick={() => setCurrentStep(2)}
+                  className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white px-5 py-2.5 rounded-xl transition"
+                >
+                  Continue to Styling <ArrowRight size={13} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2: STYLING & CUSTOMIZATION */}
+          {currentStep === 2 && (
+            <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 space-y-6 backdrop-blur-md">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                2. Styling & Custom Design
+              </h2>
+
+              {/* Style Presets */}
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Theme Schemes</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { label: "Classic Indigo", p: "#4f46e5", s: "#4f46e5", isG: false, isP: false },
+                    { label: "Forest Green", p: "#059669", s: "#059669", isG: false, isP: false },
+                    { label: "Dark Charcoal", p: "#1e293b", s: "#1e293b", isG: false, isP: false },
+                    { label: "Electric Sunset (Pro)", p: "#f43f5e", s: "#d946ef", isG: true, isP: true },
+                    { label: "Gold Marble (Pro)", p: "#d97706", s: "#eab308", isG: true, isP: true },
+                    { label: "Royal Emerald (Pro)", p: "#059669", s: "#10b981", isG: true, isP: true },
+                  ].map((preset) => (
+                    <div
+                      key={preset.label}
+                      onClick={() => selectStylePreset(preset.p, preset.s, preset.isG, preset.isP)}
+                      className={`relative p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col gap-2 ${primaryColor === preset.p && gradientEnabled === preset.isG
+                          ? "bg-indigo-500/10 border-indigo-500 text-indigo-400"
+                          : "bg-slate-900/30 border-slate-800 hover:border-slate-750 text-slate-400"
+                        }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="text-[11px] font-bold text-white truncate flex-1 pr-1">{preset.label}</span>
+                        {preset.isP && <Lock size={10} className="text-amber-500" />}
+                      </div>
+                      <div className="flex gap-1 h-3 rounded-md overflow-hidden">
+                        <div className="flex-1" style={{ backgroundColor: preset.p }} />
+                        {preset.isG && <div className="flex-1" style={{ backgroundColor: preset.s }} />}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Design Pattern selectors */}
+              <div className="space-y-3 pt-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pattern Dot Shape</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { id: "classic", label: "Classic Block" },
+                    { id: "rounded", label: "Smooth Dot" },
+                    { id: "blocky", label: "Stylized Grid" },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => setQrDesignPattern(p.id)}
+                      className={`py-2 rounded-xl text-xs font-bold border transition ${qrDesignPattern === p.id
+                          ? "bg-indigo-600 border-indigo-500 text-white"
+                          : "bg-slate-900/30 border-slate-800 text-slate-400 hover:border-slate-750"
+                        }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Navigation Actions */}
+              <div className="flex justify-between pt-4 border-t border-slate-700/30">
+                <button
+                  onClick={() => setCurrentStep(1)}
+                  className="flex items-center gap-1 border border-slate-700 hover:bg-slate-750 text-xs font-bold px-4 py-2.5 rounded-xl transition"
+                >
+                  <ArrowLeft size={13} /> Back
+                </button>
+                <button
+                  onClick={() => setCurrentStep(3)}
+                  className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white px-5 py-2.5 rounded-xl transition"
+                >
+                  Continue to Flyers <ArrowRight size={13} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: PRINTABLE FLYER GENERATOR */}
+          {currentStep === 3 && (
+            <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 space-y-6 backdrop-blur-md">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  3. Export & Printable Flyers
+                </h2>
+                {isPremium ? (
+                  <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    Pro Unlocked
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-[9px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                    <Lock size={9} /> Pro Feature
+                  </span>
+                )}
+              </div>
+
+              {/* Flyer Selection */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { id: "table-stand", label: "A4 Table Stand", desc: "Ideal for billing desk" },
+                  { id: "counter-card", label: "Counter Card", desc: "Perfect for door entryway" },
+                  { id: "business-card", label: "Pocket Cards", desc: "Small hand-outs" },
+                ].map((flyer) => (
+                  <div
+                    key={flyer.id}
+                    onClick={() => {
+                      if (!isPremium && flyer.id !== "table-stand") {
+                        setShowUpgradeModal(true);
+                        return;
+                      }
+                      setSelectedFlyerLayout(flyer.id);
+                    }}
+                    className={`p-3 rounded-2xl border transition cursor-pointer text-center flex flex-col justify-between ${selectedFlyerLayout === flyer.id
+                        ? "bg-indigo-500/10 border-indigo-500 text-indigo-400"
+                        : "bg-slate-900/30 border-slate-800 hover:border-slate-750 text-slate-400"
+                      }`}
+                  >
+                    <FileText size={16} className="mx-auto mb-1.5" />
+                    <h3 className="font-bold text-xs text-white leading-tight">{flyer.label}</h3>
+                    <p className="text-[9px] text-slate-500 mt-1 leading-relaxed">{flyer.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Printable Canvas Mock Layout preview */}
+              <div className="border border-slate-700/50 rounded-2xl p-4 bg-slate-900/60 relative overflow-hidden flex flex-col items-center">
+
+                <div id="flyer-print-area" className="bg-white rounded-xl p-6 text-black max-w-[280px] w-full text-center space-y-4 shadow-xl">
+                  <div className="flex items-center justify-center gap-1">
+                    <div className="w-2.5 h-2.5 rounded bg-indigo-600" />
+                    <h4 className="font-extrabold text-sm text-indigo-900 tracking-tight">{businessData.name}</h4>
+                  </div>
+                  <p className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Scan QR for Smart Menu</p>
+                  <div className="flex justify-center p-2.5 border-2 border-indigo-50/50 rounded-2xl">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={qrCodeDataUrl} className="w-40 h-40" alt="Print preview QR" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-extrabold text-slate-800">Scan to View, Rate & Pay</p>
+                    <p className="text-[8px] text-slate-400 leading-none">Powered by vscan.biz</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex gap-3 w-full">
+                  <button
+                    onClick={printFlyer}
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-750 text-xs font-bold py-2 rounded-xl border border-slate-700 text-slate-300 transition"
+                  >
+                    <Printer size={13} /> Print Flyer
+                  </button>
+                  <button
+                    onClick={() => {
+                      const link = document.createElement("a");
+                      link.download = `${selectedFlyerLayout}-flyer.png`;
+                      link.href = qrCodeDataUrl;
+                      link.click();
+                    }}
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold py-2 rounded-xl text-white transition"
+                  >
+                    <Download size={13} /> High-Res PNG
+                  </button>
+                </div>
+              </div>
+
+              {/* Navigation Actions */}
+              <div className="flex justify-between pt-4 border-t border-slate-700/30">
+                <button
+                  onClick={() => setCurrentStep(2)}
+                  className="flex items-center gap-1 border border-slate-700 hover:bg-slate-750 text-xs font-bold px-4 py-2.5 rounded-xl transition"
+                >
+                  <ArrowLeft size={13} /> Back
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* Right Side: QR Visual Device Mock & Details preview */}
+        <div className="lg:col-span-5 flex flex-col items-center gap-6">
+          <div className="sticky top-6 w-full max-w-sm space-y-4">
+
+            {/* Live QR Design Card */}
+            <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 flex flex-col items-center backdrop-blur-md">
+              <div className="text-center mb-4">
+                <h3 className="font-bold text-sm text-white">Interactive QR Code</h3>
+                <p className="text-[10px] text-slate-500 mt-0.5">Real-time design changes are painted below</p>
+              </div>
+
+              {/* Canvas element for custom rendering */}
+              <div className="bg-white p-4 rounded-2xl shadow-xl flex items-center justify-center">
+                <canvas ref={canvasRef} width={260} height={260} className="w-[220px] h-[220px]" />
+              </div>
+
+              <div className="mt-5 w-full flex items-center justify-between border border-slate-800 bg-slate-900/40 p-2.5 rounded-xl">
+                <span className="text-[10px] text-slate-500 font-mono truncate flex-1 pr-2">
+                  {getRedirectUrl()}
+                </span>
+                <button
+                  onClick={copyToClipboard}
+                  className="p-1.5 hover:bg-slate-800 rounded-lg text-indigo-400 transition"
+                  title="Copy link"
+                >
+                  <Copy size={13} />
+                </button>
+              </div>
+            </div>
+
+            {/* Smart QR Info Stats Widget */}
+            <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-5 backdrop-blur-md grid grid-cols-2 gap-3 text-center">
+              <div className="bg-slate-900/40 rounded-xl p-3.5 border border-slate-800">
+                <Eye size={16} className="text-indigo-400 mx-auto mb-1" />
+                <p className="text-lg font-bold text-white">4</p>
+                <p className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold">Weekly Scans</p>
+              </div>
+              <div className="bg-slate-900/40 rounded-xl p-3.5 border border-slate-800">
+                <Share2 size={16} className="text-indigo-400 mx-auto mb-1" />
+                <p className="text-lg font-bold text-white">2</p>
+                <p className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold">Total Shares</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
 }
