@@ -10,12 +10,12 @@ export default function AuthSwitcher() {
 
   return (
     <div className="mb-8 flex justify-center w-full">
-      <div className="relative flex rounded-lg bg-slate-100 p-1 dark:bg-slate-900">
+      <div className="relative flex rounded-lg bg-app-surface border border-app-border p-1">
         {/* Animated pill */}
         <motion.div
           layout
           transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-          className={`absolute inset-y-1 rounded-md bg-white shadow-sm dark:bg-slate-800 ${
+          className={`absolute inset-y-1 rounded-md bg-gradient-to-r from-primary to-secondary shadow-md ${
             isLogin ? 'left-1 right-1/2' : 'left-1/2 right-1'
           }`}
         />
@@ -24,8 +24,8 @@ export default function AuthSwitcher() {
           onClick={() => router.push('/auth/login')}
           className={`relative z-10 rounded-md px-5 py-2 text-sm font-medium transition-colors duration-200 ${
             isLogin
-              ? 'text-slate-900 dark:text-white'
-              : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+              ? 'text-white'
+              : 'text-app-text-muted hover:text-white'
           }`}
         >
           Sign in
@@ -35,8 +35,8 @@ export default function AuthSwitcher() {
           onClick={() => router.push('/auth/signup')}
           className={`relative z-10 rounded-md px-5 py-2 text-sm font-medium transition-colors duration-200 ${
             !isLogin
-              ? 'text-slate-900 dark:text-white'
-              : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+              ? 'text-white'
+              : 'text-app-text-muted hover:text-white'
           }`}
         >
           Sign up

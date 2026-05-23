@@ -136,7 +136,7 @@ const audience = [
 ];
 
 const testimonials = [
-  { name: "Ramesh Gupta", role: "Kirana Shop Owner, Jaipur", text: "I had zero online presence before BizPresence. In 10 minutes I had a live website. Customers now WhatsApp me directly for orders!", rating: 5 },
+  { name: "Ramesh Gupta", role: "Kirana Shop Owner, Jaipur", text: "I had zero online presence before Vscan. In 10 minutes I had a live website. Customers now WhatsApp me directly for orders!", rating: 5 },
   { name: "Priya Sharma", role: "Freelance Photographer, Mumbai", text: "Sharing my digital card is effortless now. Clients scan the QR and see my full portfolio instantly. Looks incredibly professional!", rating: 5 },
   { name: "Suresh Electricals", role: "Electrician, Pune", text: "The AI wrote my entire service description — I typed nothing! UPI payment makes me look like a big brand to every customer.", rating: 5 },
 ];
@@ -155,7 +155,7 @@ const stats = [
 ];
 
 const faqs = [
-  { q: "Do I need any technical knowledge?", a: "Absolutely not. BizPresence is a no-code platform. Just fill in your business details and your professional website is ready — no coding, no design skills required." },
+  { q: "Do I need any technical knowledge?", a: "Absolutely not. Vscan is a no-code platform. Just fill in your business details and your professional website is ready — no coding, no design skills required." },
   { q: "How does UPI payment integration work?", a: "Add your UPI ID or phone number and a payment QR code is auto-generated instantly. Customers pay you directly without any extra setup or gateway fees." },
   { q: "Is a credit card required for the Free plan?", a: "No! The Free plan is completely free — no credit card needed. Upgrade only when you're ready to scale." },
   { q: "What languages does AI content support?", a: "Currently Hindi and English. Regional language support (Tamil, Telugu, Marathi, Bengali) is coming soon." },
@@ -188,7 +188,7 @@ export default function HomePage() {
               <i className="bi bi-lightning-charge-fill text-sm" />
             </div>
             <span className="font-syne text-lg font-bold">
-              Biz<span className="bg-linear-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">Presence</span>
+              V<span className="bg-linear-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">scan</span>
             </span>
           </div>
 
@@ -530,7 +530,7 @@ export default function HomePage() {
                 <span className="shimmer-text">Go Digital?</span>
               </h2>
               <p className="text-white/50 text-lg mb-10 max-w-xl mx-auto">
-                Join 10,000+ businesses that already levelled up their digital presence with BizPresence.
+                Join 10,000+ businesses that already levelled up their digital presence with Vscan.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="/auth/signup" className="btn-primary px-10 py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2">
@@ -554,7 +554,7 @@ export default function HomePage() {
                   <i className="bi bi-lightning-charge-fill text-sm" />
                 </div>
                 <span className="font-syne text-lg font-bold">
-                  Biz<span className="bg-linear-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">Presence</span>
+                  V<span className="bg-linear-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">scan</span>
                 </span>
               </div>
               <p className="text-white/35 text-sm leading-relaxed max-w-xs mb-6">
@@ -599,7 +599,7 @@ export default function HomePage() {
 
           <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-white/20 text-xs flex items-center gap-2">
-              <i className="bi bi-c-circle" /> 2024 BizPresence. All rights reserved.
+              <i className="bi bi-c-circle" /> 2024 Vscan. All rights reserved.
             </p>
             <p className="text-white/20 text-xs flex items-center gap-2">
               <i className="bi bi-geo-alt-fill text-violet-400" /> Made with

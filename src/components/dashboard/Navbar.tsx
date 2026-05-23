@@ -17,7 +17,7 @@ export default function Navbar({
 }: Props) {
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-white px-4 lg:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-app-border bg-app-bg/85 backdrop-blur-md px-4 lg:px-6 text-white">
 
       {/* LEFT */}
       <div className="flex items-center gap-3">
@@ -25,7 +25,7 @@ export default function Navbar({
         {/* MOBILE MENU */}
         <button
           onClick={onMobileMenuOpen}
-          className="lg:hidden"
+          className="lg:hidden text-app-text-muted hover:text-white"
         >
           <PanelLeftOpen size={24} />
         </button>
@@ -33,7 +33,7 @@ export default function Navbar({
         {/* DESKTOP TOGGLE */}
         <button
           onClick={onToggleSidebar}
-          className="hidden rounded-lg border p-2 hover:bg-gray-100 lg:flex"
+          className="hidden rounded-lg border border-app-border p-2 text-app-text-muted hover:text-white hover:bg-app-surface-glass lg:flex transition-colors"
         >
           {collapsed ? (
             <PanelLeftOpen size={20} />
@@ -47,24 +47,24 @@ export default function Navbar({
       {/* RIGHT */}
       <div className="flex items-center gap-5">
 
-        <button className="relative">
+        <button className="relative text-app-text-muted hover:text-white transition-colors">
           <Bell size={22} />
 
-          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red-500" />
+          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-app-error" />
         </button>
 
         <div className="flex items-center gap-3">
 
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-bold">
             S
           </div>
 
           <div className="hidden sm:block">
-            <p className="text-sm font-medium">
+            <p className="text-sm font-medium text-white">
               Sanket
             </p>
 
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-app-text-muted">
               User
             </p>
           </div>

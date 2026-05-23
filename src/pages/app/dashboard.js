@@ -1,13 +1,19 @@
-"use client";
-
+'use client'
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  TrendingUp, Clock, List, ChevronRight, CheckCircle2,
+  AlertCircle, Sparkles, Globe, QrCode, MessageSquare,
+  ArrowUpRight, Star, Eye, ShieldAlert, Award, UserCheck, Shield
+} from "lucide-react";
+import { toast } from "sonner";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
-import { TrendingUp, Clock, List, ChevronDown } from "lucide-react";
-import ChatbotOverlay from "@/components/onboarding/ChatbotOverlay";
+import { THEME_COLORS } from "@/config/theme";
 
-// ─── Mock Data ───────────────────────────────────────────────────────────────
+// Mock Recharts Data for Bottom Analytics Section
 const trafficData = {
   Today: [{ d: "Now", v: 3 }],
   "7 Days": [
@@ -19,229 +25,274 @@ const trafficData = {
     { d: "May 7", v: 9 }, { d: "May 9", v: 18 }, { d: "May 11", v: 6 },
     { d: "May 13", v: 20 }, { d: "May 15", v: 11 }, { d: "May 16", v: 7 },
   ],
-  "All Time": [
-    { d: "Jan", v: 5 }, { d: "Feb", v: 12 }, { d: "Mar", v: 8 }, { d: "Apr", v: 22 },
-    { d: "May", v: 31 },
-  ],
 };
 
-const statsByRange = {
-  Today: { scans: 7, stars: 0, contacts: 0, feedback: 0 },
-  "7 Days": { scans: 18, stars: 2, contacts: 1, feedback: 0 },
-  "30 Days": { scans: 31, stars: 0, contacts: 0, feedback: 0 },
-  "All Time": { scans: 31, stars: 0, contacts: 0, feedback: 0 },
-};
-
-const scanLog = [
-  { date: "Sat, May 16, 2026", count: 7 },
-  { date: "Fri, May 15, 2026", count: 11 },
-];
-
-const heatmapAM = [9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-const heatmapPM = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7];
-const hours = ["0h", "1h", "2h", "3h", "4h", "5h", "6h", "7h", "8h", "9h", "10h", "11h"];
-const hoursPM = ["12h", "13h", "14h", "15h", "16h", "17h", "18h", "19h", "20h", "21h", "22h", "23h"];
-
-function HeatCell({ value }) {
-  const max = 9;
-  const intensity = value / max;
-  const bg = value === 0
-    ? "bg-gray-100"
-    : intensity > 0.7
-      ? "bg-blue-700"
-      : intensity > 0.3
-        ? "bg-blue-400"
-        : "bg-blue-200";
-  return <div className={`${bg} rounded h-10 w-full transition-all`} title={`${value} scans`} />;
-}
-
-const TABS = ["Today", "7 Days", "30 Days", "All Time"];
-
-export default function PerformanceDashboard() {
-  const [activeTab, setActiveTab] = useState("30 Days");
-  const [isFirstLogin, setIsFirstLogin] = useState(false);
+export default function Dashboard() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState(null);
+  const [activeTab, setActiveTab] = useState("30 Days");
+
+  const fetchStatus = async () => {
+    const userStr = localStorage.getItem("currentUser");
+    if (!userStr) {
+      router.push("/auth/login");
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userStr);
+      const res = await fetch(`/api/business/status?userId=${user.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setStatus(data);
+      }
+    } catch (e) {
+      console.error("Error loading status", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
-    const completed = localStorage.getItem("onboardingCompleted");
-    if (!completed) {
-      setIsFirstLogin(true);
-    }
+    fetchStatus();
   }, []);
 
-  if (!mounted) {
+  if (!mounted || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-app-bg text-white flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-light"></div>
+          <p className="text-xs text-app-text-muted">Loading your Control Center...</p>
+        </div>
       </div>
     );
   }
 
-  if (isFirstLogin) {
-    return <ChatbotOverlay onComplete={() => setIsFirstLogin(false)} />;
-  }
+  // Fallback defaults if profile doesn't exist yet
+  const businessName = status?.businessName || "Valued Merchant";
+  const checklist = status?.checklist || {
+    hasLogo: false,
+    hasServices: false,
+    hasQr: false,
+    hasReviewLink: false,
+    isPublished: false
+  };
+  const stats = status?.stats || { views: 0, scans: 0, reviews: 0, leads: 0 };
+  const isPremium = status?.subscription?.isActive || false;
 
-  const stats = statsByRange[activeTab];
+  // Calculate completed steps
+  const completedSteps = Object.values(checklist).filter(Boolean).length;
+  const totalSteps = 5;
 
   return (
-    <>
-      <div className="flex flex-col gap-3 mb-5">
-        <h1 className="text-xl font-bold text-gray-900">Performance Dashboard</h1>
-        <div className="flex gap-1">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${activeTab === tab ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-500 border-gray-200 hover:border-blue-300"}`} >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="min-h-screen bg-app-bg text-white py-6 px-4 md:px-8 space-y-6 relative overflow-hidden font-sans">
+      {/* Background gradients for premium glassmorphism aesthetic */}
+      <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-secondary/5 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-        <div className="rounded-xl px-6 py-5 flex items-center justify-between"
-          style={{ background: "linear-gradient(135deg,#2251cc 0%,#3b6df7 100%)" }}>
-          <div>
-            <p className="text-blue-200 text-xs font-semibold tracking-widest uppercase mb-1">Est. Value Generated</p>
-            <p className="text-white text-4xl font-bold">₹ 0</p>
-            <p className="text-blue-200 text-xs mt-1">Based on 5-star clicks &amp; contacts</p>
+      {/* 1. Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-app-border pb-5">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white to-app-text-muted bg-clip-text text-transparent">
+              Welcome, {businessName}!
+            </span>
+            {isPremium && (
+              <span className="flex items-center gap-1 text-[10px] font-bold text-app-warning bg-app-warning/10 px-2.5 py-1 rounded-full border border-app-warning/20 shadow-[0_0_10px_rgba(251,191,36,0.1)]">
+                <Award size={10} /> Premium
+              </span>
+            )}
           </div>
-          <div className="w-12 h-12 rounded-full border-2 border-white/30 flex items-center justify-center">
-            <TrendingUp size={22} className="text-white" />
-          </div>
+          <p className="text-app-text-muted text-sm mt-1">Manage your digital presence, payments and smart routing.</p>
         </div>
 
-        <div className="rounded-xl px-6 py-5 flex items-center justify-between"
-          style={{ background: "linear-gradient(135deg,#16a34a 0%,#22c55e 100%)" }}>
-          <div>
-            <p className="text-green-100 text-xs font-semibold tracking-widest uppercase mb-1">Time Saved</p>
-            <p className="text-white text-4xl font-bold">0 mins</p>
-            <p className="text-green-100 text-xs mt-1">via AI suggestions &amp; instant links</p>
-          </div>
-          <div className="w-12 h-12 rounded-full border-2 border-white/30 flex items-center justify-center">
-            <Clock size={22} className="text-white" />
+        {/* Publication Status Badge */}
+        <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-2xl border backdrop-blur-md ${checklist.isPublished
+            ? "bg-app-success/10 border-app-success/30 text-app-success"
+            : "bg-app-warning/10 border-app-warning/30 text-app-warning"
+            }`}>
+            <span className={`w-2 h-2 rounded-full ${checklist.isPublished ? "bg-app-success" : "bg-app-warning animate-pulse"}`} />
+            <span className="text-xs font-bold uppercase tracking-wider">
+              {checklist.isPublished ? "Published Live" : "Draft Mode"}
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+      {/* 2. Top-Level Metric Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Scans", value: stats.scans, color: "text-blue-600" },
-          { label: "5-Star Clicks", value: stats.stars, color: "text-yellow-500" },
-          { label: "Contacts Saved", value: stats.contacts, color: "text-green-500" },
-          { label: "Private Feedback", value: stats.feedback, color: "text-purple-600" },
-        ].map((s) => (
-          <div key={s.label} className="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-4">
-            <p className="text-[11px] text-gray-400 font-semibold tracking-widest uppercase">{s.label}</p>
-            <p className={`text-3xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+          { label: "Website Views", value: stats.views, icon: Eye, color: "text-secondary-light", bg: "from-secondary/20 to-secondary/5", border: "border-secondary/20" },
+          { label: "Smart QR Scans", value: stats.scans, icon: QrCode, color: "text-app-success", bg: "from-app-success/20 to-app-success/5", border: "border-app-success/20" },
+          { label: "Google Reviews", value: stats.reviews, icon: Star, color: "text-app-warning", bg: "from-app-warning/20 to-app-warning/5", border: "border-app-warning/20" },
+          { label: "Total Bookings/Leads", value: stats.leads, icon: MessageSquare, color: "text-primary-light", bg: "from-primary/20 to-primary/5", border: "border-primary/20" },
+        ].map((c) => (
+          <div
+            key={c.label}
+            className={`relative overflow-hidden bg-gradient-to-br ${c.bg} border ${c.border} rounded-2xl p-5 backdrop-blur-md shadow-lg transition-transform duration-200 hover:scale-[1.02]`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-app-text-dimmed uppercase tracking-widest">{c.label}</span>
+              <c.icon className={`w-4 h-4 ${c.color}`} />
+            </div>
+            <p className="text-3xl font-extrabold text-white mt-3">{c.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-          <p className="text-sm font-bold text-gray-700 mb-4">Traffic Trend</p>
-          <ResponsiveContainer width="100%" height={180}>
-            <LineChart data={trafficData[activeTab]} margin={{ top: 5, right: 10, left: -30, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="d" tick={{ fontSize: 10, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={{ borderRadius: "10px", border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", fontSize: 12 }} itemStyle={{ color: "#2251cc" }} />
-              <Line
-                type="monotone" dataKey="v" stroke="#2563eb" strokeWidth={2.5}
-                dot={{ fill: "#2563eb", r: 3 }}
-                activeDot={{ r: 5, fill: "#2563eb" }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+      {/* 3. Middle Section: Setup Checklist */}
+      <div className="bg-app-surface border border-app-border rounded-3xl p-6 md:p-8 backdrop-blur-md relative overflow-hidden shadow-2xl">
+        <div className="absolute top-0 right-0 p-8 opacity-5">
+          <Sparkles className="w-40 h-40 text-primary" />
         </div>
 
-        {/* Hourly Activity Heatmap */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-          <p className="text-sm font-bold text-gray-700 mb-4">Hourly Activity Heatmap</p>
-          <div className="flex flex-col gap-1.5">
-            {/* AM Row */}
-            <div className="grid grid-cols-12 gap-1">
-              {heatmapAM.map((v, i) => <HeatCell key={i} value={v} />)}
-            </div>
-            {/* AM Labels */}
-            <div className="grid grid-cols-12 gap-1 mb-1">
-              {hours.map((h) => (
-                <span key={h} className="text-center text-[9px] text-gray-400">{h}</span>
-              ))}
-            </div>
-            {/* PM Row */}
-            <div className="grid grid-cols-12 gap-1">
-              {heatmapPM.map((v, i) => <HeatCell key={i} value={v} />)}
-            </div>
-            {/* PM Labels */}
-            <div className="grid grid-cols-12 gap-1">
-              {hoursPM.map((h) => (
-                <span key={h} className="text-center text-[9px] text-gray-400">{h}</span>
-              ))}
-            </div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-app-border pb-5">
+          <div>
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              🚀 Smart QR Setup checklist
+            </h2>
+            <p className="text-app-text-muted text-xs mt-0.5">Complete these configuration items to unlock full local SEO visibility.</p>
           </div>
-          {/* Legend */}
-          <div className="flex items-center gap-2 mt-3 justify-end">
-            <span className="text-[10px] text-gray-400">Low</span>
-            {["bg-gray-100", "bg-blue-200", "bg-blue-400", "bg-blue-700"].map((c) => (
-              <div key={c} className={`w-4 h-4 rounded ${c}`} />
-            ))}
-            <span className="text-[10px] text-gray-400">High</span>
+          <div>
+            <span className="text-xs font-bold text-primary-light bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
+              {completedSteps} / {totalSteps} Completed
+            </span>
           </div>
         </div>
-      </div>
 
-      {/* Daily Scan Log */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-5">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
-          <div className="flex items-center gap-2">
-            <List size={16} className="text-gray-500" />
-            <span className="font-bold text-gray-800 text-sm">Daily Scan Log</span>
-          </div>
-          <button className="flex items-center gap-1 text-xs text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-blue-300 transition">
-            Last 30 Days <ChevronDown size={12} />
-          </button>
-        </div>
-        <div className="px-6 py-2">
-          <div className="grid grid-cols-2 pb-2 pt-2 border-b border-gray-50">
-            <span className="text-[11px] text-gray-400 font-semibold tracking-widest uppercase">Date</span>
-            <span className="text-[11px] text-gray-400 font-semibold tracking-widest uppercase text-right">Scan Count</span>
-          </div>
-          {scanLog.map((row) => (
-            <div key={row.date} className="grid grid-cols-2 py-3.5 border-b border-gray-50 last:border-0">
-              <span className="text-sm text-gray-700">{row.date}</span>
-              <div className="flex justify-end">
-                <span className="bg-blue-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full min-w-7 text-center">
-                  {row.count}
-                </span>
+        {/* Checklist List */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+          {[
+            {
+              id: "logo",
+              title: "Upload Business Logo",
+              desc: "Represent your local storefront brand digitally.",
+              checked: checklist.hasLogo,
+              link: "/app/profile-settings"
+            },
+            {
+              id: "services",
+              title: "Add your Services/Products",
+              desc: "Create beautiful interactive items for customers to see.",
+              checked: checklist.hasServices,
+              link: "/app/mini-website"
+            },
+            {
+              id: "qr",
+              title: "Generate Smart QR Code",
+              desc: "Customize payment gradients and Google review redirect routing.",
+              checked: checklist.hasQr,
+              link: "/app/smart-qr"
+            },
+            {
+              id: "reviews",
+              title: "Connect Google Reviews",
+              desc: "Provide feedback redirection routing link.",
+              checked: checklist.hasReviewLink,
+              link: "/app/profile-settings"
+            },
+            {
+              id: "publish",
+              title: "Publish Business Mini-Website",
+              desc: "Publish drafts so your website and QR redirect links are live.",
+              checked: checklist.isPublished,
+              link: "/app/mini-website"
+            }
+          ].map((item, idx) => (
+            <div
+              key={item.id}
+              onClick={() => router.push(item.link)}
+              className={`flex items-start gap-4 p-4 rounded-2xl border transition-all duration-200 cursor-pointer ${item.checked
+                ? "bg-app-surface/20 border-app-border text-app-text-muted hover:border-white/10"
+                : "bg-primary/5 border-primary/20 hover:border-primary/45 hover:bg-primary/10"
+                }`}
+            >
+              <div className="mt-0.5">
+                {item.checked ? (
+                  <CheckCircle2 className="w-5 h-5 text-app-success" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-primary/40 flex items-center justify-center text-xs font-bold text-primary-light">
+                    {idx + 1}
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <h3 className={`text-sm font-bold truncate ${item.checked ? "text-app-text-muted/60 line-through" : "text-white"}`}>
+                    {item.title}
+                  </h3>
+                  {!item.checked && <ArrowUpRight className="w-3.5 h-3.5 text-primary-light opacity-0 group-hover:opacity-100 transition-opacity" />}
+                </div>
+                <p className="text-app-text-dimmed text-xs mt-0.5">{item.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Recent Feedback */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-4">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
-          <span className="font-bold text-gray-800 text-sm">Recent Feedback</span>
-          <button className="flex items-center gap-1 text-xs text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-blue-300 transition">
-            Last 30 Days <ChevronDown size={12} />
-          </button>
-        </div>
-        <div className="px-6 py-2">
-          <div className="grid grid-cols-5 pb-2 pt-2 border-b border-gray-50">
-            {["Date", "Rating", "Customer", "Message", "Status"].map((h) => (
-              <span key={h} className="text-[11px] text-gray-400 font-semibold tracking-widest uppercase">{h}</span>
-            ))}
-          </div>
-          <div className="py-10 text-center text-sm text-gray-400 italic">
-            No feedback received.
-          </div>
+      {/* 4. Quick Actions */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-bold text-app-text-muted uppercase tracking-wider">Quick Actions</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: "My Website Builder", link: "/app/mini-website", desc: "Design pages & themes", bg: "bg-app-surface hover:bg-app-surface/80 border-app-border" },
+            { label: "Configure Smart QR", link: "/app/smart-qr", desc: "Change flyers & shapes", bg: "bg-app-surface hover:bg-app-surface/80 border-app-border" },
+            { label: "AI Suggestion Studio", link: "/app/ai-suggestions", desc: "Draft SEO keywords", bg: "bg-app-surface hover:bg-app-surface/80 border-app-border" },
+            { label: "Premium Upgrades", link: "/app/billing", desc: "Manage subscription plans", bg: "bg-primary/10 hover:bg-primary/20 border-primary/20 text-primary-light" },
+          ].map((act) => (
+            <button
+              key={act.label}
+              onClick={() => router.push(act.link)}
+              className={`flex flex-col items-start text-left p-5 rounded-2xl border transition-all duration-200 ${act.bg}`}
+            >
+              <span className="text-sm font-bold">{act.label}</span>
+              <span className="text-[11px] text-app-text-dimmed mt-1">{act.desc}</span>
+            </button>
+          ))}
         </div>
       </div>
-    </>
+
+      {/* 5. Bottom Analytics Widget */}
+      <div className="bg-app-surface border border-app-border rounded-3xl p-6 backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-app-border pb-4 mb-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={16} className="text-primary-light" />
+            <span className="font-bold text-white text-sm">Traffic analytics overview</span>
+          </div>
+          <button
+            onClick={() => router.push("/app/analytics")}
+            className="flex items-center gap-1 text-xs text-primary-light hover:text-primary font-semibold transition"
+          >
+            Open Analytics page <ChevronRight size={14} />
+          </button>
+        </div>
+
+        <div className="h-[200px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={trafficData["30 Days"]} margin={{ top: 5, right: 10, left: -25, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={THEME_COLORS.border} opacity={0.3} />
+              <XAxis dataKey="d" tick={{ fontSize: 10, fill: THEME_COLORS.text.muted }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: THEME_COLORS.text.muted }} tickLine={false} axisLine={false} />
+              <Tooltip
+                contentStyle={{ backgroundColor: THEME_COLORS.surface, borderRadius: "12px", border: `1px solid ${THEME_COLORS.border}`, color: "#fff", fontSize: 12 }}
+                itemStyle={{ color: THEME_COLORS.primary.light }}
+              />
+              <Line
+                type="monotone"
+                dataKey="v"
+                stroke={THEME_COLORS.accent.DEFAULT}
+                strokeWidth={3}
+                dot={{ fill: THEME_COLORS.accent.DEFAULT, r: 4 }}
+                activeDot={{ r: 6, fill: THEME_COLORS.secondary.light }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
   );
 }

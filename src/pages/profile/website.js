@@ -555,7 +555,7 @@ export default function MiniWebsite({ params }) {
                         <div className="w-6 h-6 bg-violet-500 rounded-md flex items-center justify-center">
                             <Zap className="w-3.5 h-3.5 text-white" />
                         </div>
-                        <span className="text-zinc-400 text-sm font-semibold">Powered by Presence1</span>
+                        <span className="text-zinc-400 text-sm font-semibold">Powered by Vscan</span>
                     </div>
                     <p className="text-zinc-700 text-xs">© 2025 {b.name} · All rights reserved</p>
                 </div>

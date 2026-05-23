@@ -1,391 +1,356 @@
 "use client";
 
-import { CreditCard, CheckCircle2, ShieldCheck, Building2, Sparkles, Crown, Zap, ArrowRight, QrCode } from "lucide-react";
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { load } from '@cashfreepayments/cashfree-js';
 import { useRouter } from "next/router";
+import {
+  CreditCard, CheckCircle2, ShieldCheck, Building2, Sparkles,
+  Crown, Zap, ArrowRight, QrCode, Lock, Award
+} from "lucide-react";
+import { toast } from "sonner";
+import { load } from "@cashfreepayments/cashfree-js";
 
 export default function BillingSubscription() {
-    const [txnId, setTxnId] = useState("");
-    const [verifying, setVerifying] = useState(false);
-    const [verified, setVerified] = useState(false);
-    const [mounted, setMounted] = useState(false);
-    
-    // Cashfree states
-    const [cashfree, setCashfree] = useState(null);
-    const [isCreatingOrder, setIsCreatingOrder] = useState(false);
-    const router = useRouter();
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState(null);
 
-    useEffect(() => {
-        const initializeCashfree = async () => {
-            const cf = await load({
-                mode: process.env.NODE_ENV === 'production' ? "production" : "sandbox"
-            });
-            setCashfree(cf);
+  const [txnId, setTxnId] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [verified, setVerified] = useState(false);
+  const [cashfree, setCashfree] = useState(null);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+
+  const fetchStatus = async () => {
+    const userStr = localStorage.getItem("currentUser");
+    if (!userStr) {
+      router.push("/auth/login");
+      return;
+    }
+    try {
+      const user = JSON.parse(userStr);
+      const res = await fetch(`/api/business/status?userId=${user.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setStatus(data);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    fetchStatus();
+
+    const initializeCashfree = async () => {
+      try {
+        const cf = await load({
+          mode: process.env.NODE_ENV === "production" ? "production" : "sandbox"
+        });
+        setCashfree(cf);
+      } catch (err) {
+        console.error("Cashfree SDK failed to load", err);
+      }
+    };
+    initializeCashfree();
+  }, []);
+
+  // Check for order_id callback in URL
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { order_id } = router.query;
+    if (order_id) {
+      verifyCashfreeOrder(order_id);
+    }
+  }, [router.isReady, router.query]);
+
+  const verifyCashfreeOrder = async (orderId) => {
+    try {
+      setVerifying(true);
+      const response = await fetch("/api/cashfree/verify-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: orderId })
+      });
+      const data = await response.json();
+
+      if (data.order_status === "PAID") {
+        setVerified(true);
+        toast.success("Payment verified successfully!");
+        fetchStatus(); // Reload active subscription state
+        router.replace("/app/billing", undefined, { shallow: true });
+      } else {
+        toast.error(`Payment status: ${data.order_status}`);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to verify payment");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleCashfreePayment = async () => {
+    try {
+      setIsCreatingOrder(true);
+      const userStr = localStorage.getItem("currentUser");
+      const userId = userStr ? JSON.parse(userStr).id : "";
+
+      const response = await fetch("/api/cashfree/create-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": userId
+        },
+        body: JSON.stringify({ amount: 3499 })
+      });
+      const data = await response.json();
+
+      if (data.payment_session_id && cashfree) {
+        let checkoutOptions = {
+          paymentSessionId: data.payment_session_id,
+          redirectTarget: "_self"
         };
-        initializeCashfree();
-    }, []);
+        cashfree.checkout(checkoutOptions);
+      } else {
+        toast.error(data.message || "Failed to initialize payment");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred during payment");
+    } finally {
+      setIsCreatingOrder(false);
+    }
+  };
 
-    // Check for order_id in URL to verify payment
-    useEffect(() => {
-        if (!router.isReady) return;
-        const { order_id } = router.query;
-        if (order_id) {
-            verifyCashfreeOrder(order_id);
-        }
-    }, [router.isReady, router.query]);
+  const handleManualVerify = () => {
+    if (!txnId.trim()) return;
+    setVerifying(true);
+    setTimeout(() => {
+      setVerifying(false);
+      setVerified(true);
+      toast.success("Manual UTR submitted! Review in progress.");
+    }, 1500);
+  };
 
-    const verifyCashfreeOrder = async (orderId) => {
-        try {
-            setVerifying(true);
-            const response = await fetch('/api/cashfree/verify-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ order_id: orderId })
-            });
-            const data = await response.json();
-            
-            if (data.order_status === 'PAID') {
-                setVerified(true);
-                toast.success("Payment verified successfully!");
-                router.replace('/app/billing', undefined, { shallow: true });
-            } else {
-                toast.error(`Payment status: ${data.order_status}`);
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to verify payment");
-        } finally {
-            setVerifying(false);
-        }
-    };
-
-    const handleCashfreePayment = async () => {
-        try {
-            setIsCreatingOrder(true);
-            const response = await fetch('/api/cashfree/create-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: 3499 })
-            });
-            const data = await response.json();
-            
-            if (data.payment_session_id && cashfree) {
-                let checkoutOptions = {
-                    paymentSessionId: data.payment_session_id,
-                    redirectTarget: "_self"
-                };
-                cashfree.checkout(checkoutOptions);
-            } else {
-                toast.error(data.message || "Failed to initialize payment");
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error("An error occurred during payment");
-        } finally {
-            setIsCreatingOrder(false);
-        }
-    };
-
-    const handleVerify = () => {
-        if (!txnId.trim()) return;
-
-        setVerifying(true);
-
-        setTimeout(() => {
-            setVerifying(false);
-            setVerified(true);
-            toast.success("Payment verified successfully!");
-        }, 1500);
-    };
+  if (!mounted || loading) {
     return (
-        <>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* LEFT SIDE - 2 columns */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Current Plan Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="px-6 py-4 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
-                            <div className="flex items-center gap-2">
-                                <Crown className="w-5 h-5 text-blue-600" />
-                                <h2 className="text-xl font-semibold text-gray-800">Current Plan</h2>
-                            </div>
-                            <p className="text-sm text-gray-500 mt-1">Your active subscription details</p>
-                        </div>
-
-                        <div className="p-6">
-                            <div className="flex items-start justify-between flex-wrap gap-4">
-                                <div className="flex items-start gap-4">
-                                    <div className="w-14 h-14 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                                        <CreditCard className="w-7 h-7 text-white" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-gray-900">
-                                            Premium Plan
-                                        </h2>
-                                        <p className="text-sm text-gray-500 mt-1">
-                                            Smart QR & AI Reputation Management
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="px-4 py-2 rounded-full bg-linear-to-r from-red-50 to-orange-50 border border-red-100">
-                                    <span className="text-sm font-medium text-red-600 flex items-center gap-1">
-                                        <Zap className="w-3 h-3" />
-                                        Trial Active
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Plan Info Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-                                <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-100">
-                                    <p className="text-xs uppercase tracking-wide text-gray-500 font-medium">
-                                        Plan Expires
-                                    </p>
-                                    <h3 className="text-xl font-bold text-gray-900 mt-2">
-                                        22 May 2026
-                                    </h3>
-                                    <p className="text-xs text-gray-400 mt-1">12 days remaining</p>
-                                </div>
-                                <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-100">
-                                    <p className="text-xs uppercase tracking-wide text-gray-500 font-medium">
-                                        Billing Cycle
-                                    </p>
-                                    <h3 className="text-xl font-bold text-gray-900 mt-2">
-                                        Yearly
-                                    </h3>
-                                    <p className="text-xs text-gray-400 mt-1">Auto-renew on 22 May 2026</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Features Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="px-6 py-4 bg-linear-to-r from-emerald-50 to-teal-50 border-b border-gray-100">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Included Features
-                                    </h3>
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        Everything included in your premium subscription
-                                    </p>
-                                </div>
-                                <ShieldCheck className="w-6 h-6 text-emerald-500" />
-                            </div>
-                        </div>
-
-                        <div className="p-6">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                {[
-                                    "Smart QR Generator",
-                                    "AI Review Management",
-                                    "Unlimited QR Scans",
-                                    "Custom Branding",
-                                    "Analytics Dashboard",
-                                    "Priority Support",
-                                    "Business Website",
-                                    "Digital Business Card",
-                                ].map((feature, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100 hover:border-emerald-200 transition-all duration-200 group"
-                                    >
-                                        <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
-                                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                        </div>
-                                        <span className="text-sm font-medium text-gray-700">
-                                            {feature}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Verify Payment Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="px-6 py-4 bg-linear-to-r from-purple-50 to-pink-50 border-b border-gray-100">
-                            <h3 className="text-xl font-semibold text-gray-800">
-                                Verify Payment
-                            </h3>
-                            <p className="text-sm text-gray-500 mt-1">
-                                Enter your UTR / transaction ID after payment
-                            </p>
-                        </div>
-
-                        <div className="p-6">
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <div className="relative flex-1">
-                                    <Building2 className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                    <input
-                                        type="text"
-                                        value={txnId}
-                                        onChange={(e) => {
-                                            setTxnId(e.target.value);
-                                            setVerified(false);
-                                        }}
-                                        placeholder="Enter UTR / Transaction ID"
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                    />
-                                </div>
-                                <button
-                                    onClick={handleVerify}
-                                    disabled={verifying || !txnId.trim()}
-                                    className={`px-8 py-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[160px]
-                                            ${verified
-                                            ? "bg-linear-to-r from-emerald-500 to-green-600 text-white"
-                                            : verifying
-                                                ? "bg-linear-to-r from-blue-400 to-blue-500 text-white"
-                                                : txnId.trim()
-                                                    ? "bg-linear-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white shadow-lg hover:shadow-xl"
-                                                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        }`}
-                                >
-                                    {verified ? (
-                                        <>
-                                            <CheckCircle2 className="w-4 h-4" />
-                                            Verified
-                                        </>
-                                    ) : verifying ? (
-                                        <>
-                                            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                                                <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                                            </svg>
-                                            Checking
-                                        </>
-                                    ) : (
-                                        "Verify Payment"
-                                    )}
-                                </button>
-                            </div>
-
-                            <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
-                                <ShieldCheck className="w-3 h-3" />
-                                Account activation usually takes a few minutes after verification
-                            </p>
-
-                            {verified && (
-                                <div className="mt-4 flex items-center gap-2 text-sm text-emerald-600 font-medium bg-emerald-50 p-3 rounded-xl">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    Transaction submitted successfully. Your account will be activated shortly.
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* RIGHT SIDE - Pricing Card */}
-                <div className="lg:col-span-1">
-                    <div className="sticky top-6">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                            {/* Header */}
-                            <div className="px-6 py-4 bg-linear-to-r from-amber-50 to-yellow-50 border-b border-gray-100">
-                                <div className="flex items-center gap-2">
-                                    <Crown className="w-5 h-5 text-amber-600" />
-                                    <h3 className="font-semibold text-gray-800">Upgrade Plan</h3>
-                                </div>
-                                <p className="text-sm text-gray-500 mt-1">Unlock advanced tools and priority support</p>
-                            </div>
-
-                            {/* Pricing */}
-                            <div className="p-6 border-b border-gray-100">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">
-                                        Premium Yearly
-                                    </span>
-                                    <span className="px-3 py-1 rounded-full bg-linear-to-r from-green-50 to-emerald-50 text-xs font-semibold text-green-600">
-                                        SAVE 30%
-                                    </span>
-                                </div>
-                                <div className="mt-3">
-                                    <p className="text-sm text-gray-400 line-through">₹4,999/year</p>
-                                    <h2 className="text-4xl font-bold text-gray-900 mt-1">
-                                        ₹3,499
-                                    </h2>
-                                    <p className="text-sm text-gray-500 mt-2">One-time yearly payment</p>
-                                </div>
-                                <button 
-                                    onClick={handleCashfreePayment}
-                                    disabled={isCreatingOrder}
-                                    className="w-full mt-6 py-3 bg-linear-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex justify-center items-center gap-2"
-                                >
-                                    {isCreatingOrder ? (
-                                        <>
-                                            <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                                            </svg>
-                                            Processing...
-                                        </>
-                                    ) : (
-                                        "Upgrade Now"
-                                    )}
-                                </button>
-                            </div>
-
-                            {/* QR Code */}
-                            <div className="p-6 flex flex-col items-center bg-linear-to-br from-gray-50 to-white">
-                                <p className="text-xs uppercase tracking-[0.2em] text-gray-400 mb-4 font-medium">
-                                    Scan to Pay
-                                </p>
-                                <div className="w-48 h-48 bg-white rounded-xl border border-gray-200 p-3 flex items-center justify-center shadow-md">
-                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                                        <rect x="0" y="0" width="30" height="30" fill="black" rx="3" />
-                                        <rect x="4" y="4" width="22" height="22" fill="white" rx="2" />
-                                        <rect x="8" y="8" width="14" height="14" fill="black" rx="1" />
-                                        <rect x="70" y="0" width="30" height="30" fill="black" rx="3" />
-                                        <rect x="74" y="4" width="22" height="22" fill="white" rx="2" />
-                                        <rect x="78" y="8" width="14" height="14" fill="black" rx="1" />
-                                        <rect x="0" y="70" width="30" height="30" fill="black" rx="3" />
-                                        <rect x="4" y="74" width="22" height="22" fill="white" rx="2" />
-                                        <rect x="8" y="78" width="14" height="14" fill="black" rx="1" />
-                                        {[35, 38, 41, 44, 47, 50, 53, 56, 59, 62].map((x) =>
-                                            [35, 38, 41, 44, 47, 50, 53, 56, 59, 62].map((y) =>
-                                                (x * y) % 11 < 6 ? (
-                                                    <rect key={`${x}-${y}`} x={x} y={y} width="2.5" height="2.5" fill="black" />
-                                                ) : null
-                                            )
-                                        )}
-                                    </svg>
-                                </div>
-                                <p className="text-sm text-gray-500 mt-4 flex items-center gap-1">
-                                    <QrCode className="w-4 h-4" />
-                                    Scan using any UPI app
-                                </p>
-                                <div className="mt-4 p-3 bg-blue-50 rounded-xl w-full">
-                                    <p className="text-xs text-blue-600 text-center">
-                                        UPI ID: business@presence1
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Features List */}
-                            <div className="p-6 border-t border-gray-100 bg-gray-50">
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                                    What&apos;s included:
-                                </p>
-                                <div className="space-y-2">
-                                    {[
-                                        "Full access to all features",
-                                        "AI content generation",
-                                        "Analytics dashboard",
-                                        "Priority email support"
-                                    ].map((item, i) => (
-                                        <div key={i} className="flex items-center gap-2">
-                                            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                                            <span className="text-xs text-gray-600">{item}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </>
+      <div className="min-h-screen bg-app-bg text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-light"></div>
+      </div>
     );
+  }
+
+  const isPremium = status?.subscription?.isActive || false;
+
+  return (
+    <div className="min-h-screen bg-app-bg text-white py-6 px-4 md:px-8 space-y-6 relative overflow-hidden font-sans">
+      <div className="absolute top-[-10%] left-[-10%] w-[350px] h-[350px] rounded-full bg-secondary/5 blur-[90px]" />
+
+      {/* Header */}
+      <div className="border-b border-app-border pb-5">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white to-app-text-muted bg-clip-text text-transparent">
+          Subscription Plan
+        </h1>
+        <p className="text-app-text-muted text-sm mt-1">Upgrade your features, generate high-res QR designs, and review transactions.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Left Side: Current Plan & Features */}
+        <div className="lg:col-span-2 space-y-6">
+
+          {/* Plan Info Card */}
+          <div className="bg-app-surface border border-app-border rounded-3xl p-6 backdrop-blur-md relative overflow-hidden">
+            <div className="flex items-start justify-between flex-wrap gap-4">
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20">
+                  <CreditCard className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black text-white">
+                    {isPremium ? "Premium Pro Plan" : "Free Starter Plan"}
+                  </h2>
+                  <p className="text-sm text-app-text-muted mt-1">
+                    {isPremium ? "Full access to smart routing, styling and reviews tools" : "Basic digital storefront configurations"}
+                  </p>
+                </div>
+              </div>
+
+              <div className={`px-4 py-1.5 rounded-full border text-xs font-bold ${isPremium
+                ? "bg-app-success/10 border-app-success/20 text-app-success"
+                : "bg-app-warning/10 border-app-warning/20 text-app-warning"
+                }`}>
+                {isPremium ? "Active Account" : "Trial / Upgrade Required"}
+              </div>
+            </div>
+
+            {/* Trial Counter */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+              <div className="bg-app-bg/40 border border-app-border rounded-2xl p-5">
+                <span className="text-[10px] font-bold text-app-text-dimmed uppercase tracking-widest">Plan Duration</span>
+                <h3 className="text-lg font-bold text-white mt-1.5">{isPremium ? "Yearly Subscription" : "Trial Plan"}</h3>
+                <p className="text-xs text-app-text-muted mt-0.5">{isPremium ? "Auto-renews next year" : "Upgrade below to keep features"}</p>
+              </div>
+              <div className="bg-app-bg/40 border border-app-border rounded-2xl p-5">
+                <span className="text-[10px] font-bold text-app-text-dimmed uppercase tracking-widest">Billing Cycle</span>
+                <h3 className="text-lg font-bold text-white mt-1.5">One-time / Year</h3>
+                <p className="text-xs text-app-text-muted mt-0.5">INR payment verification via Cashfree</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Included Features */}
+          <div className="bg-app-surface border border-app-border rounded-3xl p-6 backdrop-blur-md">
+            <h3 className="font-bold text-base text-white mb-4">Included Pro Features</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { title: "Smart Gradient QR Customizer", desc: "Unlock premium aesthetic patterns" },
+                { title: "AI suggestions studio generator", desc: "Write professional SEO tags instantly" },
+                { title: "Custom review routing page", desc: "Capture Google Maps feedbacks directly" },
+                { title: "Print-ready counter stand flyers", desc: "Download high-res PDF print layouts" },
+              ].map((feat, idx) => (
+                <div key={idx} className="flex gap-3 bg-app-bg/40 border border-app-border rounded-2xl p-4">
+                  <div className="w-6 h-6 rounded-full bg-app-success/10 border border-app-success/20 flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 size={12} className="text-app-success" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white">{feat.title}</h4>
+                    <p className="text-[10px] text-app-text-dimmed mt-0.5 leading-relaxed">{feat.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* UTR Verification Card */}
+          <div className="bg-app-surface border border-app-border rounded-3xl p-6 backdrop-blur-md space-y-4">
+            <div>
+              <h3 className="font-bold text-base text-white">Manual UPI Transfer Verification</h3>
+              <p className="text-xs text-app-text-muted mt-0.5">Transferred directly via UPI QR code? Input the UTR code below to verify.</p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                value={txnId}
+                onChange={(e) => { setTxnId(e.target.value); setVerified(false); }}
+                placeholder="Enter 12-Digit UPI Ref / UTR Number"
+                className="flex-1 border border-app-border bg-app-bg/60 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <button
+                onClick={handleManualVerify}
+                disabled={verifying || !txnId.trim()}
+                className="bg-primary hover:bg-primary-dark px-6 py-2.5 rounded-xl text-xs font-bold text-white transition active:scale-95 disabled:opacity-50"
+              >
+                {verifying ? "Checking..." : "Submit Verification"}
+              </button>
+            </div>
+
+            {verified && (
+              <div className="flex items-center gap-2 text-xs text-app-success bg-app-success/10 p-3.5 rounded-xl border border-app-success/20">
+                <CheckCircle2 size={14} /> Submission recorded! Your premium features will activate within 10 minutes.
+              </div>
+            )}
+          </div>
+
+        </div>
+
+        {/* Right Side: Price Card & UPI QR */}
+        <div className="space-y-6">
+          <div className="bg-app-surface border border-app-border rounded-3xl overflow-hidden backdrop-blur-md">
+
+            {/* Upgrade header */}
+            <div className="px-6 py-5 border-b border-app-border bg-app-bg/30">
+              <div className="flex items-center gap-2 text-app-warning">
+                <Crown size={18} />
+                <span className="font-bold text-sm text-white">Pro Upgrade Offer</span>
+              </div>
+              <p className="text-[11px] text-app-text-muted mt-1">Instant digital activation in India.</p>
+            </div>
+
+            {/* Price section */}
+            <div className="p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-primary-light bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  Pro Annual
+                </span>
+                <span className="text-[10px] font-bold text-app-success bg-app-success/10 border border-app-success/20 px-2.5 py-1 rounded-full">
+                  SAVE 30%
+                </span>
+              </div>
+
+              <div className="pt-2">
+                <span className="text-xs text-app-text-dimmed line-through">₹4,999/yr</span>
+                <div className="flex items-baseline gap-1 mt-1">
+                  <span className="text-4xl font-extrabold text-white tracking-tight">₹3,499</span>
+                  <span className="text-xs text-app-text-muted">/ year</span>
+                </div>
+                <p className="text-[11px] text-app-text-dimmed mt-1.5 leading-relaxed">Tax included. Unlimited scan analytics & templates.</p>
+              </div>
+
+              <button
+                onClick={handleCashfreePayment}
+                disabled={isCreatingOrder}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-light hover:to-secondary-light text-white font-extrabold text-xs py-3 rounded-2xl transition active:scale-95 shadow-lg shadow-primary/20"
+              >
+                {isCreatingOrder ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    <span>Initializing Cashfree...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Upgrade via Instant UPI</span>
+                    <ArrowRight size={13} />
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* QR Scan Section */}
+            <div className="p-6 bg-app-bg/60 border-t border-app-border text-center space-y-4">
+              <span className="text-[9px] font-bold text-app-text-muted uppercase tracking-widest">Or Pay Directly via QR</span>
+
+              <div className="w-40 h-40 bg-white rounded-2xl p-2.5 mx-auto flex items-center justify-center shadow-lg border border-app-border">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                  <rect x="0" y="0" width="28" height="28" fill="black" rx="2" />
+                  <rect x="3" y="3" width="22" height="22" fill="white" rx="1" />
+                  <rect x="7" y="7" width="14" height="14" fill="black" />
+
+                  <rect x="72" y="0" width="28" height="28" fill="black" rx="2" />
+                  <rect x="75" y="3" width="22" height="22" fill="white" rx="1" />
+                  <rect x="79" y="7" width="14" height="14" fill="black" />
+
+                  <rect x="0" y="72" width="28" height="28" fill="black" rx="2" />
+                  <rect x="3" y="75" width="22" height="22" fill="white" rx="1" />
+                  <rect x="7" y="79" width="14" height="14" fill="black" />
+
+                  {[35, 38, 41, 44, 47, 50, 53, 56, 59, 62].map((x) =>
+                    [35, 38, 41, 44, 47, 50, 53, 56, 59, 62].map((y) =>
+                      (x * y) % 11 < 6 ? (
+                        <rect key={`${x}-${y}`} x={x} y={y} width="2.5" height="2.5" fill="black" />
+                      ) : null
+                    )
+                  )}
+                </svg>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-[10px] text-app-text-muted font-bold flex items-center justify-center gap-1">
+                  <QrCode size={11} /> Scan using GPay, PhonePe, Paytm
+                </p>
+                <p className="text-[9px] text-app-text-dimmed font-mono">UPI ID: vscan@ybl</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

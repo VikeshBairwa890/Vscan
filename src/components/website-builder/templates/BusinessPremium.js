@@ -572,7 +572,7 @@ export default function BusinessPremium({ data }) {
           <div className="w-5 h-5 rounded-md flex items-center justify-center" style={{ background: G.gold }}>
             <Zap className="w-3 h-3 text-black" />
           </div>
-          <span className="text-zinc-600 text-xs">Powered by Presence1</span>
+          <span className="text-zinc-600 text-xs">Powered by Vscan</span>
         </div>
         <p className="text-zinc-800 text-[10px]">© 2025 {b.businessName} · All rights reserved</p>
       </footer>

@@ -53,15 +53,15 @@ export default function Sidebar({
         className={`
           fixed top-0 left-0 z-50
           flex h-full flex-col
-          border-r bg-white
+          border-r border-app-border bg-app-surface
           transition-all duration-300
 
           ${collapsed ? "w-20" : "w-70"}
 
           ${
             mobileOpen
-              ? "translate-x-0"
-              : "-translate-x-full"
+               ? "translate-x-0"
+               : "-translate-x-full"
           }
 
           lg:translate-x-0
@@ -71,24 +71,29 @@ export default function Sidebar({
         {/* HEADER */}
         <div
           className={`
-            flex items-center border-b px-5 py-5
+            flex items-center border-b border-app-border px-5 py-5
             ${collapsed ? "justify-center" : "justify-between"}
           `}
         >
 
           {!collapsed ? (
-            <h1 className="text-2xl font-bold">
-              Presence1
-            </h1>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center font-bold shadow-lg shadow-violet-600/35">
+                <span className="text-white text-xs font-black">V</span>
+              </div>
+              <span className="font-syne text-lg font-bold bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
+                Vscan
+              </span>
+            </div>
           ) : (
-            <h1 className="text-2xl font-bold">
-              P
-            </h1>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center font-bold shadow-lg shadow-violet-600/35">
+              <span className="text-white text-xs font-black">V</span>
+            </div>
           )}
 
           <Button
             onClick={() => setMobileOpen(false)}
-            className="lg:hidden"
+            className="lg:hidden text-white bg-transparent hover:bg-app-surface-glass min-w-0 p-2"
           >
             <X size={22} />
           </Button>
@@ -123,8 +128,8 @@ export default function Sidebar({
 
                   ${
                     isActive
-                      ? "bg-black text-white"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/20"
+                      : "text-app-text-muted hover:bg-app-surface-glass hover:text-white"
                   }
                 `}
               >
@@ -142,7 +147,7 @@ export default function Sidebar({
                   <div
                     className="
                       invisible absolute left-16
-                      rounded-md bg-black px-3 py-2
+                      rounded-md bg-app-surface border border-app-border px-3 py-2
                       text-sm text-white opacity-0
                       transition-all
 
@@ -161,15 +166,15 @@ export default function Sidebar({
         </div>
 
         {/* FOOTER */}
-        <div className="border-t p-4">
+        <div className="border-t border-app-border p-4">
 
           {!collapsed && (
             <>
-              <p className="text-xs uppercase text-gray-400">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-app-text-dimmed">
                 Signed In As
               </p>
 
-              <p className="mt-2 break-all text-sm font-medium">
+              <p className="mt-1 break-all text-sm font-medium text-white">
                 user@example.com
               </p>
             </>
@@ -177,7 +182,7 @@ export default function Sidebar({
 
           <button
             className={`
-              mt-5 flex items-center text-red-500
+              mt-5 flex items-center text-app-error hover:opacity-85 transition-opacity
 
               ${
                 collapsed
@@ -219,7 +224,7 @@ export default function Sidebar({
           }
         />
 
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1">
           {children}
         </main>
 

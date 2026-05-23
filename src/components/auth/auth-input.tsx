@@ -11,7 +11,7 @@ interface Props {
 export default function AuthInput({ label, type = 'text', placeholder, name, value, onChange }: Props) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[13px] font-medium text-slate-500 dark:text-slate-400">
+      <label className="text-[13px] font-medium text-app-text-muted">
         {label}
       </label>
       <input
@@ -21,7 +21,7 @@ export default function AuthInput({ label, type = 'text', placeholder, name, val
         onChange={onChange}
         placeholder={placeholder}
         autoComplete={type === 'password' ? 'current-password' : type === 'email' ? 'email' : 'name'}
-        className="h-[42px] w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition duration-150 placeholder:text-slate-400 hover:border-slate-300 hover:bg-white focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-900/5 dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-600 dark:hover:border-slate-700 dark:focus:border-slate-600 dark:focus:ring-white/5"
+        className="h-[42px] w-full rounded-lg border border-app-border bg-app-surface px-3 text-sm text-white outline-none transition duration-150 placeholder:text-app-text-dimmed hover:border-primary/50 hover:bg-app-surface/85 focus:border-primary focus:bg-app-surface focus:ring-2 focus:ring-primary/20"
       />
     </div>
   )

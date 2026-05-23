@@ -67,10 +67,10 @@ export default function SignupPage() {
         >
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
+            <h1 className="text-xl font-semibold text-white">
               Create account
             </h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-app-text-muted">
               Get started for free
             </p>
           </div>
@@ -109,20 +109,20 @@ export default function SignupPage() {
               onChange={handleChange}
             />
 
-            <button onClick={handleSubmit} className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-medium text-white transition duration-150 hover:bg-slate-700 active:scale-[0.99] dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200">
+            <button onClick={handleSubmit} className="w-full btn-primary py-2.5 text-sm font-semibold text-white rounded-xl">
               Create account
             </button>
           </div>
 
           {/* Divider */}
           <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-            <span className="text-xs text-slate-400">or</span>
-            <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+            <div className="h-px flex-1 bg-app-border" />
+            <span className="text-xs text-app-text-dimmed">or</span>
+            <div className="h-px flex-1 bg-app-border" />
           </div>
 
           {/* Google */}
-          <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-2.5 text-sm font-medium text-slate-700 transition duration-150 hover:bg-slate-50 active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800">
+          <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-app-border bg-app-surface py-2.5 text-sm font-medium text-white transition duration-150 hover:bg-app-surface/80 hover:border-white/20 active:scale-[0.99]">
             <GoogleIcon />
             Continue with Google
           </button>

@@ -38,7 +38,7 @@ export default function PublicProfile() {
                 address: "123 Business Park, Andheri East, Mumbai - 400093",
                 website: "https://manasservices.com",
                 googleReviewLink: "https://g.page/r/example-review-link",
-                miniWebsiteUrl: "https://manasservices.presence1.com",
+                miniWebsiteUrl: "https://manasservices.vscan.biz",
                 upiId: "manas@okhdfcbank",
                 upiQR: null,
                 businessCard: {
@@ -177,7 +177,7 @@ export default function PublicProfile() {
                     <div className="w-8 h-8 bg-violet-500 rounded-lg flex items-center justify-center shadow-lg shadow-violet-500/30">
                         <Zap className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-white text-sm font-semibold tracking-tight">Presence1</span>
+                    <span className="text-white text-sm font-semibold tracking-tight">Vscan</span>
                 </div>
                 <button
                     onClick={handleShare}
@@ -267,7 +267,7 @@ export default function PublicProfile() {
                 {/* Verified badge */}
                 <div className="flex items-center justify-center gap-2 pt-2 pb-24">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="text-zinc-600 text-xs tracking-widest uppercase font-medium">Presence1 Verified</span>
+                    <span className="text-zinc-600 text-xs tracking-widest uppercase font-medium">Vscan Verified</span>
                 </div>
             </div>
 

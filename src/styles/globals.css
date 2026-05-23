@@ -2,8 +2,32 @@
 @import "@heroui/styles";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #05050f;
+  --foreground: #ffffff;
+
+  --color-primary: #7c3aed;
+  --color-primary-light: #a78bfa;
+  --color-primary-dark: #6d28d9;
+
+  --color-secondary: #4f46e5;
+  --color-secondary-light: #818cf8;
+  --color-secondary-dark: #3730a3;
+
+  --color-accent: #6366f1;
+
+  --color-app-bg: #05050f;
+  --color-app-surface: #0d0d1f;
+  --color-app-surface-glass: rgba(255, 255, 255, 0.03);
+  --color-app-border: rgba(255, 255, 255, 0.06);
+  --color-app-border-light: rgba(255, 255, 255, 0.1);
+
+  --color-app-text: #ffffff;
+  --color-app-text-muted: rgba(255, 255, 255, 0.5);
+  --color-app-text-dimmed: rgba(255, 255, 255, 0.35);
+
+  --color-app-success: #10b981;
+  --color-app-warning: #fbbf24;
+  --color-app-error: #ef4444;
 }
 
 @theme inline {
@@ -11,17 +35,34 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff;
-    --foreground: #ededed;
-  }
+  --color-primary: var(--color-primary);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-dark: var(--color-primary-dark);
+
+  --color-secondary: var(--color-secondary);
+  --color-secondary-light: var(--color-secondary-light);
+  --color-secondary-dark: var(--color-secondary-dark);
+
+  --color-accent: var(--color-accent);
+
+  --color-app-bg: var(--color-app-bg);
+  --color-app-surface: var(--color-app-surface);
+  --color-app-surface-glass: var(--color-app-surface-glass);
+  --color-app-border: var(--color-app-border);
+  --color-app-border-light: var(--color-app-border-light);
+
+  --color-app-text: var(--color-app-text);
+  --color-app-text-muted: var(--color-app-text-muted);
+  --color-app-text-dimmed: var(--color-app-text-dimmed);
+
+  --color-app-success: var(--color-app-success);
+  --color-app-warning: var(--color-app-warning);
+  --color-app-error: var(--color-app-error);
 }
 
 body {
-  background: #ffffff;
+  background: var(--background);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
   color: var(--foreground);
@@ -32,43 +73,93 @@ body {
 }
 
 @keyframes blob {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(40px, -30px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.95); }
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(40px, -30px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-16px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-16px);
+  }
 }
 
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, .35); }
-  50% { box-shadow: 0 0 55px rgba(124, 58, 237, .75), 0 0 80px rgba(99, 102, 241, .4); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(124, 58, 237, .35);
+  }
+
+  50% {
+    box-shadow: 0 0 55px rgba(124, 58, 237, .75), 0 0 80px rgba(99, 102, 241, .4);
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes spin-slow {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes border-flow {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 @keyframes scanline {
-  0% { top: -5%; }
-  100% { top: 105%; }
+  0% {
+    top: -5%;
+  }
+
+  100% {
+    top: 105%;
+  }
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .blob {
