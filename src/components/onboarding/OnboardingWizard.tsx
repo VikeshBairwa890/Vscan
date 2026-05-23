@@ -99,7 +99,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       currentStep
     };
     localStorage.setItem("onboardingDraft", JSON.stringify(draftData));
-    
+
     // Show visual status indicator
     setIsSavedBadgeVisible(true);
     const timer = setTimeout(() => setIsSavedBadgeVisible(false), 800);
@@ -300,7 +300,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           <span className="text-2xl font-black bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent tracking-tight">Vscan</span>
           <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 bg-primary/10 text-primary-light rounded border border-primary/20">AI Onboarding</span>
         </div>
-        
+
         {/* Draft Auto-Save Indicator */}
         <AnimatePresence>
           {isSavedBadgeVisible && (
@@ -329,7 +329,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
             {currentStep === 5 && "Complete Setup"}
           </span>
         </div>
-        
+
         <div className="w-full h-1.5 bg-app-surface border border-app-border rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-gradient-to-r from-primary to-secondary"
@@ -383,11 +383,10 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                             key={cat}
                             type="button"
                             onClick={() => handleCategorySelect(cat)}
-                            className={`flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-200 text-center ${
-                              category === cat
-                                ? "bg-primary/10 border-primary text-white shadow-[0_0_15px_rgba(124,58,237,0.15)]"
-                                : "bg-app-bg/40 border-app-border text-app-text-muted hover:border-app-text-muted/30 hover:text-white"
-                            }`}
+                            className={`flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-200 text-center ${category === cat
+                              ? "bg-primary/10 border-primary text-white shadow-[0_0_15px_rgba(124,58,237,0.15)]"
+                              : "bg-app-bg/40 border-app-border text-app-text-muted hover:border-app-text-muted/30 hover:text-white"
+                              }`}
                           >
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${category === cat ? "bg-primary text-white" : "bg-app-surface border border-app-border text-app-text-muted"}`}>
                               {getCategoryIcon(cat)}
@@ -690,9 +689,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
             <button
               type="button"
               onClick={prevStep}
-              className={`px-5 py-3 rounded-xl border border-app-border hover:border-app-text-muted/35 hover:bg-app-surface/60 font-semibold text-sm transition-all duration-200 text-app-text-muted ${
-                currentStep === 1 ? "opacity-0 pointer-events-none" : ""
-              }`}
+              className={`px-5 py-3 rounded-xl border border-app-border hover:border-app-text-muted/35 hover:bg-app-surface/60 font-semibold text-sm transition-all duration-200 text-app-text-muted ${currentStep === 1 ? "opacity-0 pointer-events-none" : ""
+                }`}
             >
               Back
             </button>

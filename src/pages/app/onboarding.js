@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/router";
-import ChatbotOverlay from "@/components/onboarding/ChatbotOverlay";
+import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -10,5 +10,5 @@ export default function OnboardingPage() {
     router.push("/app/dashboard");
   };
 
-  return <ChatbotOverlay onComplete={handleComplete} />;
+  return <OnboardingWizard onComplete={handleComplete} />;
 }

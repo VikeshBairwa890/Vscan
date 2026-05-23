@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const typeParam = urlParams.searchParams.get("type");
 
     let isQr = typeParam === "qr" || req.url?.includes("qr");
-    
+
     // We can also check if body is parsed (for base64/JSON uploads)
     if (req.body && typeof req.body === "object") {
       if (req.body.type === "qr" || req.body.type === "paymentQr") {

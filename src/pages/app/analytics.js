@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-app-bg text-white py-6 px-4 md:px-8 space-y-6 relative overflow-hidden font-sans">
       <div className="absolute top-[-10%] left-[-10%] w-[350px] h-[350px] rounded-full bg-secondary/5 blur-[90px]" />
-      
+
       {/* Header */}
       <div className="border-b border-app-border pb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -82,7 +82,7 @@ export default function AnalyticsPage() {
           </h1>
           <p className="text-app-text-muted text-sm mt-1">Deep-dive insights on traffic trend, customer clicks, and review history.</p>
         </div>
-        
+
         {/* Time Filter */}
         <button className="flex items-center gap-1.5 text-xs font-semibold text-app-text-muted border border-app-border bg-app-surface rounded-xl px-4 py-2 hover:border-app-text-muted/30 transition">
           <Calendar size={14} className="text-app-text-muted" />
@@ -92,7 +92,7 @@ export default function AnalyticsPage() {
 
       {/* Grid: Main Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         {/* Chart 1: Traffic & Scan Trends */}
         <div className="bg-app-surface border border-app-border rounded-3xl p-6 backdrop-blur-md">
           <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
@@ -140,7 +140,7 @@ export default function AnalyticsPage() {
         <h2 className="text-sm font-bold text-white mb-5 flex items-center gap-2">
           🔥 Hourly Interaction Heatmap
         </h2>
-        
+
         <div className="space-y-4">
           {/* AM Row */}
           <div>
@@ -153,7 +153,7 @@ export default function AnalyticsPage() {
               ))}
             </div>
           </div>
-          
+
           {/* PM Row */}
           <div>
             <div className="grid grid-cols-12 gap-1 mb-1.5">
@@ -179,7 +179,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         {/* Daily Scan Log */}
         <div className="bg-app-surface border border-app-border rounded-3xl overflow-hidden backdrop-blur-md">
           <div className="px-6 py-4 border-b border-app-border">

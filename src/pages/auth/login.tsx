@@ -39,6 +39,9 @@ export default function LoginPage() {
         return;
       }
       toast.success(responseBody.message);
+      if (responseBody.data) {
+        localStorage.setItem("currentUser", JSON.stringify(responseBody.data));
+      }
       setTimeout(() => {
         router.push('/app/dashboard');
       }, 1000);

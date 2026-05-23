@@ -32,7 +32,7 @@
     "**/*.mts",
     "src/pages/index.jsx",
     "src/pages/app/dashboard.js",
-    "src/pages/app/onboarding.js"
+    "src/pages/app/dashboard.tsx"
   ],
   "exclude": [
     "node_modules"

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
+import { Link } from "@heroui/react";
 
 const uid = () => Math.random().toString(36).slice(2, 8);
 
@@ -289,7 +290,8 @@ export default function SmartQR() {
             </div>
           </div>
         </div>
-      )}
+      )
+      }
 
       {/* Header & Step Tracker */}
       <div className="border-b border-app-border pb-5 space-y-4">
@@ -308,8 +310,8 @@ export default function SmartQR() {
                 key={step}
                 onClick={() => setCurrentStep(step)}
                 className={`px-4 py-1.5 rounded-xl text-xs font-bold transition ${currentStep === step
-                    ? "bg-primary text-white shadow-md shadow-primary/20"
-                    : "text-app-text-muted hover:text-white"
+                  ? "bg-primary text-white shadow-md shadow-primary/20"
+                  : "text-app-text-muted hover:text-white"
                   }`}
               >
                 Step {step}
@@ -343,19 +345,19 @@ export default function SmartQR() {
                     key={dest.id}
                     onClick={() => setQrDestination(dest.id)}
                     className={`p-4 rounded-2xl border transition-all cursor-pointer ${qrDestination === dest.id
-                        ? "bg-primary/10 border-primary text-primary-light"
-                        : "bg-app-bg/30 border-app-border hover:border-app-text-muted/30 text-app-text-muted"
+                      ? "bg-primary/10 border-primary text-primary-light"
+                      : "bg-app-bg/30 border-app-border hover:border-app-text-muted/30 text-app-text-muted"
                       }`}
                   >
                     <dest.icon size={18} className="mb-2" />
                     <h3 className="font-bold text-sm text-white">{dest.title}</h3>
                     <p className="text-[11px] text-app-text-dimmed mt-1">{dest.desc}</p>
-                  </div>
+                  </div >
                 ))}
-              </div>
+              </div >
 
               {/* Form Input fields depending on destination selection */}
-              <div className="space-y-4 pt-2">
+              < div className="space-y-4 pt-2" >
                 {qrDestination === "custom" && (
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-bold text-app-text-dimmed uppercase tracking-wider">Custom redirect URL</label>
@@ -365,216 +367,222 @@ export default function SmartQR() {
                       placeholder="https://mywebsite.com/offer"
                       className="border border-app-border bg-app-bg/50 rounded-xl px-3 py-2.5 text-xs text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary"
                     />
-                  </div>
+                  </div >
                 )}
-                {qrDestination === "reviews" && (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-app-text-dimmed uppercase tracking-wider">Google Review Link</label>
-                    <input
-                      value={businessData.reviewLink}
-                      onChange={(e) => setBusinessData({ ...businessData, reviewLink: e.target.value })}
-                      placeholder="https://g.page/r/..."
-                      className="border border-app-border bg-app-bg/50 rounded-xl px-3 py-2.5 text-xs text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-                )}
-              </div>
+                {
+                  qrDestination === "reviews" && (
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold text-app-text-dimmed uppercase tracking-wider">Google Review Link</label>
+                      <input
+                        value={businessData.reviewLink}
+                        onChange={(e) => setBusinessData({ ...businessData, reviewLink: e.target.value })}
+                        placeholder="https://g.page/r/..."
+                        className="border border-app-border bg-app-bg/50 rounded-xl px-3 py-2.5 text-xs text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div >
+                  )
+                }
+              </div >
 
               {/* Action Button */}
-              <div className="flex justify-end pt-4 border-t border-app-border">
+              < div className="flex justify-end pt-4 border-t border-app-border" >
                 <button
                   onClick={() => setCurrentStep(2)}
                   className="flex items-center gap-1.5 bg-gradient-to-r from-primary to-secondary hover:from-primary-light hover:to-secondary-light text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-lg shadow-primary/20 active:scale-95"
                 >
                   Continue to Styling <ArrowRight size={13} />
                 </button>
-              </div>
-            </div>
+              </div >
+            </div >
           )}
 
           {/* STEP 2: STYLING & CUSTOMIZATION */}
-          {currentStep === 2 && (
-            <div className="bg-app-surface border border-app-border rounded-3xl p-6 space-y-6 backdrop-blur-md">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                2. Styling & Custom Design
-              </h2>
+          {
+            currentStep === 2 && (
+              <div className="bg-app-surface border border-app-border rounded-3xl p-6 space-y-6 backdrop-blur-md">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  2. Styling & Custom Design
+                </h2>
 
-              {/* Style Presets */}
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold text-app-text-dimmed uppercase tracking-wider">Theme Schemes</label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[
-                    { label: "Classic Violet", p: "#7c3aed", s: "#7c3aed", isG: false, isP: false },
-                    { label: "Forest Green", p: "#059669", s: "#059669", isG: false, isP: false },
-                    { label: "Dark Charcoal", p: "#1e293b", s: "#1e293b", isG: false, isP: false },
-                    { label: "Electric Sunset (Pro)", p: "#7c3aed", s: "#4f46e5", isG: true, isP: true },
-                    { label: "Gold Marble (Pro)", p: "#d97706", s: "#eab308", isG: true, isP: true },
-                    { label: "Royal Emerald (Pro)", p: "#059669", s: "#10b981", isG: true, isP: true },
-                  ].map((preset) => (
-                    <div
-                      key={preset.label}
-                      onClick={() => selectStylePreset(preset.p, preset.s, preset.isG, preset.isP)}
-                      className={`relative p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col gap-2 ${primaryColor === preset.p && gradientEnabled === preset.isG
+                {/* Style Presets */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold text-app-text-dimmed uppercase tracking-wider">Theme Schemes</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { label: "Classic Violet", p: "#7c3aed", s: "#7c3aed", isG: false, isP: false },
+                      { label: "Forest Green", p: "#059669", s: "#059669", isG: false, isP: false },
+                      { label: "Dark Charcoal", p: "#1e293b", s: "#1e293b", isG: false, isP: false },
+                      { label: "Electric Sunset (Pro)", p: "#7c3aed", s: "#4f46e5", isG: true, isP: true },
+                      { label: "Gold Marble (Pro)", p: "#d97706", s: "#eab308", isG: true, isP: true },
+                      { label: "Royal Emerald (Pro)", p: "#059669", s: "#10b981", isG: true, isP: true },
+                    ].map((preset) => (
+                      <div
+                        key={preset.label}
+                        onClick={() => selectStylePreset(preset.p, preset.s, preset.isG, preset.isP)}
+                        className={`relative p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col gap-2 ${primaryColor === preset.p && gradientEnabled === preset.isG
                           ? "bg-primary/10 border-primary text-primary-light"
                           : "bg-app-bg/30 border-app-border hover:border-app-text-muted/30 text-app-text-muted"
-                        }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-bold text-white truncate flex-1 pr-1">{preset.label}</span>
-                        {preset.isP && <Lock size={10} className="text-app-warning" />}
-                      </div>
-                      <div className="flex gap-1 h-3 rounded-md overflow-hidden">
-                        <div className="flex-1" style={{ backgroundColor: preset.p }} />
-                        {preset.isG && <div className="flex-1" style={{ backgroundColor: preset.s }} />}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                          }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="text-[11px] font-bold text-white truncate flex-1 pr-1">{preset.label}</span>
+                          {preset.isP && <Lock size={10} className="text-app-warning" />}
+                        </div >
+                        <div className="flex gap-1 h-3 rounded-md overflow-hidden">
+                          <div className="flex-1" style={{ backgroundColor: preset.p }} />
+                          {preset.isG && <div className="flex-1" style={{ backgroundColor: preset.s }} />}
+                        </div>
+                      </div >
+                    ))
+                    }
+                  </div >
+                </div >
 
-              {/* Design Pattern selectors */}
-              <div className="space-y-3 pt-2">
-                <label className="text-[10px] font-bold text-app-text-dimmed uppercase tracking-wider">Pattern Dot Shape</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { id: "classic", label: "Classic Block" },
-                    { id: "rounded", label: "Smooth Dot" },
-                    { id: "blocky", label: "Stylized Grid" },
-                  ].map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setQrDesignPattern(p.id)}
-                      className={`py-2 rounded-xl text-xs font-bold border transition ${qrDesignPattern === p.id
+                {/* Design Pattern selectors */}
+                < div className="space-y-3 pt-2" >
+                  <label className="text-[10px] font-bold text-app-text-dimmed uppercase tracking-wider">Pattern Dot Shape</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { id: "classic", label: "Classic Block" },
+                      { id: "rounded", label: "Smooth Dot" },
+                      { id: "blocky", label: "Stylized Grid" },
+                    ].map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => setQrDesignPattern(p.id)}
+                        className={`py-2 rounded-xl text-xs font-bold border transition ${qrDesignPattern === p.id
                           ? "bg-primary border-primary text-white shadow-md shadow-primary/20"
                           : "bg-app-bg/30 border-app-border text-app-text-muted hover:border-app-text-muted/30"
-                        }`}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                          }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div >
 
-              {/* Navigation Actions */}
-              <div className="flex justify-between pt-4 border-t border-app-border">
-                <button
-                  onClick={() => setCurrentStep(1)}
-                  className="flex items-center gap-1 border border-app-border hover:bg-app-surface/80 text-xs font-bold px-4 py-2.5 rounded-xl transition text-app-text-muted"
-                >
-                  <ArrowLeft size={13} /> Back
-                </button>
-                <button
-                  onClick={() => setCurrentStep(3)}
-                  className="flex items-center gap-1.5 bg-gradient-to-r from-primary to-secondary hover:from-primary-light hover:to-secondary-light text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-lg shadow-primary/20 active:scale-95"
-                >
-                  Continue to Flyers <ArrowRight size={13} />
-                </button>
-              </div>
-            </div>
-          )}
+                {/* Navigation Actions */}
+                < div className="flex justify-between pt-4 border-t border-app-border" >
+                  <button
+                    onClick={() => setCurrentStep(1)}
+                    className="flex items-center gap-1 border border-app-border hover:bg-app-surface/80 text-xs font-bold px-4 py-2.5 rounded-xl transition text-app-text-muted"
+                  >
+                    <ArrowLeft size={13} /> Back
+                  </button>
+                  <button
+                    onClick={() => setCurrentStep(3)}
+                    className="flex items-center gap-1.5 bg-gradient-to-r from-primary to-secondary hover:from-primary-light hover:to-secondary-light text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-lg shadow-primary/20 active:scale-95"
+                  >
+                    Continue to Flyers <ArrowRight size={13} />
+                  </button>
+                </div >
+              </div >
+            )}
 
           {/* STEP 3: PRINTABLE FLYER GENERATOR */}
-          {currentStep === 3 && (
-            <div className="bg-app-surface border border-app-border rounded-3xl p-6 space-y-6 backdrop-blur-md">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  3. Export & Printable Flyers
-                </h2>
-                {isPremium ? (
-                  <span className="flex items-center gap-1 text-[9px] font-bold text-app-success bg-app-success/10 px-2 py-0.5 rounded-full border border-app-success/20">
-                    Pro Unlocked
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1 text-[9px] font-bold text-app-warning bg-app-warning/10 px-2 py-0.5 rounded-full border border-app-warning/20">
-                    <Lock size={9} /> Pro Feature
-                  </span>
-                )}
-              </div>
+          {
+            currentStep === 3 && (
+              <div className="bg-app-surface border border-app-border rounded-3xl p-6 space-y-6 backdrop-blur-md">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    3. Export & Printable Flyers
+                  </h2>
+                  {isPremium ? (
+                    <span className="flex items-center gap-1 text-[9px] font-bold text-app-success bg-app-success/10 px-2 py-0.5 rounded-full border border-app-success/20">
+                      Pro Unlocked
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-[9px] font-bold text-app-warning bg-app-warning/10 px-2 py-0.5 rounded-full border border-app-warning/20">
+                      <Lock size={9} /> Pro Feature
+                    </span>
+                  )}
+                </div>
 
-              {/* Flyer Selection */}
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { id: "table-stand", label: "A4 Table Stand", desc: "Ideal for billing desk" },
-                  { id: "counter-card", label: "Counter Card", desc: "Perfect for door entryway" },
-                  { id: "business-card", label: "Pocket Cards", desc: "Small hand-outs" },
-                ].map((flyer) => (
-                  <div
-                    key={flyer.id}
-                    onClick={() => {
-                      if (!isPremium && flyer.id !== "table-stand") {
-                        setShowUpgradeModal(true);
-                        return;
-                      }
-                      setSelectedFlyerLayout(flyer.id);
-                    }}
-                    className={`p-3 rounded-2xl border transition cursor-pointer text-center flex flex-col justify-between ${selectedFlyerLayout === flyer.id
+                {/* Flyer Selection */}
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { id: "table-stand", label: "A4 Table Stand", desc: "Ideal for billing desk" },
+                    { id: "counter-card", label: "Counter Card", desc: "Perfect for door entryway" },
+                    { id: "business-card", label: "Pocket Cards", desc: "Small hand-outs" },
+                  ].map((flyer) => (
+                    <div
+                      key={flyer.id}
+                      onClick={() => {
+                        if (!isPremium && flyer.id !== "table-stand") {
+                          setShowUpgradeModal(true);
+                          return;
+                        }
+                        setSelectedFlyerLayout(flyer.id);
+                      }}
+                      className={`p-3 rounded-2xl border transition cursor-pointer text-center flex flex-col justify-between ${selectedFlyerLayout === flyer.id
                         ? "bg-primary/10 border-primary text-primary-light"
                         : "bg-app-bg/30 border-app-border hover:border-app-text-muted/30 text-app-text-muted"
-                      }`}
-                  >
-                    <FileText size={16} className="mx-auto mb-1.5" />
-                    <h3 className="font-bold text-xs text-white leading-tight">{flyer.label}</h3>
-                    <p className="text-[9px] text-app-text-dimmed mt-1 leading-relaxed">{flyer.desc}</p>
-                  </div>
-                ))}
-              </div>
+                        }`}
+                    >
+                      <FileText size={16} className="mx-auto mb-1.5" />
+                      <h3 className="font-bold text-xs text-white leading-tight">{flyer.label}</h3>
+                      <p className="text-[9px] text-app-text-dimmed mt-1 leading-relaxed">{flyer.desc}</p>
+                    </div >
+                  ))
+                  }
+                </div >
 
-              {/* Printable Canvas Mock Layout preview */}
-              <div className="border border-app-border rounded-2xl p-4 bg-app-bg/60 relative overflow-hidden flex flex-col items-center">
+                {/* Printable Canvas Mock Layout preview */}
+                < div className="border border-app-border rounded-2xl p-4 bg-app-bg/60 relative overflow-hidden flex flex-col items-center" >
 
-                <div id="flyer-print-area" className="bg-white rounded-xl p-6 text-black max-w-[280px] w-full text-center space-y-4 shadow-xl">
-                  <div className="flex items-center justify-center gap-1">
-                    <div className="w-2.5 h-2.5 rounded bg-violet-600" />
-                    <h4 className="font-extrabold text-sm text-violet-900 tracking-tight">{businessData.name}</h4>
+                  <div id="flyer-print-area" className="bg-white rounded-xl p-6 text-black max-w-[280px] w-full text-center space-y-4 shadow-xl">
+                    <div className="flex items-center justify-center gap-1">
+                      <div className="w-2.5 h-2.5 rounded bg-violet-600" />
+                      <h4 className="font-extrabold text-sm text-violet-900 tracking-tight">{businessData.name}</h4>
+                    </div>
+                    <p className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Scan QR for Smart Menu</p>
+                    <div className="flex justify-center p-2.5 border-2 border-violet-100 rounded-2xl">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={qrCodeDataUrl} className="w-40 h-40" alt="Print preview QR" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-extrabold text-slate-800">Scan to View, Rate & Pay</p>
+                      <p className="text-[8px] text-slate-400 leading-none">Powered by vscan.biz</p>
+                    </div>
                   </div>
-                  <p className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Scan QR for Smart Menu</p>
-                  <div className="flex justify-center p-2.5 border-2 border-violet-100 rounded-2xl">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qrCodeDataUrl} className="w-40 h-40" alt="Print preview QR" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-extrabold text-slate-800">Scan to View, Rate & Pay</p>
-                    <p className="text-[8px] text-slate-400 leading-none">Powered by vscan.biz</p>
+
+                  <div className="mt-4 flex gap-3 w-full">
+                    <button
+                      onClick={printFlyer}
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-app-surface hover:bg-app-surface/80 text-xs font-bold py-2.5 rounded-xl border border-app-border text-app-text-muted transition"
+                    >
+                      <Printer size={13} /> Print Flyer
+                    </button>
+                    <button
+                      onClick={() => {
+                        const link = document.createElement("a");
+                        link.download = `${selectedFlyerLayout}-flyer.png`;
+                        link.href = qrCodeDataUrl;
+                        link.click();
+                      }}
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-gradient-to-r from-primary to-secondary hover:from-primary-light hover:to-secondary-light text-xs font-bold py-2.5 rounded-xl text-white transition active:scale-95 shadow-lg shadow-primary/20"
+                    >
+                      <Download size={13} /> High-Res PNG
+                    </button>
                   </div>
                 </div>
 
-                <div className="mt-4 flex gap-3 w-full">
+                {/* Navigation Actions */}
+                <div className="flex justify-between pt-4 border-t border-app-border">
                   <button
-                    onClick={printFlyer}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-app-surface hover:bg-app-surface/80 text-xs font-bold py-2.5 rounded-xl border border-app-border text-app-text-muted transition"
+                    onClick={() => setCurrentStep(2)}
+                    className="flex items-center gap-1 border border-app-border hover:bg-app-surface/80 text-xs font-bold px-4 py-2.5 rounded-xl transition text-app-text-muted"
                   >
-                    <Printer size={13} /> Print Flyer
-                  </button>
-                  <button
-                    onClick={() => {
-                      const link = document.createElement("a");
-                      link.download = `${selectedFlyerLayout}-flyer.png`;
-                      link.href = qrCodeDataUrl;
-                      link.click();
-                    }}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-gradient-to-r from-primary to-secondary hover:from-primary-light hover:to-secondary-light text-xs font-bold py-2.5 rounded-xl text-white transition active:scale-95 shadow-lg shadow-primary/20"
-                  >
-                    <Download size={13} /> High-Res PNG
+                    <ArrowLeft size={13} /> Back
                   </button>
                 </div>
-              </div>
+              </div >
+            )}
 
-              {/* Navigation Actions */}
-              <div className="flex justify-between pt-4 border-t border-app-border">
-                <button
-                  onClick={() => setCurrentStep(2)}
-                  className="flex items-center gap-1 border border-app-border hover:bg-app-surface/80 text-xs font-bold px-4 py-2.5 rounded-xl transition text-app-text-muted"
-                >
-                  <ArrowLeft size={13} /> Back
-                </button>
-              </div>
-            </div>
-          )}
-
-        </div>
+        </div >
 
         {/* Right Side: QR Visual Device Mock & Details preview */}
-        <div className="lg:col-span-5 flex flex-col items-center gap-6">
+        < div className="lg:col-span-5 flex flex-col items-center gap-6" >
           <div className="sticky top-6 w-full max-w-sm space-y-4">
 
             {/* Live QR Design Card */}
@@ -620,7 +628,7 @@ export default function SmartQR() {
           </div>
         </div>
 
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }
