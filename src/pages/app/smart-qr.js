@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
-import { Link } from "@heroui/react";
 
 const uid = () => Math.random().toString(36).slice(2, 8);
 
