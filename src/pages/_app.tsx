@@ -1,18 +1,38 @@
-import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { Inter } from "next/font/google";
-import Sidebar from "@/components/SidebarLayout";
+import { useRouter } from "next/router";
 
-const inter = Inter({
-  subsets: ["latin"],
-});
+import "@/styles/globals.css";
 
-export default function App({ Component, pageProps }: AppProps) {
-  return (
-    <div className={inter.className} >
-      <Sidebar>
+import UserLayout from "@/components/layouts/UserLayout";
+import AdminLayout from "@/components/layouts/AdminLayout";
+import { Toaster } from "sonner";
+export default function App({
+  Component,
+  pageProps,
+}: AppProps) {
+
+  const router = useRouter();
+
+  // USER DASHBOARD
+  if (router.pathname.startsWith("/app")) {
+    return (
+      <UserLayout>
         <Component {...pageProps} />
-      </Sidebar>
-    </div>
-  )
+        <Toaster position="top-right" richColors />
+      </UserLayout>
+    );
+  }
+
+  // ADMIN DASHBOARD
+  if (router.pathname.startsWith("/admin")) {
+    return (
+      <AdminLayout>
+        <Toaster position="top-right" richColors />
+        <Component {...pageProps} />
+      </AdminLayout>
+    );
+  }
+
+  // AUTH / PUBLIC PAGES
+  return <Component {...pageProps} />;
 }

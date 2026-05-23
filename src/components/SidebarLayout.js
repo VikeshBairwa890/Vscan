@@ -4,34 +4,34 @@ import { Menu, X, User, LayoutDashboard, QrCode, BarChart3, Sparkles, CreditCard
 import { Button } from "@heroui/react";
 const menus = [
     {
+        name: "Dashboard",
+        icon: BarChart3,
+        link: "/app/dashboard",
+    },
+    {
         name: "Profile Settings",
         icon: User,
-        link: "/profile-settings",
+        link: "/app/profile-settings",
     },
     {
         name: "Mini-Website",
         icon: LayoutDashboard,
-        link: "/mini-website",
+        link: "/app/mini-website",
     },
     {
         name: "Smart QR",
         icon: QrCode,
-        link: "/smart-qr",
-    },
-    {
-        name: "Analytics",
-        icon: BarChart3,
-        link: "/analytics",
+        link: "/app/smart-qr",
     },
     {
         name: "AI Suggestions",
         icon: Sparkles,
-        link: "/ai-suggestions",
+        link: "/app/ai-suggestions",
     },
     {
         name: "Billing",
         icon: CreditCard,
-        link: "/billing",
+        link: "/app/billing",
     },
 ];
 
@@ -39,17 +39,17 @@ export default function Sidebar({ children }) {
     const [open, setOpen] = useState(false);
 
     return (
-        <div className="flex min-h-screen bg-gray-100">
+        <div className="flex min-h-screen">
 
             {open && (<div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setOpen(false)} />)}
 
             <aside className={` fixed top-0 left-0 z-50 h-full w-70 bg-white border-r transition-transform duration-300 flex flex-col ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 `}  >
-                <div className="flex items-center justify-between border-b px-6 py-5">
-                    <h1 className="text-3xl font-bold">  Presence1 </h1>
+                <div className="flex items-center justify-between border-b px-6 py-4">
+                    <h1 className="text-3xl font-bold">  Vscan </h1>
                     <Button onClick={() => setOpen(false)} className="lg:hidden" > <X size={28} /></Button>
                 </div>
 
-                <div className="flex-1 p-5 space-y-2">
+                <div className="flex-1 p-4 space-y-2">
                     {menus.map((item, i) => {
                         const Icon = item.icon;
                         return (
@@ -61,7 +61,7 @@ export default function Sidebar({ children }) {
                     })}
                 </div>
 
-                <div className="border-t p-5">
+                <div className="border-t p-4">
                     <p className="text-xs uppercase text-gray-400"> Signed In As</p>
 
                     <p className="mt-2 break-all text-sm font-medium">  vikeshbairwa890@gmail.com</p>
@@ -74,13 +74,13 @@ export default function Sidebar({ children }) {
             </aside>
 
             <div className="flex-1 lg:ml-70">
-                <div className="sticky top-0 z-30 flex items-center justify-between border-b bg-white px-4 py-4 lg:hidden">
+                <div className="sticky top-0 z-30 flex items-center justify-between border-b px-4 py-3 lg:hidden">
                     <button onClick={() => setOpen(true)}>
                         <Menu size={30} />
                     </button>
 
                     <h2 className="text-xl font-bold">
-                        Presence1
+                        Vscan
                     </h2>
                 </div>
                 <main>{children}</main>
