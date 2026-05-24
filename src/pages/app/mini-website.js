@@ -13,55 +13,8 @@ import { toast } from "sonner";
 import TemplatePicker from "@/components/website-builder/TemplatePicker";
 import TemplateRenderer from "@/components/website-builder/TemplateRenderer";
 import { THEMES, getTheme } from "@/components/website-builder/theme";
-import { FaInstagram } from "react-icons/fa";
 
 const uid = () => Math.random().toString(36).slice(2, 8);
-
-const DEFAULT = {
-  businessName: "Vikesh Studio",
-  tagline: "Professional Services You Can Trust",
-  logo: "",
-  phone: "+91 98765 43210",
-  email: "hello@vikesh.in",
-  address: "123 MG Road, Jaipur, Rajasthan",
-  website: "www.vikesh.in",
-  instagram: "vikesh.studio",
-  facebook: "vikeshstudio",
-  youtube: "",
-  theme: "blue",
-  buttonText: "Contact Us",
-  googleFormLink: "",
-  announcement: { enabled: true, text: "🎉 Special offer: 20% off this week! Call now." },
-  services: [
-    { id: uid(), name: "Web Design", price: "5000", desc: "Beautiful responsive websites", image: "" },
-    { id: uid(), name: "SEO Management", price: "3000", desc: "Rank higher on Google", image: "" },
-  ],
-  hours: [
-    { day: "Mon – Fri", time: "9:00 AM – 7:00 PM", open: true },
-    { day: "Saturday", time: "10:00 AM – 5:00 PM", open: true },
-    { day: "Sunday", time: "Closed", open: false },
-  ],
-  employees: [
-    { id: uid(), name: "Vikesh Sharma", bio: "Founder & CEO", phone: "+91 98765 43210", email: "vikesh@vikesh.in", image: "" },
-  ],
-  testimonials: [
-    { id: uid(), name: "Ravi Kumar", company: "TechCorp India", content: "Excellent service, very professional! Highly recommended.", stars: 5 },
-    { id: uid(), name: "Priya Singh", company: "", content: "Great results within a week. Will use again!", stars: 5 },
-  ],
-  mediaLinks: [
-    { id: uid(), title: "Our Work Showcase", url: "https://youtube.com/watch?v=dQw4w9WgXcQ" },
-  ],
-  faqs: [
-    { id: uid(), question: "How long does a project take?", answer: "Most projects are completed within 7-14 business days depending on scope." },
-    { id: uid(), question: "Do you offer refunds?", answer: "Yes, we offer a 7-day satisfaction guarantee on all services." },
-  ],
-  amenities: ["Free Consultation", "24/7 Support", "Home Delivery", "Online Payment", "Certified Team", "Instant Response"],
-  showSections: {
-    announcement: true, services: true, hours: true, contact: true,
-    social: true, employees: true, testimonials: true, mediaLinks: true,
-    faqs: true, amenities: true, googleForm: true,
-  },
-};
 
 function StarRow({ count, onChange }) {
   return (
@@ -93,7 +46,7 @@ function Toggle({ label, checked, onChange }) {
   );
 }
 
-function FInput({ label, value, onChange, placeholder, small }) {
+function FInput({ label, type, value, onChange, placeholder, small }) {
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
@@ -101,6 +54,7 @@ function FInput({ label, value, onChange, placeholder, small }) {
       )}
       <input
         value={value || ""}
+        type={type || "text"}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         className={`border border-app-border rounded-xl px-3 bg-app-bg/60 text-white placeholder-app-text-dimmed 
@@ -242,7 +196,7 @@ function PhoneFrame({ children }) {
 }
 
 export default function MiniWebsiteBuilder() {
-  const [data, setData] = useState(DEFAULT);
+
   const [mobileTab, setMobileTab] = useState("editor");
   const [saved, setSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -250,6 +204,57 @@ export default function MiniWebsiteBuilder() {
   const [newAmenity, setNewAmenity] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("it-company");
   const [isPublished, setIsPublished] = useState(false);
+
+  const [data, setData] = useState({
+    businessName: "Add your business name",
+    title: "Add your title",
+    tagline: "Add your tagline",
+    logo: "",
+    phone: "+91 98765 43210",
+    whatsapp: "+91 98765 43210",
+    email: "[EMAIL_ADDRESS]",
+    address: "Add your address",
+    website: "www.yourwebsite.com",
+    instagram: "yourinstagram",
+    facebook: "yourfacebook",
+    youtube: "",
+    theme: "blue",
+    selectedTemplate: "it-company",
+    buttonText: "Contact Us",
+    googleFormLink: "",
+    googleReviewLink: "",
+    announcement: { enabled: true, text: "🎉Add your annoucement here" },
+    services: [
+      { id: uid(), name: "Service name", price: "₹5000", desc: "Add your service description here", image: "" },
+      { id: uid(), name: "Service name", price: "₹5000", desc: "Add your service description here", image: "" },
+    ],
+    hours: [
+      { day: "Mon-Fri", time: "9:00 AM - 7:00 PM", open: true },
+      { day: "Saturday", time: "10:00 AM - 5:00 PM", open: true },
+      { day: "Sunday", time: "Closed", open: false },
+    ],
+    employees: [
+      { id: uid(), name: "Team Member Name", bio: "Team Member Bio", phone: "+91 98765 43210", email: "[EMAIL_ADDRESS]", image: "" },
+    ],
+    testimonials: [
+      { id: uid(), name: "Testimonial Name", company: "Testimonial Company", content: "Testimonial Content", stars: 5 },
+      { id: uid(), name: "Testimonial Name", company: "Testimonial Company", content: "Testimonial Content", stars: 5 },
+    ],
+    mediaLinks: [
+      { id: uid(), title: "Our Work Showcase", url: "https://youtube.com/watch?v=dQw4w9WgXcQ" },
+    ],
+    faqs: [
+      { id: uid(), question: "Frequently Asked Question", answer: "Answer to the frequently asked question" },
+      { id: uid(), question: "Frequently Asked Question", answer: "Answer to the frequently asked question" },
+    ],
+    amenities: ["Amenity name", "Amenity name", "Amenity name", "Amenity name", "Amenity name", "Amenity name"],
+    showSections: {
+      announcement: true, services: true, hours: true, contact: true,
+      showWhatsapp: true,
+      social: true, employees: true, testimonials: true, mediaLinks: true,
+      faqs: true, amenities: true, googleForm: true,
+    },
+  });
 
   const t = getTheme(data.theme);
   const set = (k, v) => setData(d => ({ ...d, [k]: v }));
@@ -263,45 +268,65 @@ export default function MiniWebsiteBuilder() {
 
       try {
         const user = JSON.parse(userStr);
-        const res = await fetch(`/api/business/status?userId=${user.id}`);
-        if (res.ok) {
-          const statusData = await res.json();
-          setIsPublished(statusData.checklist?.isPublished || false);
-
-          // Now fetch full profile to edit
-          const profileRes = await fetch(`/api/business/onboard`, {
-            method: "POST", // Simple trick to get profile or we can reuse onboarding endpoint or fetch status
-            headers: {
-              "Content-Type": "application/json",
-              "x-user-id": user.id
-            },
-            body: JSON.stringify({ getProfileOnly: true }) // We will ensure onboard API tolerates partial/empty bodies
-          });
-
-          // Wait! Since status API returned profile details already, let's load what is in statusData if it exists
-          if (statusData.hasProfile) {
-            // Let's populate editor data state
-            setData(prev => {
-              const showSecs = statusData.seoDescription ? JSON.parse(statusData.seoDescription) : prev.showSections;
-              const themeName = statusData.seoTitle || prev.theme;
-              return {
-                ...prev,
-                businessName: statusData.businessName || prev.businessName,
-                tagline: statusData.about || prev.tagline,
-                logo: statusData.logo || prev.logo,
-                phone: statusData.whatsappNumber || statusData.contactNumber || prev.phone,
-                email: statusData.email || prev.email,
-                address: statusData.businessAddress || prev.address,
-                website: statusData.website || prev.website,
-                instagram: statusData.instagram || prev.instagram,
-                facebook: statusData.facebook || prev.facebook,
-                upiId: statusData.upiId || prev.upiId,
-                theme: themeName,
-                showSections: showSecs
-              };
-            });
-          }
+        const res = await fetch(`/api/business/mini-website-get?userId=${user.id}`);
+        if (!res.ok) {
+          toast.error("Failed to load business profile");
+          return;
         }
+        const statusData = await res.json();
+        if (statusData.success == false) {
+          toast.error(statusData.message);
+          return;
+        }
+        if (statusData.isPublished !== undefined) {
+          setIsPublished(statusData.isPublished);
+        }
+        if (statusData.selectedTemplate) {
+          setSelectedTemplate(statusData.selectedTemplate);
+        }
+        setData(prev => {
+          let showSecs = statusData.showSections;
+          if (typeof showSecs === "string") {
+            try {
+              showSecs = JSON.parse(showSecs);
+            } catch (e) { }
+          }
+          if (!showSecs) {
+            let seoDesc = statusData.seoDescription;
+            if (typeof seoDesc === "string") {
+              try {
+                seoDesc = JSON.parse(seoDesc);
+              } catch (e) { }
+            }
+            showSecs = seoDesc || prev.showSections;
+          }
+
+          const themeName = statusData.theme || statusData.seoTitle || prev.theme;
+
+          return {
+            ...prev,
+            ...statusData,
+            theme: themeName,
+            showSections: showSecs,
+            businessName: statusData.businessName || prev.businessName,
+            tagline: statusData.tagline || statusData.about || prev.tagline,
+            logo: statusData.logo || statusData.BusinessLogo || prev.logo,
+            phone: statusData.phone || statusData.whatsappNumber || statusData.contactNumber || prev.phone,
+            email: statusData.email || prev.email,
+            address: statusData.address || statusData.businessAddress || prev.address,
+            website: statusData.website || prev.website,
+            instagram: statusData.instagram || prev.instagram,
+            facebook: statusData.facebook || prev.facebook,
+            upiId: statusData.upiId || prev.upiId,
+            services: statusData.services || prev.services,
+            hours: statusData.hours || prev.hours,
+            employees: statusData.employees || prev.employees,
+            testimonials: statusData.testimonials || prev.testimonials,
+            mediaLinks: statusData.mediaLinks || prev.mediaLinks,
+            faqs: statusData.faqs || prev.faqs,
+            amenities: statusData.amenities || prev.amenities,
+          };
+        });
       } catch (err) {
         console.error("Error loading builder profile", err);
       }
@@ -353,18 +378,13 @@ export default function MiniWebsiteBuilder() {
 
     try {
       const user = JSON.parse(userStr);
-      const res = await fetch("/api/business/save", {
+      const res = await fetch("/api/business/mini-website-post", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-user-id": user.id
         },
-        body: JSON.stringify({
-          ...data,
-          phone: data.phone || "",
-          address: data.address || "",
-          upiId: data.upiId || ""
-        })
+        body: JSON.stringify({ tamplateData: data })
       });
 
       if (res.ok) {
@@ -506,7 +526,11 @@ export default function MiniWebsiteBuilder() {
 
             {/* Section 1: Template selection */}
             <Section icon={LayoutTemplate} title="Choose Template Style" color="text-primary-light" defaultOpen>
-              <TemplatePicker selected={selectedTemplate} onSelect={setSelectedTemplate} />
+              <TemplatePicker selected={selectedTemplate} onSelect={(template) => {
+                console.log("Selected template:", template);
+                setSelectedTemplate(template);
+                set("selectedTemplate", template);
+              }} />
             </Section>
 
             {/* Section 2: Color selector */}
@@ -546,10 +570,10 @@ export default function MiniWebsiteBuilder() {
 
             {/* Section 4: Business Details */}
             <Section icon={Briefcase} title="Business Information" color="text-primary-light">
-              <FInput label="Store Name" value={data.businessName} onChange={v => set("businessName", v)} placeholder="e.g. Vikesh Studio" />
-              <FInput label="Sub-title / Tagline" value={data.tagline} onChange={v => set("tagline", v)} placeholder="Best local professional photography" />
-              <FInput label="Primary Action Button Text" value={data.buttonText} onChange={v => set("buttonText", v)} placeholder="Call to Book" />
-              <FInput label="Brand Logo Image URL" value={data.logo} onChange={v => set("logo", v)} placeholder="https://unsplash.com/logo-image-url.png" />
+              <FInput label="Title" value={data.title} onChange={v => set("title", v)} placeholder="e.g. Vikesh Studio" />
+              <FInput label="Tagline" value={data.tagline} onChange={v => set("tagline", v)} placeholder="Best local professional photography" />
+              <FInput label="Button Text" value={data.buttonText} onChange={v => set("buttonText", v)} placeholder="Call to Book" />
+              <FInput label="Logo URL" value={data.logo} onChange={v => set("logo", v)} placeholder="https://unsplash.com/logo-image-url.png" />
             </Section>
 
             {/* Section 5: Products & Services */}
@@ -560,8 +584,8 @@ export default function MiniWebsiteBuilder() {
                   <Card key={s.id} onDelete={() => delService(s.id)}>
                     <FInput placeholder="Product Name" value={s.name} onChange={v => updService(s.id, "name", v)} small />
                     <div className="grid grid-cols-2 gap-2">
-                      <FInput placeholder="Pricing (e.g. 1500)" value={s.price} onChange={v => updService(s.id, "price", v)} small />
-                      <FInput placeholder="Thumbnail Image Link" value={s.image} onChange={v => updService(s.id, "image", v)} small />
+                      <FInput type="number" placeholder="Pricing (e.g. 1500)" value={s.price} onChange={v => updService(s.id, "price", v)} small />
+                      <FInput type="file" placeholder="Thumbnail Image Link" value={s.image} onChange={v => updService(s.id, "image", v)} small />
                     </div>
                     <FTA placeholder="Catalog item description..." value={s.desc} onChange={v => updService(s.id, "desc", v)} />
                   </Card>
@@ -619,7 +643,7 @@ export default function MiniWebsiteBuilder() {
                     <button
                       type="button"
                       onClick={() => updHour(i, "open", !h.open)}
-                      className={`shrink-0 text-[10px] font-bold px-3 py-1.5 rounded-full transition-all ${h.open
+                      className={`shrink-0 text-[10px] font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${h.open
                         ? "bg-app-success/10 border border-app-success/20 text-app-success"
                         : "bg-app-error/10 border border-app-error/20 text-app-error"
                         }`}
@@ -648,10 +672,76 @@ export default function MiniWebsiteBuilder() {
               </div>
             </Section>
 
+            {/* Section 9: Our Team */}
+            <Section icon={Users} title="Our Team" color="text-primary-light" defaultOpen={false} badge={data.employees?.length}>
+              <Toggle label="Show team section" checked={data.showSections.employees} onChange={v => setShow("employees", v)} />
+              <div className="space-y-3">
+                {data.employees?.map(e => (
+                  <Card key={e.id} onDelete={() => delEmployee(e.id)}>
+                    <FInput placeholder="Name" value={e.name} onChange={v => updEmployee(e.id, "name", v)} small />
+                    <FInput placeholder="Role / Bio" value={e.bio} onChange={v => updEmployee(e.id, "bio", v)} small />
+                    <div className="grid grid-cols-2 gap-2">
+                      <FInput placeholder="Phone" value={e.phone} onChange={v => updEmployee(e.id, "phone", v)} small />
+                      <FInput placeholder="Email" value={e.email} onChange={v => updEmployee(e.id, "email", v)} small />
+                    </div>
+                    <FInput placeholder="Photo URL" value={e.image} onChange={v => updEmployee(e.id, "image", v)} small />
+                  </Card>
+                ))}
+              </div>
+              <AddBtn onClick={addEmployee} label="Add Team Member" />
+            </Section>
+
+            {/* Section 10: Customer Testimonials */}
+            <Section icon={MessageSquare} title="Customer Testimonials" color="text-secondary-light" defaultOpen={false} badge={data.testimonials?.length}>
+              <Toggle label="Show testimonials section" checked={data.showSections.testimonials} onChange={v => setShow("testimonials", v)} />
+              <div className="space-y-3">
+                {data.testimonials?.map(t => (
+                  <Card key={t.id} onDelete={() => delTestimonial(t.id)}>
+                    <FInput placeholder="Customer Name" value={t.name} onChange={v => updTestimonial(t.id, "name", v)} small />
+                    <FInput placeholder="Company / Role (Optional)" value={t.company} onChange={v => updTestimonial(t.id, "company", v)} small />
+                    <div className="flex items-center gap-2 py-1">
+                      <span className="text-xs text-app-text-muted">Rating:</span>
+                      <StarRow count={t.stars} onChange={val => updTestimonial(t.id, "stars", val)} />
+                    </div>
+                    <FTA placeholder="Testimonial content..." value={t.content} onChange={v => updTestimonial(t.id, "content", v)} />
+                  </Card>
+                ))}
+              </div>
+              <AddBtn onClick={addTestimonial} label="Add Testimonial" />
+            </Section>
+
+            {/* Section 11: Media Links */}
+            <Section icon={Link} title="Media Links & Showcase" color="text-primary-light" defaultOpen={false} badge={data.mediaLinks?.length}>
+              <Toggle label="Show media links section" checked={data.showSections.mediaLinks} onChange={v => setShow("mediaLinks", v)} />
+              <div className="space-y-3">
+                {data.mediaLinks?.map(m => (
+                  <Card key={m.id} onDelete={() => delMedia(m.id)}>
+                    <FInput placeholder="Link Title" value={m.title} onChange={v => updMedia(m.id, "title", v)} small />
+                    <FInput placeholder="URL (e.g. YouTube, PDF, Gallery)" value={m.url} onChange={v => updMedia(m.id, "url", v)} small />
+                  </Card>
+                ))}
+              </div>
+              <AddBtn onClick={addMedia} label="Add Media Link" />
+            </Section>
+
+            {/* Section 12: FAQ */}
+            <Section icon={HelpCircle} title="Frequently Asked Questions" color="text-app-warning" defaultOpen={false} badge={data.faqs?.length}>
+              <Toggle label="Show FAQ section" checked={data.showSections.faqs} onChange={v => setShow("faqs", v)} />
+              <div className="space-y-3">
+                {data.faqs?.map(f => (
+                  <Card key={f.id} onDelete={() => delFaq(f.id)}>
+                    <FInput placeholder="Question" value={f.question} onChange={v => updFaq(f.id, "question", v)} small />
+                    <FTA placeholder="Answer..." value={f.answer} onChange={v => updFaq(f.id, "answer", v)} />
+                  </Card>
+                ))}
+              </div>
+              <AddBtn onClick={addFaq} label="Add FAQ" />
+            </Section>
+
           </div>
 
           {/* Right panel: Device Live Preview */}
-          <div className={`lg:sticky lg:top-[88px] lg:self-start w-full lg:w-auto flex-shrink-0 ${mobileTab === "editor" ? "hidden lg:flex" : "flex"} flex-col items-center gap-4`}>
+          <div className={`lg:sticky lg:top-[88px] lg:self-start w-full lg:w-auto flex-shrink-0 relative ${mobileTab === "editor" ? "hidden lg:flex" : "flex"} flex-col items-center gap-4`}>
 
             <div className="flex items-center gap-2 bg-app-surface border border-app-border rounded-2xl px-4 py-2 shadow-sm backdrop-blur-md">
               <span className="relative flex h-2 w-2">

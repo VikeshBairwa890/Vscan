@@ -58,10 +58,9 @@ export default function Sidebar({
 
           ${collapsed ? "w-20" : "w-70"}
 
-          ${
-            mobileOpen
-               ? "translate-x-0"
-               : "-translate-x-full"
+          ${mobileOpen
+            ? "translate-x-0"
+            : "-translate-x-full"
           }
 
           lg:translate-x-0
@@ -71,7 +70,7 @@ export default function Sidebar({
         {/* HEADER */}
         <div
           className={`
-            flex items-center border-b border-app-border px-5 py-5
+            flex items-center border-b border-app-border px-5 py-4
             ${collapsed ? "justify-center" : "justify-between"}
           `}
         >
@@ -120,16 +119,14 @@ export default function Sidebar({
                   rounded-xl px-4 py-3
                   transition-all
 
-                  ${
-                    collapsed
-                      ? "justify-center"
-                      : "gap-3"
+                  ${collapsed
+                    ? "justify-center"
+                    : "gap-3"
                   }
 
-                  ${
-                    isActive
-                      ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/20"
-                      : "text-app-text-muted hover:bg-app-surface-glass hover:text-white"
+                  ${isActive
+                    ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/20"
+                    : "text-app-text-muted hover:bg-app-surface-glass hover:text-white"
                   }
                 `}
               >
@@ -184,10 +181,9 @@ export default function Sidebar({
             className={`
               mt-5 flex items-center text-app-error hover:opacity-85 transition-opacity
 
-              ${
-                collapsed
-                  ? "justify-center"
-                  : "gap-2"
+              ${collapsed
+                ? "justify-center"
+                : "gap-2"
               }
             `}
           >
