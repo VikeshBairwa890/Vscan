@@ -36,12 +36,14 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
   // Core Form State
   const [businessName, setBusinessName] = useState("");
+  const [businessAbout, setBusinessAbout] = useState("");
   const [category, setCategory] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
 
   // Contact Info
+  const [contactNumber, setContactNumber] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [instagram, setInstagram] = useState("");
   const [googleReviewLink, setGoogleReviewLink] = useState("");
@@ -65,11 +67,13 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       try {
         const data = JSON.parse(draft);
         if (data.businessName) setBusinessName(data.businessName);
+        if (data.businessAbout) setBusinessAbout(data.businessAbout);
         if (data.category) setCategory(data.category);
         if (data.address) setAddress(data.address);
         if (data.city) setCity(data.city);
         if (data.state) setState(data.state);
         if (data.whatsapp) setWhatsapp(data.whatsapp);
+        if (data.contactNumber) setContactNumber(data.contactNumber);
         if (data.instagram) setInstagram(data.instagram);
         if (data.googleReviewLink) setGoogleReviewLink(data.googleReviewLink);
         if (data.services) setServices(data.services);
@@ -86,11 +90,13 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   useEffect(() => {
     const draftData = {
       businessName,
+      businessAbout,
       category,
       address,
       city,
       state,
       whatsapp,
+      contactNumber,
       instagram,
       googleReviewLink,
       services,
@@ -106,11 +112,13 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     return () => clearTimeout(timer);
   }, [
     businessName,
+    businessAbout,
     category,
     address,
     city,
     state,
     whatsapp,
+    contactNumber,
     instagram,
     googleReviewLink,
     services,
@@ -221,11 +229,13 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         },
         body: JSON.stringify({
           businessName,
+          businessAbout,
           category,
           address,
           city,
           state,
           whatsapp,
+          contactNumber,
           instagram,
           googleReviewLink,
           services,
@@ -277,7 +287,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       toast.error("Please fill in Business Name and select a Category");
       return;
     }
-    if (currentStep === 2 && !whatsapp.trim()) {
+    if (currentStep === 3 && !whatsapp.trim()) {
       toast.error("WhatsApp number is required");
       return;
     }
@@ -323,8 +333,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           <span>Step {currentStep} of 5</span>
           <span className="text-primary-light">
             {currentStep === 1 && "Core Details"}
-            {currentStep === 2 && "Contact Info"}
-            {currentStep === 3 && "Services Offered"}
+            {currentStep === 2 && "Services Offered"}
+            {currentStep === 3 && "Contact Info"}
             {currentStep === 4 && "Payments Setup"}
             {currentStep === 5 && "Complete Setup"}
           </span>
@@ -437,64 +447,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 </div>
               )}
 
-              {/* STEP 2: Contact Info */}
+              {/* STEP 2: Service Listing */}
               {currentStep === 2 && (
-                <div className="space-y-6">
-                  <div>
-                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-app-text-muted bg-clip-text text-transparent">Business Channels</h2>
-                    <p className="text-app-text-muted text-sm mt-1">Connect your contact channels and online review pages.</p>
-                  </div>
-
-                  <div className="space-y-5">
-                    <div>
-                      <label className="block text-xs font-semibold text-app-text-muted uppercase tracking-wider mb-2">WhatsApp Number (For booking/leads)</label>
-                      <div className="relative">
-                        <Phone className="w-5 h-5 text-app-success absolute left-4 top-1/2 -translate-y-1/2" />
-                        <input
-                          type="text"
-                          value={whatsapp}
-                          onChange={e => setWhatsapp(e.target.value)}
-                          placeholder="+91 98765 43210"
-                          className="w-full bg-app-bg/60 border border-app-border rounded-2xl pl-12 pr-4 py-3.5 text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        />
-                      </div>
-                      <p className="text-xs text-app-text-dimmed mt-1">This number will receive direct inquiries and service booking updates.</p>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-app-text-muted uppercase tracking-wider mb-2">Instagram Username (Optional)</label>
-                      <div className="relative">
-                        <span className="text-pink-500 absolute left-4 top-1/2 -translate-y-1/2 font-bold">@</span>
-                        <input
-                          type="text"
-                          value={instagram}
-                          onChange={e => setInstagram(e.target.value)}
-                          placeholder="yourbusiness"
-                          className="w-full bg-app-bg/60 border border-app-border rounded-2xl pl-10 pr-4 py-3.5 text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-app-text-muted uppercase tracking-wider mb-2">Google Review Link (Optional)</label>
-                      <div className="relative">
-                        <Link className="w-5 h-5 text-primary-light absolute left-4 top-1/2 -translate-y-1/2" />
-                        <input
-                          type="text"
-                          value={googleReviewLink}
-                          onChange={e => setGoogleReviewLink(e.target.value)}
-                          placeholder="https://g.page/r/your-review-id/review"
-                          className="w-full bg-app-bg/60 border border-app-border rounded-2xl pl-12 pr-4 py-3.5 text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        />
-                      </div>
-                      <p className="text-xs text-app-text-dimmed mt-1">Leave this empty if you don't have one; we'll guide you to create it later.</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 3: Service Listing */}
-              {currentStep === 3 && (
                 <div className="space-y-6">
                   <div>
                     <h2 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-app-text-muted bg-clip-text text-transparent">Services Catalog</h2>
@@ -575,6 +529,85 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         </div>
                       ))
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: Contact Info */}
+              {currentStep === 3 && (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-app-text-muted bg-clip-text text-transparent">Business Channels</h2>
+                    <p className="text-app-text-muted text-sm mt-1">Connect your contact channels and online review pages.</p>
+                  </div>
+
+                  <div className="space-y-5">
+                    <div className="space-y-3">
+
+                      {/* Inputs */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                        {/* WhatsApp Number */}
+                        <div className="space-y-2">
+                          <label className="block text-xs font-semibold text-app-text-muted tracking-wider mb-2"> WhatsApp Number</label>
+                          <div className="relative">
+                            <Phone className="w-5 h-5 text-app-success absolute left-4 top-1/2 -translate-y-1/2 z-10" />
+
+                            <input
+                              type="text"
+                              value={whatsapp}
+                              onChange={(e) => setWhatsapp(e.target.value)}
+                              placeholder="+91 98765 43210"
+                              className="w-full bg-app-bg/60 border border-app-border rounded-2xl pl-12 pr-4 py-3.5 text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Contact Number */}
+                        <div className="space-y-2">
+                          <label className="block text-xs font-semibold text-app-text-muted tracking-wider mb-2"> Contact Number</label>
+                          <div className="relative">
+                            <Phone className="w-5 h-5 text-app-success absolute left-4 top-1/2 -translate-y-1/2 z-10" />
+
+                            <input
+                              type="text"
+                              value={contactNumber}
+                              onChange={(e) => setContactNumber(e.target.value)}
+                              placeholder="+91 98765 43210"
+                              className="w-full bg-app-bg/60 border border-app-border rounded-2xl pl-12 pr-4 py-3.5 text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-app-text-muted tracking-wider mb-2">Instagram Username (Optional)</label>
+                      <div className="relative">
+                        <span className="text-pink-500 absolute left-4 top-1/2 -translate-y-1/2 font-bold">@</span>
+                        <input
+                          type="text"
+                          value={instagram}
+                          onChange={e => setInstagram(e.target.value)}
+                          placeholder="yourbusiness"
+                          className="w-full bg-app-bg/60 border border-app-border rounded-2xl pl-10 pr-4 py-3.5 text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-app-text-muted tracking-wider mb-2">Google Review Link (Optional)</label>
+                      <div className="relative">
+                        <Link className="w-5 h-5 text-primary-light absolute left-4 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          value={googleReviewLink}
+                          onChange={e => setGoogleReviewLink(e.target.value)}
+                          placeholder="https://g.page/r/your-review-id/review"
+                          className="w-full bg-app-bg/60 border border-app-border rounded-2xl pl-12 pr-4 py-3.5 text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        />
+                      </div>
+                      <p className="text-xs text-app-text-dimmed mt-1">Leave this empty if you don't have one; we'll guide you to create it later.</p>
+                    </div>
                   </div>
                 </div>
               )}

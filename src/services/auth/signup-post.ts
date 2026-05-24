@@ -48,6 +48,7 @@ export default class Signup {
                 data: {
                     userId: createdUser.id,
                     businessName: data.fullName,
+                    email: data.email
                 },
             });
             if (!business || business == null || business == undefined) {

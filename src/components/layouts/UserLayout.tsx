@@ -33,7 +33,8 @@ export default function UserLayout({ children }: Props) {
       if (!onboardingCompleted && path !== "/app/onboarding") {
         router.push("/app/onboarding");
       } else if (onboardingCompleted && path === "/app/onboarding") {
-        router.push("/app/dashboard");
+        // router.push("/app/dashboard");
+        router.push("/app/onboarding");
       } else {
         setAuthorized(true);
       }

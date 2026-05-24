@@ -49,6 +49,7 @@ model BusinessProfile {
   about            String?  @db.Text
   category         String?
   subCategory      String?
+  BusinessLogo     String?
   
   // Contact Information
   contactNumber    String?
@@ -60,7 +61,7 @@ model BusinessProfile {
   pincode          String?
   country          String?  @default("India")
   
-  // Online Presence
+  // Online Vscan Links
   website          String?
   googleReviewLink String?
   instagram        String?
@@ -96,6 +97,7 @@ model BusinessProfile {
   
   // Status
   isPublished      Boolean   @default(false)
+  isQrGenerated    Boolean   @default(false)
   viewCount        Int       @default(0)
   shareCount       Int       @default(0)
   
@@ -110,6 +112,7 @@ model BusinessProfile {
   aiContents       AiContent[]
   subscription     Subscription?
   activityLogs     ActivityLog[]
+  miniWebsiteInfo  MiniWebsiteInfo?
   
   @@index([userId])
   @@index([businessName])
@@ -118,9 +121,7 @@ model BusinessProfile {
 // Services offered by business
 model Service {
   id               String   @id @default(cuid())
-  businessProfileId String
-  businessProfile  BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
-  
+  businessProfileId String  
   name             String
   description      String?  @db.Text
   price            String?
@@ -131,13 +132,14 @@ model Service {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   
+  businessProfile  BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+
   @@index([businessProfileId])
 }
 // Reviews and ratings
 model Review {
   id               String   @id @default(cuid())
   businessProfileId String
-  businessProfile  BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
   
   customerName     String?
   customerEmail    String?
@@ -148,6 +150,8 @@ model Review {
   
   createdAt        DateTime @default(now())
   
+  businessProfile  BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+
   @@index([businessProfileId])
   @@index([rating])
 }
@@ -264,6 +268,18 @@ model PaymentTransaction {
   @@index([status])
 }
 
+model MiniWebsiteInfo {
+  id                String          @id @default(cuid())
+  businessProfileId String          @unique
+  businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  data              Json            // Stores the entire website state data object in JSON format
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([businessProfileId])
+}
+
+
 // Enums
 enum UserRole {
   ADMIN
@@ -289,4 +305,5 @@ enum PlanType {
   PREMIUM
   ENTERPRISE
 }
+
 

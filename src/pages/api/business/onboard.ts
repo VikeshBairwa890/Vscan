@@ -3,28 +3,16 @@ import { prisma } from "../../../lib/prisma";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
+    return res.status(200).json({ message: "Method Not Allowed" });
   }
 
   const userId = req.headers["x-user-id"] as string;
   if (!userId) {
-    return res.status(401).json({ message: "Unauthorized. Missing user ID header." });
+    return res.status(200).json({ message: "Unauthorized. Missing user ID header." });
   }
 
   try {
-    const {
-      businessName,
-      category,
-      address,
-      city,
-      state,
-      whatsapp,
-      instagram,
-      googleReviewLink,
-      services = [],
-      upiId,
-      qrCodeImage
-    } = req.body;
+    const { businessName, businessAbout, category, address, city, state, whatsapp, contactNumber, instagram, googleReviewLink, services = [], upiId, qrCodeImage } = req.body;
 
     // Verify user exists
     const user = await prisma.user.findUnique({

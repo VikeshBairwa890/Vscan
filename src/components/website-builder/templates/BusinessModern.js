@@ -37,7 +37,6 @@ export default function BusinessModern({ data }) {
     const b = data;
     const ss = b.showSections;
 
-    /* ── Theme ─────────────────────────────────── */
     const th = getTheme(b.theme || "blue");
 
     function parseRGB(color = "") {
@@ -312,7 +311,7 @@ export default function BusinessModern({ data }) {
                             className="text-3xl font-black tracking-tight leading-none mb-1"
                             style={{ color: th.text }}
                         >
-                            {b.businessName || "Your Business"}
+                            {b.title || "Your Business"}
                         </h1>
                         {b.tagline && (
                             <p
