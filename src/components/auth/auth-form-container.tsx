@@ -6,7 +6,7 @@ interface Props {
 
 export default function AuthFormContainer({ children }: Props) {
   return (
-    <div className="w-full rounded-xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <div className="w-full rounded-[32px] border border-app-border bg-app-surface/65 p-8 shadow-2xl backdrop-blur-lg">
       {children}
     </div>
   )

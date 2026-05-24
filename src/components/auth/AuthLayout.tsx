@@ -29,22 +29,26 @@ export default function AuthLayout({ children }: Props) {
                 V
               </div>
 
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-white font-syne">
-                  Vscan
-                </h1>
+              <div className='flex w-full justify-between item-baseline'>
+                <div className='space-y-1'>
+                  <h1 className="text-2xl font-bold tracking-tight text-white font-syne">
+                    Vscan
+                  </h1>
 
-                <p className="text-sm text-app-text-muted">
-                  Digital tools for modern local businesses
-                </p>
+                  <p className="text-sm text-app-text-muted">
+                    Digital tools for modern local businesses
+                  </p>
+                </div>
+                <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-sm font-medium text-primary-light backdrop-blur-xl mt-2">
+                  AI-powered business platform
+                </div>
+
               </div>
             </div>
 
             {/* Hero Section */}
             <div className="relative z-10 max-w-xl">
-              <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-sm font-medium text-primary-light backdrop-blur-xl">
-                AI-powered business platform
-              </div>
+
 
               <h2 className="mt-8 text-6xl font-bold leading-[1.02] tracking-tight text-white font-syne">
                 Bring your
