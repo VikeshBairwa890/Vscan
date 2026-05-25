@@ -284,15 +284,19 @@ export default function MiniWebsiteBuilder() {
         if (statusData.selectedTemplate) {
           setSelectedTemplate(statusData.selectedTemplate);
         }
+
+        // Destructure to remove duplicate/nested 'data', 'success', and 'message' fields from the root state
+        const { data: _data, success: _success, message: _message, ...cleanStatusData } = statusData;
+
         setData(prev => {
-          let showSecs = statusData.showSections;
+          let showSecs = cleanStatusData.showSections;
           if (typeof showSecs === "string") {
             try {
               showSecs = JSON.parse(showSecs);
             } catch (e) { }
           }
           if (!showSecs) {
-            let seoDesc = statusData.seoDescription;
+            let seoDesc = cleanStatusData.seoDescription;
             if (typeof seoDesc === "string") {
               try {
                 seoDesc = JSON.parse(seoDesc);
@@ -301,11 +305,11 @@ export default function MiniWebsiteBuilder() {
             showSecs = seoDesc || prev.showSections;
           }
 
-          const themeName = statusData.theme || statusData.seoTitle || prev.theme;
+          const themeName = cleanStatusData.theme || cleanStatusData.seoTitle || prev.theme;
 
           return {
             ...prev,
-            ...statusData,
+            ...cleanStatusData,
             theme: themeName,
             showSections: showSecs,
             businessName: statusData.businessName || prev.businessName,
@@ -585,7 +589,7 @@ export default function MiniWebsiteBuilder() {
                     <FInput placeholder="Product Name" value={s.name} onChange={v => updService(s.id, "name", v)} small />
                     <div className="grid grid-cols-2 gap-2">
                       <FInput type="number" placeholder="Pricing (e.g. 1500)" value={s.price} onChange={v => updService(s.id, "price", v)} small />
-                      <FInput type="file" placeholder="Thumbnail Image Link" value={s.image} onChange={v => updService(s.id, "image", v)} small />
+                      <FInput placeholder="Thumbnail Image Link" value={s.image} onChange={v => updService(s.id, "image", v)} small />
                     </div>
                     <FTA placeholder="Catalog item description..." value={s.desc} onChange={v => updService(s.id, "desc", v)} />
                   </Card>

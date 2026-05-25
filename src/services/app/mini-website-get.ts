@@ -55,6 +55,10 @@ export async function GetMiniWebsiteInfo(userId: string) {
         
         if (savedInfo) {
             profileData = typeof savedInfo === "string" ? JSON.parse(savedInfo) : savedInfo;
+            // Clean up any legacy duplicate nested data property
+            if (profileData && profileData.data) {
+                delete profileData.data;
+            }
             // Merge essential system fields
             profileData.id = userProfile.id;
             profileData.name = userProfile.name;

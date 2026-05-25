@@ -33,6 +33,10 @@ interface TemplateData {
 
 export default async function SaveMiniWebsiteData(userId: string, tamplateData: TemplateData): Promise<{ success: boolean; message: string; data?: any; error?: string }> {
     try {
+        // Clean up any nested duplicate data property
+        if (tamplateData && (tamplateData as any).data) {
+            delete (tamplateData as any).data;
+        }
 
         const profile = await prisma.businessProfile.findUnique({
             where: { userId }
@@ -83,7 +87,7 @@ export default async function SaveMiniWebsiteData(userId: string, tamplateData: 
         const miniWebsite = await prisma.miniWebsiteInfo.upsert({
             where: { businessProfileId: profile.id },
             update: {
-                createdAt: new Date(),
+                updatedAt: new Date(),
                 data: tamplateData as any
             },
             create: {
@@ -97,7 +101,6 @@ export default async function SaveMiniWebsiteData(userId: string, tamplateData: 
         await prisma.service.deleteMany({
             where: { businessProfileId: profile.id }
         });
-        let a = 0;
         if (tamplateData.services.length > 0) {
             await prisma.service.createMany({
                 data: tamplateData.services.map((s: any, index: number) => ({
