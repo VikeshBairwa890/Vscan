@@ -47,18 +47,37 @@ export default async function SaveMiniWebsiteData(userId: string, tamplateData: 
         }
 
         // Map business hours to database columns
-        const hoursMap: Record<string, string> = {};
-        tamplateData.hours.forEach((h: any) => {
-            const day = h.day?.toLowerCase() || "";
-            const time = h.time || "Closed";
-            if (day.includes("mon")) hoursMap.mondayHours = time;
-            else if (day.includes("tue")) hoursMap.tuesdayHours = time;
-            else if (day.includes("wed")) hoursMap.wednesdayHours = time;
-            else if (day.includes("thu")) hoursMap.thursdayHours = time;
-            else if (day.includes("fri")) hoursMap.fridayHours = time;
-            else if (day.includes("sat")) hoursMap.saturdayHours = time;
-            else if (day.includes("sun")) hoursMap.sundayHours = time;
-        });
+        const hoursMap: Record<string, string> = {
+            mondayHours: "Closed",
+            tuesdayHours: "Closed",
+            wednesdayHours: "Closed",
+            thursdayHours: "Closed",
+            fridayHours: "Closed",
+            saturdayHours: "Closed",
+            sundayHours: "Closed"
+        };
+        if (tamplateData.hours && Array.isArray(tamplateData.hours)) {
+            tamplateData.hours.forEach((h: any) => {
+                const day = h.day?.toLowerCase() || "";
+                const time = h.open ? (h.time || "Open") : "Closed";
+                
+                if (day.includes("mon-fri") || day.includes("mon - fri") || day.includes("monday - friday") || day.includes("monday-friday")) {
+                    hoursMap.mondayHours = time;
+                    hoursMap.tuesdayHours = time;
+                    hoursMap.wednesdayHours = time;
+                    hoursMap.thursdayHours = time;
+                    hoursMap.fridayHours = time;
+                } else {
+                    if (day.includes("mon") || day.includes("monday")) hoursMap.mondayHours = time;
+                    if (day.includes("tue") || day.includes("tuesday")) hoursMap.tuesdayHours = time;
+                    if (day.includes("wed") || day.includes("wednesday")) hoursMap.wednesdayHours = time;
+                    if (day.includes("thu") || day.includes("thursday")) hoursMap.thursdayHours = time;
+                    if (day.includes("fri") || day.includes("friday")) hoursMap.fridayHours = time;
+                    if (day.includes("sat") || day.includes("saturday")) hoursMap.saturdayHours = time;
+                    if (day.includes("sun") || day.includes("sunday")) hoursMap.sundayHours = time;
+                }
+            });
+        }
 
         // Update standard BusinessProfile fields to keep both tables in sync
         await prisma.businessProfile.update({
@@ -83,17 +102,37 @@ export default async function SaveMiniWebsiteData(userId: string, tamplateData: 
             }
         });
 
-        // Upsert MiniWebsiteInfo table with the full state data object
+        // Save ONLY website-builder-specific configuration in MiniWebsiteInfo.data
+        const builderSpecificData = {
+            theme: tamplateData.theme || "",
+            selectedTemplate: tamplateData.selectedTemplate || "",
+            buttonText: tamplateData.buttonText || "",
+            googleFormLink: tamplateData.googleFormLink || "",
+            announcement: tamplateData.announcement || { enabled: false, text: "" },
+            showSections: tamplateData.showSections || {},
+            testimonials: tamplateData.testimonials || [],
+            mediaLinks: tamplateData.mediaLinks || [],
+            faqs: tamplateData.faqs || [],
+            employees: tamplateData.employees || [],
+            amenities: tamplateData.amenities || [],
+            serviceImages: tamplateData.services?.map((s: any) => ({
+                id: s.id,
+                name: s.name,
+                image: s.image || ""
+            })) || []
+        };
+
+        // Upsert MiniWebsiteInfo table with the builder-specific data object
         const miniWebsite = await prisma.miniWebsiteInfo.upsert({
             where: { businessProfileId: profile.id },
             update: {
                 updatedAt: new Date(),
-                data: tamplateData as any
+                data: builderSpecificData as any
             },
             create: {
                 businessProfileId: profile.id,
                 createdAt: new Date(),
-                data: tamplateData as any
+                data: builderSpecificData as any
             }
         });
 

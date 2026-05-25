@@ -278,25 +278,25 @@ export default function MiniWebsiteBuilder() {
           toast.error(statusData.message);
           return;
         }
-        if (statusData.isPublished !== undefined) {
-          setIsPublished(statusData.isPublished);
-        }
-        if (statusData.selectedTemplate) {
-          setSelectedTemplate(statusData.selectedTemplate);
-        }
+        const profileInfo = statusData.data;
+        if (!profileInfo) return;
 
-        // Destructure to remove duplicate/nested 'data', 'success', and 'message' fields from the root state
-        const { data: _data, success: _success, message: _message, ...cleanStatusData } = statusData;
+        if (profileInfo.isPublished !== undefined) {
+          setIsPublished(profileInfo.isPublished);
+        }
+        if (profileInfo.selectedTemplate) {
+          setSelectedTemplate(profileInfo.selectedTemplate);
+        }
 
         setData(prev => {
-          let showSecs = cleanStatusData.showSections;
+          let showSecs = profileInfo.showSections;
           if (typeof showSecs === "string") {
             try {
               showSecs = JSON.parse(showSecs);
             } catch (e) { }
           }
           if (!showSecs) {
-            let seoDesc = cleanStatusData.seoDescription;
+            let seoDesc = profileInfo.seoDescription;
             if (typeof seoDesc === "string") {
               try {
                 seoDesc = JSON.parse(seoDesc);
@@ -305,30 +305,30 @@ export default function MiniWebsiteBuilder() {
             showSecs = seoDesc || prev.showSections;
           }
 
-          const themeName = cleanStatusData.theme || cleanStatusData.seoTitle || prev.theme;
+          const themeName = profileInfo.theme || profileInfo.seoTitle || prev.theme;
 
           return {
             ...prev,
-            ...cleanStatusData,
+            ...profileInfo,
             theme: themeName,
             showSections: showSecs,
-            businessName: statusData.businessName || prev.businessName,
-            tagline: statusData.tagline || statusData.about || prev.tagline,
-            logo: statusData.logo || statusData.BusinessLogo || prev.logo,
-            phone: statusData.phone || statusData.whatsappNumber || statusData.contactNumber || prev.phone,
-            email: statusData.email || prev.email,
-            address: statusData.address || statusData.businessAddress || prev.address,
-            website: statusData.website || prev.website,
-            instagram: statusData.instagram || prev.instagram,
-            facebook: statusData.facebook || prev.facebook,
-            upiId: statusData.upiId || prev.upiId,
-            services: statusData.services || prev.services,
-            hours: statusData.hours || prev.hours,
-            employees: statusData.employees || prev.employees,
-            testimonials: statusData.testimonials || prev.testimonials,
-            mediaLinks: statusData.mediaLinks || prev.mediaLinks,
-            faqs: statusData.faqs || prev.faqs,
-            amenities: statusData.amenities || prev.amenities,
+            businessName: profileInfo.businessName || prev.businessName,
+            tagline: profileInfo.tagline || profileInfo.about || prev.tagline,
+            logo: profileInfo.logo || profileInfo.BusinessLogo || prev.logo,
+            phone: profileInfo.phone || profileInfo.whatsappNumber || profileInfo.contactNumber || prev.phone,
+            email: profileInfo.email || prev.email,
+            address: profileInfo.address || profileInfo.businessAddress || prev.address,
+            website: profileInfo.website || prev.website,
+            instagram: profileInfo.instagram || prev.instagram,
+            facebook: profileInfo.facebook || prev.facebook,
+            upiId: profileInfo.upiId || prev.upiId,
+            services: profileInfo.services || prev.services,
+            hours: profileInfo.hours || prev.hours,
+            employees: profileInfo.employees || prev.employees,
+            testimonials: profileInfo.testimonials || prev.testimonials,
+            mediaLinks: profileInfo.mediaLinks || prev.mediaLinks,
+            faqs: profileInfo.faqs || prev.faqs,
+            amenities: profileInfo.amenities || prev.amenities,
           };
         });
       } catch (err) {
