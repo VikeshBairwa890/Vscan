@@ -113,6 +113,7 @@ model BusinessProfile {
   subscription     Subscription?
   activityLogs     ActivityLog[]
   miniWebsiteInfo  MiniWebsiteInfo?
+  aiSuggestion     AiSuggestion?
   
   @@index([userId])
   @@index([businessName])
@@ -273,6 +274,19 @@ model MiniWebsiteInfo {
   businessProfileId String          @unique
   businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
   data              Json            // Stores the entire website state data object in JSON format
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([businessProfileId])
+}
+
+model AiSuggestion {
+  id                String          @id @default(cuid())
+  businessProfileId String          @unique
+  businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  keywords          String[]
+  cacheStatus       String          @default("empty")
+  generatedCount    Int             @default(0)
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 

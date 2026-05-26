@@ -14,6 +14,40 @@ export default function AISEOManager() {
     const [mounted, setMounted] = useState(false);
     const [generatedCount, setGeneratedCount] = useState(0);
 
+    useEffect(() => {
+        setMounted(true);
+        const loadSettings = async () => {
+            const userStr = localStorage.getItem("currentUser");
+            if (!userStr) return;
+
+            try {
+                const user = JSON.parse(userStr);
+                const res = await fetch(`/api/business/ai-suggestions-get?userId=${user.id}`);
+                if (!res.ok) {
+                    toast.error("Failed to load AI Suggestions settings");
+                    return;
+                }
+                const result = await res.json();
+                if (result.success && result.data) {
+                    if (result.data.keywords) {
+                        setKeywords(result.data.keywords);
+                    }
+                    if (result.data.cacheStatus) {
+                        setCacheStatus(result.data.cacheStatus);
+                    }
+                    if (result.data.generatedCount !== undefined) {
+                        setGeneratedCount(result.data.generatedCount);
+                    }
+                }
+
+            } catch (err) {
+                console.error("Error loading AI Suggestions settings", err);
+            }
+        };
+
+        loadSettings();
+    }, []);
+
     const handleKeywordChange = (index, value) => {
         const updated = [...keywords];
         updated[index] = value;
@@ -22,18 +56,93 @@ export default function AISEOManager() {
     };
 
     const handleSave = async () => {
-        setSaved(true);
-        toast.success("Keywords saved successfully!");
-        setTimeout(() => setSaved(false), 2000);
+        const userStr = localStorage.getItem("currentUser");
+        if (!userStr) {
+            toast.error("User session expired. Please login again.");
+            return;
+        }
+
+        try {
+            const user = JSON.parse(userStr);
+            const res = await fetch("/api/business/ai-suggestions-post", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-user-id": user.id
+                },
+                body: JSON.stringify({
+                    data: {
+                        keywords,
+                        cacheStatus,
+                        generatedCount
+                    }
+                })
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                if (result.success) {
+                    setSaved(true);
+                    toast.success("Keywords saved successfully!");
+                    setTimeout(() => setSaved(false), 2000);
+                } else {
+                    toast.error(result.message || "Failed to save keywords");
+                }
+            } else {
+                toast.error("Failed to save keywords");
+            }
+        } catch (err) {
+            console.error("Error saving keywords", err);
+            toast.error("Error saving keywords");
+        }
     };
 
     const handleRegenerate = () => {
         setRegenerating(true);
-        setTimeout(() => {
+        const userStr = localStorage.getItem("currentUser");
+        if (!userStr) {
+            toast.error("User session expired. Please login again.");
             setRegenerating(false);
-            setCacheStatus("ready");
-            setGeneratedCount(25);
-            toast.success("Review cache generated successfully!");
+            return;
+        }
+
+        setTimeout(async () => {
+            try {
+                const user = JSON.parse(userStr);
+                const nextCount = 25;
+                const res = await fetch("/api/business/ai-suggestions-post", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-user-id": user.id
+                    },
+                    body: JSON.stringify({
+                        data: {
+                            keywords,
+                            cacheStatus: "ready",
+                            generatedCount: nextCount
+                        }
+                    })
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result.success) {
+                        setCacheStatus("ready");
+                        setGeneratedCount(nextCount);
+                        toast.success("Review cache generated successfully!");
+                    } else {
+                        toast.error(result.message || "Failed to save generated template cache");
+                    }
+                } else {
+                    toast.error("Failed to save generated template cache");
+                }
+            } catch (err) {
+                console.error("Error generating templates", err);
+                toast.error("Error saving generated templates");
+            } finally {
+                setRegenerating(false);
+            }
         }, 2000);
     };
 
@@ -157,11 +266,10 @@ export default function AISEOManager() {
 
                     <div className="p-6 flex flex-col items-center text-center">
                         {/* Icon */}
-                        <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 border ${
-                            cacheStatus === "empty"
+                        <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 border ${cacheStatus === "empty"
                                 ? "bg-app-warning/10 border-app-warning/20 text-app-warning shadow-[0_0_15px_rgba(251,191,36,0.05)]"
                                 : "bg-app-success/10 border-app-success/20 text-app-success shadow-[0_0_15px_rgba(16,185,129,0.05)]"
-                        }`}>
+                            }`}>
                             {cacheStatus === "empty" ? (
                                 <AlertCircle size={32} />
                             ) : (

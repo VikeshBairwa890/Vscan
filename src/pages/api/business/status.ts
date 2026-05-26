@@ -3,18 +3,18 @@ import { prisma } from "../../../lib/prisma";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET" && req.method !== "POST") {
-        return res.status(405).json({ message: "Method Not Allowed" });
+        return res.status(200).json({ success: false, message: "Method Not Allowed" });
     }
 
     // Support user ID from header or body
     const userId = (req.headers["x-user-id"] || req.query.userId || req.body.userId) as string;
     if (!userId) {
-        return res.status(400).json({ success: false, message: "Missing user ID." });
+        return res.status(200).json({ success: false, message: "Missing user ID." });
     }
 
     try {
         const profile = await prisma.businessProfile.findUnique({
-            where: { userId },
+            where: { userId: userId },
             include: {
                 services: true,
                 qrCodes: true,
@@ -104,7 +104,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
     } catch (error: any) {
         console.error("Status API Error:", error);
-        return res.status(500).json({
+        return res.status(200).json({
             success: false,
             message: "Failed to fetch status details",
             error: error.message

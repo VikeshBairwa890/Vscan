@@ -39,7 +39,7 @@ export default async function SaveMiniWebsiteData(userId: string, tamplateData: 
         }
 
         const profile = await prisma.businessProfile.findUnique({
-            where: { userId }
+            where: { userId: userId }
         });
 
         if (!profile) {
@@ -60,7 +60,7 @@ export default async function SaveMiniWebsiteData(userId: string, tamplateData: 
             tamplateData.hours.forEach((h: any) => {
                 const day = h.day?.toLowerCase() || "";
                 const time = h.open ? (h.time || "Open") : "Closed";
-                
+
                 if (day.includes("mon-fri") || day.includes("mon - fri") || day.includes("monday - friday") || day.includes("monday-friday")) {
                     hoursMap.mondayHours = time;
                     hoursMap.tuesdayHours = time;
