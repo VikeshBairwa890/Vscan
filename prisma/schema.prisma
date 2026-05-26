@@ -114,6 +114,7 @@ model BusinessProfile {
   activityLogs     ActivityLog[]
   miniWebsiteInfo  MiniWebsiteInfo?
   aiSuggestion     AiSuggestion?
+  smartQrSettings  SmartQrSettings?
   
   @@index([userId])
   @@index([businessName])
@@ -289,6 +290,25 @@ model AiSuggestion {
   generatedCount    Int             @default(0)
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+
+  @@index([businessProfileId])
+}
+
+model SmartQrSettings {
+  id                  String          @id @default(cuid())
+  businessProfileId   String          @unique
+  businessProfile     BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  
+  qrDestination       String          @default("smart-menu")
+  customUrl           String          @default("")
+  primaryColor        String          @default("#7c3aed")
+  secondaryColor      String          @default("#4f46e5")
+  gradientEnabled     Boolean         @default(false)
+  qrDesignPattern     String          @default("classic")
+  selectedFlyerLayout String          @default("table-stand")
+  
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
 
   @@index([businessProfileId])
 }

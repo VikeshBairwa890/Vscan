@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import {
-  Copy, Download, Globe, Star, User, LayoutGrid, ArrowRight,
+  Copy, Download, Globe, Star, User, LayoutGrid, ArrowRight, Save,
   MessageCircle, CheckCircle2, QrCode, Share2, Eye, RefreshCw,
   Sparkles, Lock, ArrowLeft, Printer, ShieldAlert, Award, FileText, Link
 } from "lucide-react";
@@ -58,6 +58,8 @@ export default function SmartQR() {
   const [gradientEnabled, setGradientEnabled] = useState(false);
   const [qrDesignPattern, setQrDesignPattern] = useState("classic"); // classic, rounded, blocky
   const [selectedFlyerLayout, setSelectedFlyerLayout] = useState("table-stand"); // table-stand, counter-card, business-card
+  const [isSaving, setIsSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   // Business Profile Info
   const [businessData, setBusinessData] = useState({
@@ -97,6 +99,22 @@ export default function SmartQR() {
             }));
           }
         }
+
+        // Fetch customized QR Settings
+        const qrRes = await fetch(`/api/business/smart-qr-get?userId=${user.id}`);
+        if (qrRes.ok) {
+          const qrResult = await qrRes.json();
+          if (qrResult.success && qrResult.data) {
+            const d = qrResult.data;
+            if (d.qrDestination) setQrDestination(d.qrDestination);
+            if (d.customUrl) setCustomUrl(d.customUrl);
+            if (d.primaryColor) setPrimaryColor(d.primaryColor);
+            if (d.secondaryColor) setSecondaryColor(d.secondaryColor);
+            if (d.gradientEnabled !== undefined) setGradientEnabled(d.gradientEnabled);
+            if (d.qrDesignPattern) setQrDesignPattern(d.qrDesignPattern);
+            if (d.selectedFlyerLayout) setSelectedFlyerLayout(d.selectedFlyerLayout);
+          }
+        }
       } catch (e) {
         console.error(e);
       } finally {
@@ -105,6 +123,56 @@ export default function SmartQR() {
     };
     fetchStatus();
   }, []);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    const userStr = localStorage.getItem("currentUser");
+    if (!userStr) {
+      toast.error("User session expired. Please login again.");
+      setIsSaving(false);
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userStr);
+      const res = await fetch("/api/business/smart-qr-post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": user.id
+        },
+        body: JSON.stringify({
+          data: {
+            qrDestination,
+            customUrl,
+            primaryColor,
+            secondaryColor,
+            gradientEnabled,
+            qrDesignPattern,
+            selectedFlyerLayout
+          }
+        })
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success) {
+          setSaved(true);
+          toast.success("QR settings saved successfully!");
+          setTimeout(() => setSaved(false), 2000);
+        } else {
+          toast.error(result.message || "Failed to save QR settings");
+        }
+      } else {
+        toast.error("Failed to save QR settings");
+      }
+    } catch (err) {
+      console.error("Error saving QR settings", err);
+      toast.error("Error saving QR settings");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Compute redirect url based on selection
   const getRedirectUrl = () => {
@@ -302,20 +370,47 @@ export default function SmartQR() {
             <p className="text-app-text-muted text-sm mt-1">Configure routing rules, styles, and printable customer flyers.</p>
           </div>
 
-          {/* Stepper Progress bar */}
-          <div className="flex items-center gap-2 bg-app-surface border border-app-border rounded-2xl p-1.5">
-            {[1, 2, 3].map((step) => (
-              <button
-                key={step}
-                onClick={() => setCurrentStep(step)}
-                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition ${currentStep === step
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "text-app-text-muted hover:text-white"
-                  }`}
-              >
-                Step {step}
-              </button>
-            ))}
+          {/* Stepper Progress bar & Save Button */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-app-surface border border-app-border rounded-2xl p-1.5">
+              {[1, 2, 3].map((step) => (
+                <button
+                  key={step}
+                  onClick={() => setCurrentStep(step)}
+                  className={`px-4 py-1.5 rounded-xl text-xs font-bold transition ${currentStep === step
+                    ? "bg-primary text-white shadow-md shadow-primary/20"
+                    : "text-app-text-muted hover:text-white"
+                    }`}
+                >
+                  Step {step}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-extrabold transition-all duration-300 active:scale-95 shadow-lg shadow-primary/10 text-white`}
+              style={{
+                background: saved
+                  ? "linear-gradient(135deg,#10b981,#059669)"
+                  : "linear-gradient(135deg,#7c3aed,#4f46e5)",
+              }}
+            >
+              {saved ? (
+                <><CheckCircle2 size={13} /> <span>Saved!</span></>
+              ) : isSaving ? (
+                <>
+                  <svg className="animate-spin h-3.5 w-3.5 text-white mr-1" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Saving...
+                </>
+              ) : (
+                <><Save className="w-3.5 h-3.5" /> <span>Save Settings</span></>
+              )}
+            </button>
           </div>
         </div>
       </div>
