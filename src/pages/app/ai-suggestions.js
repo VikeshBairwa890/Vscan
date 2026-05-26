@@ -7,7 +7,7 @@ import { toast } from "sonner";
 const TOTAL_KEYWORDS = 10;
 
 export default function AISEOManager() {
-    const [keywords, setKeywords] = useState(["Service", "Quality", "Professional", "Value", "", "", "", "", "", ""]);
+    const [keywords, setKeywords] = useState(["", "", "", "", "", "", "", "", "", ""]);
     const [saved, setSaved] = useState(false);
     const [regenerating, setRegenerating] = useState(false);
     const [cacheStatus, setCacheStatus] = useState("empty");
@@ -44,7 +44,6 @@ export default function AISEOManager() {
                 console.error("Error loading AI Suggestions settings", err);
             }
         };
-
         loadSettings();
     }, []);
 
@@ -267,8 +266,8 @@ export default function AISEOManager() {
                     <div className="p-6 flex flex-col items-center text-center">
                         {/* Icon */}
                         <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 border ${cacheStatus === "empty"
-                                ? "bg-app-warning/10 border-app-warning/20 text-app-warning shadow-[0_0_15px_rgba(251,191,36,0.05)]"
-                                : "bg-app-success/10 border-app-success/20 text-app-success shadow-[0_0_15px_rgba(16,185,129,0.05)]"
+                            ? "bg-app-warning/10 border-app-warning/20 text-app-warning shadow-[0_0_15px_rgba(251,191,36,0.05)]"
+                            : "bg-app-success/10 border-app-success/20 text-app-success shadow-[0_0_15px_rgba(16,185,129,0.05)]"
                             }`}>
                             {cacheStatus === "empty" ? (
                                 <AlertCircle size={32} />
