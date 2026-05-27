@@ -203,7 +203,7 @@ export default function Sidebar({
       {/* PAGE CONTENT */}
       <div
         className={`
-          flex flex-1 flex-col
+          flex flex-1 flex-col w-full min-w-0 max-w-full overflow-x-hidden
           transition-all duration-300
 
           ${collapsed ? "lg:ml-20" : "lg:ml-70"}
@@ -220,7 +220,7 @@ export default function Sidebar({
           }
         />
 
-        <main className="flex-1">
+        <main className="flex-1 w-full min-w-0 overflow-x-hidden">
           {children}
         </main>
 
