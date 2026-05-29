@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
+    return res.status(200).json({ message: "Method Not Allowed" });
   }
 
   try {
@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       url: returnedUrl,
     });
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(200).json({
       success: false,
       message: "Simulated upload failed",
       error: error.message,

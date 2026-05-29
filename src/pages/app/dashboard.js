@@ -1,16 +1,13 @@
 'use client'
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  TrendingUp, Clock, List, ChevronRight, CheckCircle2,
-  AlertCircle, Sparkles, Globe, QrCode, MessageSquare,
-  ArrowUpRight, Star, Eye, ShieldAlert, Award, UserCheck, Shield
+  TrendingUp, ChevronRight, CheckCircle2,
+  Sparkles, QrCode, MessageSquare,
+  ArrowUpRight, Star, Eye, Award
 } from "lucide-react";
-import { toast } from "sonner";
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-} from "recharts";
+
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, } from "recharts";
 import { THEME_COLORS } from "@/config/theme";
 
 // Mock Recharts Data for Bottom Analytics Section
@@ -32,7 +29,6 @@ export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState(null);
-  const [activeTab, setActiveTab] = useState("30 Days");
 
   const fetchStatus = async () => {
     const userStr = localStorage.getItem("currentUser");
@@ -43,9 +39,10 @@ export default function Dashboard() {
 
     try {
       const user = JSON.parse(userStr);
-      const res = await fetch(`/api/business/status?userId=${user.id}`);
+      const res = await fetch(`/api/business/dashboard-status?userId=${user.id}`);
       if (res.ok) {
         const data = await res.json();
+        console.log(data);
         setStatus(data);
       }
     } catch (e) {

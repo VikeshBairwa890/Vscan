@@ -84,7 +84,7 @@ export default function Profile() {
         formData.append('type', type);
 
         try {
-            const response = await fetch('/api/profile/upload', {
+            const response = await fetch('/api/business/upload', {
                 method: 'POST',
                 body: formData,
             });
@@ -122,7 +122,7 @@ export default function Profile() {
             const user = JSON.parse(userStr);
             const response = await fetch('/api/business/save', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'x-user-id': user.id
                 },
@@ -296,7 +296,7 @@ export default function Profile() {
                                             WhatsApp Number
                                         </label>
                                         <div className="relative">
-                                             <FaWhatsapp className="w-4 h-4 text-app-text-dimmed absolute left-3 top-1/2 -translate-y-1/2" />
+                                            <FaWhatsapp className="w-4 h-4 text-app-text-dimmed absolute left-3 top-1/2 -translate-y-1/2" />
                                             <input
                                                 id="whatsapp"
                                                 type="text"
@@ -313,7 +313,7 @@ export default function Profile() {
                                             Inquiry Email
                                         </label>
                                         <div className="relative">
-                                             <Mail className="w-4 h-4 text-app-text-dimmed absolute left-3 top-1/2 -translate-y-1/2" />
+                                            <Mail className="w-4 h-4 text-app-text-dimmed absolute left-3 top-1/2 -translate-y-1/2" />
                                             <input
                                                 id="email"
                                                 type="email"

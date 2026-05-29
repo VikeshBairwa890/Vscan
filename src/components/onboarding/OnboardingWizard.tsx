@@ -182,7 +182,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     formData.append("type", "qr");
 
     try {
-      const response = await fetch("/api/profile/upload", {
+      const response = await fetch("/api/business/upload", {
         method: "POST",
         body: formData
       });
@@ -221,7 +221,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     }
 
     try {
-      const response = await fetch("/api/business/onboard", {
+      const response = await fetch("/api/business/onboarding", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

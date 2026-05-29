@@ -1,17 +1,14 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
+import ActivityLogs from "../ActivityLogs";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method !== "GET" && req.method !== "POST") {
-        return res.status(200).json({ success: false, message: "Method Not Allowed" });
+export default async function GetDashboardStatus(userId: string) {
+    if (!userId || userId?.length == 0) {
+        return {
+            success: false,
+            message: "User ID is required",
+            data: null
+        }
     }
-
-    // Support user ID from header or body
-    const userId = (req.headers["x-user-id"] || req.query.userId || req.body.userId) as string;
-    if (!userId) {
-        return res.status(200).json({ success: false, message: "Missing user ID." });
-    }
-
     try {
         const profile = await prisma.businessProfile.findUnique({
             where: { userId: userId },
@@ -24,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         if (!profile) {
-            return res.status(200).json({
+            return {
                 success: true,
                 hasProfile: false,
                 checklist: {
@@ -44,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     plan: "FREE",
                     isActive: false
                 }
-            });
+            };
         }
 
         // Determine checklist steps completion
@@ -54,18 +51,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const hasReviewLink = !!profile.googleReviewLink && profile.googleReviewLink.trim().length > 0;
         const isPublished = profile.isPublished;
 
-        // Calculate metrics
         const views = profile.viewCount || 0;
         const scans = profile.qrCodes.reduce((acc, q) => acc + (q.scanCount || 0), 0) + (profile.shareCount || 0);
         const reviewsCount = profile.reviews.length;
-        const leads = profile.services.length * 3 + (profile.viewCount ? Math.floor(profile.viewCount * 0.15) : 0); // Simulated booking/leads count
+        const leads = profile.services.length * 3 + (profile.viewCount ? Math.floor(profile.viewCount * 0.15) : 0);
 
-        // Subscription plan check
-        // If they have subscription from Cashfree or default premium check
         const plan = profile.subscription?.plan || "FREE";
         const isPremium = plan === "PREMIUM" && (profile.subscription?.endDate ? new Date(profile.subscription.endDate) > new Date() : true);
 
-        return res.status(200).json({
+        return {
             success: true,
             hasProfile: true,
             businessName: profile.businessName || "Your Business",
@@ -92,22 +86,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 isPublished
             },
             stats: {
-                views: views || 12,
-                scans: scans || 8,
-                reviews: reviewsCount || 4,
-                leads: leads || 3
+                views: views || 0,
+                scans: scans || 0,
+                reviews: reviewsCount || 0,
+                leads: leads || 0
             },
             subscription: {
                 plan,
                 isActive: isPremium
             }
-        });
+        };
     } catch (error: any) {
-        console.error("Status API Error:", error);
-        return res.status(200).json({
+        ActivityLogs(userId, '', 'GET', '/api/business/status', error.message);
+        return {
             success: false,
             message: "Failed to fetch status details",
-            error: error.message
-        });
+            data: error.message
+        }
     }
+
+
 }
