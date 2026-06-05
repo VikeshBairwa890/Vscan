@@ -387,7 +387,7 @@ export default function Profile() {
 
                 {/* Payment Settings Section */}
                 <div className="lg:col-span-1">
-                    <div className="bg-app-surface border border-app-border rounded-3xl overflow-hidden shadow-2xl backdrop-blur-md sticky top-6">
+                    <div className="bg-app-surface border border-app-border rounded-3xl overflow-hidden shadow-2xl backdrop-blur-md sticky">
                         <div className="px-6 py-4 bg-app-bg/30 border-b border-app-border">
                             <div className="flex items-center gap-2">
                                 <CreditCard className="w-5 h-5 text-app-success" />

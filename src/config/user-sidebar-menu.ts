@@ -6,6 +6,7 @@ import {
   CreditCard,
   TrendingUp,
   Globe,
+  Contact,
 } from "lucide-react";
 
 import { SidebarMenuItem } from "@/types/sidebar";
@@ -25,6 +26,11 @@ export const userSidebarMenu: SidebarMenuItem[] = [
     name: "Smart QR",
     icon: QrCode,
     link: "/app/smart-qr",
+  },
+  {
+    name: "Business Card",
+    icon: Contact,
+    link: "/app/business-card",
   },
   {
     name: "AI Studio",

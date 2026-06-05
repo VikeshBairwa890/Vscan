@@ -12,36 +12,6 @@ import QRCode from "qrcode";
 
 const uid = () => Math.random().toString(36).slice(2, 8);
 
-const menuItems = [
-  {
-    id: "review",
-    icon: Star,
-    title: "Leave a Review",
-    subtitle: "How was your experience?",
-    color: "from-emerald-700/60 to-emerald-900/40",
-    iconColor: "text-emerald-400",
-    link: "/review",
-  },
-  {
-    id: "business-card",
-    icon: User,
-    title: "Business Card",
-    subtitle: "Save contact info",
-    color: "from-app-surface/60 to-app-bg/40",
-    iconColor: "text-app-text-muted",
-    link: "/business-card",
-  },
-  {
-    id: "website",
-    icon: LayoutGrid,
-    title: "Mini Website",
-    subtitle: "Services, Hours & More",
-    color: "from-app-surface/60 to-app-bg/40",
-    iconColor: "text-app-text-muted",
-    link: "/website",
-  },
-];
-
 export default function SmartQR() {
   const router = useRouter();
   const canvasRef = useRef(null);

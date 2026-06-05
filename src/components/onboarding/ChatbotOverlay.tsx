@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 
 import questions from "./questions";
-import servicesByCategory from "./services";
+import servicesByCategory from "./Services";
 
 import AssistantHeader from "./AssistantHeader";
 import ProgressBar from "./ProgressBar";
