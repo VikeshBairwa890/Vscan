@@ -47,6 +47,12 @@ export default async function SmartQrPost(userId: string, data: SmartQrSettingsD
             }
         });
 
+        // Also mark isQrGenerated as true on BusinessProfile
+        await prisma.businessProfile.update({
+            where: { id: profile.id },
+            data: { isQrGenerated: true }
+        });
+
         await ActivityLogs(userId, profile.id, "UPDATE", "Smart QR Settings", "Saved Smart QR code styling and routing settings");
 
         return {

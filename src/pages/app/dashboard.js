@@ -244,7 +244,7 @@ export default function Dashboard() {
             <button
               key={act.label}
               onClick={() => router.push(act.link)}
-              className={`flex flex-col items-start text-left p-5 rounded-2xl border transition-all duration-200 ${act.bg}`}
+              className={`flex flex-col items-start text-left p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${act.bg}`}
             >
               <span className="text-sm font-bold">{act.label}</span>
               <span className="text-[11px] text-app-text-dimmed mt-1">{act.desc}</span>

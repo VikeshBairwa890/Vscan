@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
+import { Button } from "@heroui/react";
 
 const uid = () => Math.random().toString(36).slice(2, 8);
 
@@ -360,9 +361,9 @@ export default function SmartQR() {
               ))}
             </div>
 
-            <button
+            <Button
               onClick={handleSave}
-              disabled={isSaving}
+              isDisabled={isSaving}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-extrabold transition-all duration-300 active:scale-95 shadow-lg shadow-primary/10 text-white`}
               style={{
                 background: saved
@@ -383,7 +384,7 @@ export default function SmartQR() {
               ) : (
                 <><Save className="w-3.5 h-3.5" /> <span>Save Settings</span></>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

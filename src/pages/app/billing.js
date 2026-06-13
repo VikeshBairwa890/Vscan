@@ -14,7 +14,7 @@ export default function BillingSubscription() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const [subscription, setSubscription] = useState(null);
   const [transactions, setTransactions] = useState([]);
 
@@ -92,7 +92,7 @@ export default function BillingSubscription() {
       if (data.order_status === "PAID") {
         setVerified(true);
         toast.success("Payment verified successfully!");
-        
+
         // Link transaction to subscription & update in DB
         const userStr = localStorage.getItem("currentUser");
         const userId = userStr ? JSON.parse(userStr).id : "";
@@ -172,7 +172,7 @@ export default function BillingSubscription() {
       endDate.setFullYear(endDate.getFullYear() + 1);
 
       const orderId = `UTR_${txnId.trim()}`;
-      
+
       const res = await fetch("/api/business/billing", {
         method: "POST",
         headers: {
@@ -250,11 +250,11 @@ export default function BillingSubscription() {
 
     const isPremium = subscription.plan !== "FREE";
     const status = subscription.isExpired ? "Expired" : (subscription.isActive ? "Active" : "Inactive");
-    
+
     let duration = "Lifetime Free";
     let expiryDate = "Never";
     let remainingDaysText = "N/A";
-    
+
     if (subscription.endDate) {
       const date = new Date(subscription.endDate);
       expiryDate = date.toLocaleDateString("en-IN", {
@@ -299,7 +299,7 @@ export default function BillingSubscription() {
         </div>
         <button
           onClick={fetchBillingInfo}
-          className="flex items-center gap-1.5 bg-app-surface border border-app-border hover:bg-app-bg/60 px-4 py-2 rounded-xl text-xs font-bold text-white transition active:scale-95"
+          className="flex items-center gap-1.5 bg-app-surface border border-app-border hover:bg-app-bg/60 px-4 py-2 rounded-xl text-xs font-bold text-white transition active:scale-95 cursor-pointer"
         >
           <RefreshCw size={12} /> Refresh
         </button>
@@ -312,7 +312,7 @@ export default function BillingSubscription() {
           {/* Plan Info Card */}
           <div className="bg-app-surface border border-app-border rounded-3xl p-6 backdrop-blur-md relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-primary/10 to-transparent blur-2xl pointer-events-none" />
-            
+
             <div className="flex items-start justify-between flex-wrap gap-4">
               <div className="flex items-start gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 flex-shrink-0">
@@ -331,8 +331,8 @@ export default function BillingSubscription() {
               <div className={`px-4 py-1.5 rounded-full border text-xs font-bold ${planInfo.status === "Active"
                 ? "bg-app-success/10 border-app-success/20 text-app-success"
                 : planInfo.status === "Expired"
-                ? "bg-red-500/10 border-red-500/20 text-red-400"
-                : "bg-app-warning/10 border-app-warning/20 text-app-warning"
+                  ? "bg-red-500/10 border-red-500/20 text-red-400"
+                  : "bg-app-warning/10 border-app-warning/20 text-app-warning"
                 }`}>
                 {planInfo.status === "Active" ? "Active Account" : planInfo.status === "Expired" ? "Plan Expired" : "Trial / Upgrade Required"}
               </div>
@@ -409,7 +409,7 @@ export default function BillingSubscription() {
               <button
                 onClick={handleManualVerify}
                 disabled={verifying || !txnId.trim()}
-                className="bg-primary hover:bg-primary-dark px-6 py-2.5 rounded-xl text-xs font-bold text-white transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                className="bg-primary hover:bg-primary-dark px-6 py-2.5 cursor-pointer rounded-xl text-xs font-bold text-white transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
                 {verifying && <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>}
                 <span>{verifying ? "Verifying..." : "Submit Verification"}</span>
@@ -454,7 +454,7 @@ export default function BillingSubscription() {
                         month: 'short',
                         year: 'numeric'
                       });
-                      
+
                       return (
                         <tr key={txn.id} className="hover:bg-app-bg/40 transition-colors">
                           <td className="p-4 whitespace-nowrap">{txnDate}</td>
@@ -467,13 +467,12 @@ export default function BillingSubscription() {
                           <td className="p-4 whitespace-nowrap text-white font-bold">₹{txn.amount.toLocaleString("en-IN")}</td>
                           <td className="p-4 whitespace-nowrap capitalize text-[10px]">{txn.paymentMethod || "Cashfree Gate"}</td>
                           <td className="p-4 whitespace-nowrap">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              txn.status === "PAID"
-                                ? "bg-app-success/10 border border-app-success/20 text-app-success"
-                                : txn.status === "PENDING"
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${txn.status === "PAID"
+                              ? "bg-app-success/10 border border-app-success/20 text-app-success"
+                              : txn.status === "PENDING"
                                 ? "bg-app-warning/10 border border-app-warning/20 text-app-warning"
                                 : "bg-red-500/10 border border-red-500/20 text-red-400"
-                            }`}>
+                              }`}>
                               {txn.status}
                             </span>
                           </td>

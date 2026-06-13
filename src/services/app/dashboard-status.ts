@@ -16,7 +16,8 @@ export default async function GetDashboardStatus(userId: string) {
                 services: true,
                 qrCodes: true,
                 reviews: true,
-                subscription: true
+                subscription: true,
+                smartQrSettings: true
             }
         });
 
@@ -47,7 +48,7 @@ export default async function GetDashboardStatus(userId: string) {
         // Determine checklist steps completion
         const hasLogo = !!profile.logo && profile.logo.trim().length > 0;
         const hasServices = profile.services.length > 0;
-        const hasQr = profile.qrCodes.length > 0 || !!profile.paymentQrCode;
+        const hasQr = !!profile.smartQrSettings || profile.qrCodes.length > 0 || !!profile.paymentQrCode || profile.isQrGenerated;
         const hasReviewLink = !!profile.googleReviewLink && profile.googleReviewLink.trim().length > 0;
         const isPublished = profile.isPublished;
 
