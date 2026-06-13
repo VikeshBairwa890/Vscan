@@ -9,7 +9,7 @@ import {
   motion,
 } from "framer-motion";
 
-import questions from ".../questions";
+import questions from "./questions";
 import servicesByCategory from "./Services";
 
 import AssistantHeader from "./AssistantHeader";
