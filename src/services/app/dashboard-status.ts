@@ -78,6 +78,7 @@ export default async function GetDashboardStatus(userId: string) {
             paymentQrCode: profile.paymentQrCode || "",
             seoTitle: profile.seoTitle || "",
             seoDescription: profile.seoDescription || "",
+            customSlug: profile.customSlug || "",
             checklist: {
                 hasLogo,
                 hasServices,

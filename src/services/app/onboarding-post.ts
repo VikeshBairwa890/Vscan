@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { generateUniqueSlug } from "./slug-helper";
 
 interface BusinessProfilePayload {
     businessName: string;
@@ -35,6 +36,8 @@ export default async function PostOnboarding(userId: string, data: BusinessProfi
             return { success: false, message: "User not found." };
         }
 
+        const slug = await generateUniqueSlug(data.businessName, user.id);
+
         // Upsert BusinessProfile
         const businessProfile = await prisma.businessProfile.upsert({
             where: { userId: user.id },
@@ -50,6 +53,7 @@ export default async function PostOnboarding(userId: string, data: BusinessProfi
                 googleReviewLink: data.googleReviewLink || '',
                 upiId: data.upiId || '',
                 paymentQrCode: data.qrCodeImage || '',
+                customSlug: slug,
                 isPublished: false // Onboarding completed, but site is not published yet
             },
             create: {
@@ -65,6 +69,7 @@ export default async function PostOnboarding(userId: string, data: BusinessProfi
                 googleReviewLink: data.googleReviewLink || '',
                 upiId: data.upiId || '',
                 paymentQrCode: data.qrCodeImage || '',
+                customSlug: slug,
                 isPublished: false
             }
         });

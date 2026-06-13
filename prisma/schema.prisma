@@ -68,6 +68,8 @@ model BusinessProfile {
   facebook         String?
   twitter          String?
   linkedin         String?
+  customSlug       String?  @unique
+  
   
   // Business Hours
   mondayHours      String?

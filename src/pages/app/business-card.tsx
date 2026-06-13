@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import QRCode from "qrcode";
 import BusinessCard, { BusinessCardData } from "@/components/dashboard/BusinessCard";
+import { Button } from "@heroui/react";
 
 export default function BusinessCardPage() {
   const router = useRouter();
@@ -67,6 +68,7 @@ export default function BusinessCardPage() {
         if (res.ok) {
           const statusData = await res.json();
           if (statusData.hasProfile) {
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz";
             setHasProfile(true);
             setCardData((prev) => ({
               ...prev,
@@ -74,7 +76,9 @@ export default function BusinessCardPage() {
               name: user.name || statusData.businessName || "Your Name",
               email: statusData.email || user.email || "",
               phone: statusData.contactNumber || statusData.whatsappNumber || "",
-              website: statusData.website || `https://vscan.biz/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
+              website: statusData.website || (statusData.customSlug 
+                ? `${baseUrl}/profile/${statusData.customSlug}?tab=website`
+                : `${baseUrl}/profile/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}?tab=website`),
               address: statusData.businessAddress || "",
               logo: statusData.logo || "",
               googleReviewLink: statusData.googleReviewLink || "",
@@ -98,9 +102,9 @@ export default function BusinessCardPage() {
       return cardData.googleReviewLink || "https://google.com";
     }
     if (qrDestination === "custom") {
-      return customQrUrl || "https://vscan.biz";
+      return customQrUrl || (process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz");
     }
-    return cardData.website || "https://vscan.biz";
+    return cardData.website || (process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz");
   };
 
   // Generate QR Code data URL dynamically when destination changes
@@ -173,14 +177,20 @@ export default function BusinessCardPage() {
           upiId: cardData.upiId,
         }),
       });
-
-      if (response.ok) {
-        setSaved(true);
-        toast.success("Business card settings saved!");
-        setTimeout(() => setSaved(false), 2000);
-      } else {
+      if (!response.ok) {
         toast.error("Failed to save changes.");
+        setIsSaving(false);
+        return;
       }
+      const result = await response.json();
+      if (result.success == false) {
+        toast.error(result.message);
+        setIsSaving(false);
+        return;
+      }
+      setSaved(true);
+      toast.success(result.message);
+      setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       console.error(err);
       toast.error("Error saving details.");
@@ -1126,9 +1136,9 @@ export default function BusinessCardPage() {
           </p>
         </div>
 
-        <button
+        <Button
           onClick={handleSaveSettings}
-          disabled={isSaving}
+          isDisabled={isSaving}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all duration-300 active:scale-95 shadow-lg shadow-primary/10 text-white`}
           style={{
             background: saved
@@ -1150,7 +1160,7 @@ export default function BusinessCardPage() {
               <Save className="w-3.5 h-3.5" /> <span>Save Details</span>
             </>
           )}
-        </button>
+        </Button>
       </div>
 
       {/* Design Workspace Grid */}
@@ -1177,8 +1187,8 @@ export default function BusinessCardPage() {
                   key={tmpl.id}
                   onClick={() => setSelectedTemplate(tmpl.id as any)}
                   className={`py-2 px-1 rounded-xl text-xs font-bold border transition ${selectedTemplate === tmpl.id
-                      ? "bg-primary border-primary text-white shadow-md shadow-primary/20"
-                      : "bg-app-bg/30 border-app-border text-app-text-muted hover:border-app-text-muted/30"
+                    ? "bg-primary border-primary text-white shadow-md shadow-primary/20"
+                    : "bg-app-bg/30 border-app-border text-app-text-muted hover:border-app-text-muted/30"
                     }`}
                 >
                   {tmpl.name}
@@ -1292,8 +1302,8 @@ export default function BusinessCardPage() {
                   key={dest.id}
                   onClick={() => setQrDestination(dest.id as any)}
                   className={`p-3 rounded-xl border cursor-pointer transition text-center flex flex-col justify-between ${qrDestination === dest.id
-                      ? "bg-primary/10 border-primary text-primary-light"
-                      : "bg-app-bg/30 border-app-border text-app-text-muted hover:border-app-text-muted/30"
+                    ? "bg-primary/10 border-primary text-primary-light"
+                    : "bg-app-bg/30 border-app-border text-app-text-muted hover:border-app-text-muted/30"
                     }`}
                 >
                   <span className="text-xs font-bold text-white block">{dest.name}</span>
@@ -1335,8 +1345,8 @@ export default function BusinessCardPage() {
                     key={preset.name}
                     onClick={() => handlePresetSelect(preset.p, preset.s, preset.g)}
                     className={`relative p-3 rounded-xl border transition-all cursor-pointer flex flex-col gap-2 ${cardData.primaryColor === preset.p && cardData.gradientEnabled === preset.g
-                        ? "bg-primary/10 border-primary text-white"
-                        : "bg-app-bg/30 border-app-border text-app-text-muted hover:border-app-text-muted/30"
+                      ? "bg-primary/10 border-primary text-white"
+                      : "bg-app-bg/30 border-app-border text-app-text-muted hover:border-app-text-muted/30"
                       }`}
                   >
                     <span className="text-[10px] font-bold text-white truncate">{preset.name}</span>
@@ -1379,8 +1389,8 @@ export default function BusinessCardPage() {
                 <button
                   onClick={() => setIsFlipped(false)}
                   className={`px-4 py-1.5 rounded-xl text-[10px] uppercase tracking-wider font-extrabold transition border ${!isFlipped
-                      ? "bg-primary border-primary text-white"
-                      : "bg-app-bg/30 border-app-border text-app-text-muted hover:text-white"
+                    ? "bg-primary border-primary text-white"
+                    : "bg-app-bg/30 border-app-border text-app-text-muted hover:text-white"
                     }`}
                 >
                   Front Info
@@ -1388,8 +1398,8 @@ export default function BusinessCardPage() {
                 <button
                   onClick={() => setIsFlipped(true)}
                   className={`px-4 py-1.5 rounded-xl text-[10px] uppercase tracking-wider font-extrabold transition border ${isFlipped
-                      ? "bg-primary border-primary text-white"
-                      : "bg-app-bg/30 border-app-border text-app-text-muted hover:text-white"
+                    ? "bg-primary border-primary text-white"
+                    : "bg-app-bg/30 border-app-border text-app-text-muted hover:text-white"
                     }`}
                 >
                   Back QR Code

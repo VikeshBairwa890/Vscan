@@ -36,9 +36,9 @@ export default function SmartQR() {
     name: "Vikesh Studio",
     logo: "",
     whatsappNumber: "+91 98765 43210",
-    website: "https://vscan.biz/vikesh-studio",
+    website: `${process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz"}/profile/vikesh-studio`,
     reviewLink: "https://g.page/r/example",
-    miniWebsiteLink: "https://vscan.biz/vikesh-studio",
+    miniWebsiteLink: `${process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz"}/profile/vikesh-studio`,
   });
 
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
@@ -60,12 +60,15 @@ export default function SmartQR() {
           const statusData = await res.json();
           setIsPremium(statusData.subscription?.isActive || false);
           if (statusData.hasProfile) {
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz";
             setBusinessData(prev => ({
               ...prev,
               name: statusData.businessName || prev.name,
               logo: statusData.logo || prev.logo,
               reviewLink: statusData.googleReviewLink || prev.reviewLink,
-              miniWebsiteLink: `https://vscan.biz/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
+              miniWebsiteLink: statusData.customSlug
+                ? `${baseUrl}/profile/${statusData.customSlug}`
+                : `${baseUrl}/profile/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
             }));
           }
         }
@@ -148,13 +151,13 @@ export default function SmartQR() {
   const getRedirectUrl = () => {
     switch (qrDestination) {
       case "smart-menu":
-        return `${businessData.miniWebsiteLink}?tab=menu`;
+        return `${businessData.miniWebsiteLink}`;
       case "reviews":
         return businessData.reviewLink || "https://google.com";
       case "website":
-        return businessData.miniWebsiteLink;
+        return `${businessData.miniWebsiteLink}?tab=website`;
       case "custom":
-        return customUrl || "https://vscan.biz";
+        return customUrl || (process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz");
       default:
         return businessData.miniWebsiteLink;
     }

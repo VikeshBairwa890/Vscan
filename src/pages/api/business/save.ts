@@ -21,7 +21,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             address,
             website,
             googleReviewLink,
-            upiId
+            upiId,
+            customSlug
         } = req.body;
 
         // Verify user exists
@@ -31,6 +32,51 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (!user) {
             return res.status(200).json({ success: false, message: "User not found." });
+        }
+
+        let validatedSlug = null;
+        if (customSlug) {
+            const slugLower = customSlug.toLowerCase().trim();
+            if (slugLower.length > 0) {
+                if (!/^[a-z0-9-]+$/.test(slugLower)) {
+                    return res.status(200).json({
+                        success: false,
+                        message: "URL handle can only contain lowercase letters, numbers, and hyphens."
+                    });
+                }
+                if (slugLower.length < 3 || slugLower.length > 30) {
+                    return res.status(200).json({
+                        success: false,
+                        message: "URL handle must be between 3 and 30 characters."
+                    });
+                }
+                // Check if already taken
+                const existing = await prisma.businessProfile.findFirst({
+                    where: {
+                        customSlug: slugLower,
+                        NOT: { userId: user.id }
+                    }
+                });
+                if (existing) {
+                    return res.status(200).json({
+                        success: false,
+                        message: "This URL handle is already taken. Please choose another one."
+                    });
+                }
+                validatedSlug = slugLower;
+            }
+        }
+
+        // If no customSlug is provided and user has no customSlug set, generate one automatically from businessName
+        if (!validatedSlug) {
+            const existingProfile = await prisma.businessProfile.findUnique({
+                where: { userId: user.id },
+                select: { customSlug: true }
+            });
+            if (!existingProfile || !existingProfile.customSlug) {
+                const { generateUniqueSlug } = await import("@/services/app/slug-helper");
+                validatedSlug = await generateUniqueSlug(businessName || "business", user.id);
+            }
         }
 
         // Upsert BusinessProfile
@@ -46,7 +92,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 businessAddress: address || "",
                 website: website || "",
                 googleReviewLink: googleReviewLink || "",
-                upiId: upiId || ""
+                upiId: upiId || "",
+                customSlug: validatedSlug || undefined
             },
             create: {
                 userId: user.id,
@@ -59,7 +106,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 businessAddress: address || "",
                 website: website || "",
                 googleReviewLink: googleReviewLink || "",
-                upiId: upiId || ""
+                upiId: upiId || "",
+                customSlug: validatedSlug
             }
         });
 

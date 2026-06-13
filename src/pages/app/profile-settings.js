@@ -20,6 +20,7 @@ export default function Profile() {
         upiId: "",
         logo: "",
         paymentQr: "",
+        customSlug: "",
     });
 
     const [logoPreview, setLogoPreview] = useState(null);
@@ -59,6 +60,7 @@ export default function Profile() {
                             upiId: statusData.upiId || "",
                             logo: statusData.logo || "",
                             paymentQr: statusData.paymentQrCode || "",
+                            customSlug: statusData.customSlug || "",
                         });
                         if (statusData.logo) setLogoPreview(statusData.logo);
                         if (statusData.paymentQrCode) setQrPreview(statusData.paymentQrCode);
@@ -136,13 +138,18 @@ export default function Profile() {
                     website: profileData.companyWebsite,
                     googleReviewLink: profileData.googleReviewLink,
                     upiId: profileData.upiId,
+                    customSlug: profileData.customSlug,
                 }),
             });
-
-            if (response.ok) {
+ 
+            const resData = await response.json();
+            if (response.ok && resData.success !== false) {
                 toast.success('Profile settings saved successfully!');
+                if (resData.businessProfile?.customSlug) {
+                    setProfileData(prev => ({ ...prev, customSlug: resData.businessProfile.customSlug }));
+                }
             } else {
-                throw new Error('Failed to save');
+                throw new Error(resData.message || 'Failed to save');
             }
         } catch (error) {
             console.error('Error saving profile:', error);
@@ -255,6 +262,29 @@ export default function Profile() {
                                             className="w-full pl-10 pr-4 py-2.5 border border-app-border bg-app-bg/60 rounded-xl text-xs text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                         />
                                     </div>
+                                </div>
+
+                                {/* Custom URL Handle (Slug) */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label htmlFor="customSlug" className="text-xs font-semibold text-app-text-muted">
+                                        Custom URL Path (Slug)
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <div className="flex items-center bg-app-bg/60 border border-app-border rounded-xl px-3 text-xs text-app-text-dimmed select-none font-mono">
+                                            vscan.biz/
+                                        </div>
+                                        <input
+                                            id="customSlug"
+                                            type="text"
+                                            value={profileData.customSlug}
+                                            onChange={(e) => handleInputChange("customSlug", e.target.value.toLowerCase().trim().replace(/[^a-z0-9-]/g, ""))}
+                                            placeholder="your-business-handle"
+                                            className="flex-1 px-4 py-2.5 border border-app-border bg-app-bg/60 rounded-xl text-xs text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-app-text-dimmed">
+                                        This defines your mini-website link (e.g. vscan.biz/your-business-handle). Only lowercase letters, numbers, and hyphens are allowed.
+                                    </p>
                                 </div>
 
                                 {/* About */}

@@ -285,7 +285,9 @@ function PhoneFrame({ children }) {
 }
 
 function PreviewPanel({ t, selectedTemplate, data }) {
-  const slug = data.businessName.toLowerCase().replace(/\s+/g, "-");
+  const slug = data.customSlug || data.businessName.toLowerCase().replace(/\s+/g, "-");
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz";
+  const displayDomain = baseUrl.replace(/^https?:\/\//, "");
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
@@ -305,14 +307,14 @@ function PreviewPanel({ t, selectedTemplate, data }) {
       <div className="w-full max-w-[390px] bg-app-surface border border-app-border rounded-2xl px-4 py-3 flex items-center gap-2.5 shadow-sm backdrop-blur-md">
         <Link size={16} className="flex-shrink-0" style={{ color: t.primary }} />
         <span className="text-xs sm:text-[11px] text-app-text-muted truncate flex-1 font-mono">
-          vscan.biz/<span className="font-bold not-italic" style={{ color: t.primary }}>{slug}</span>
+          {displayDomain}/profile/<span className="font-bold not-italic" style={{ color: t.primary }}>{slug}</span>?tab=website
         </span>
         <button
           type="button"
           className="text-xs sm:text-[11px] font-bold flex-shrink-0 px-3 py-1.5 rounded-lg transition-colors hover:bg-slate-700/50 min-h-[36px]"
           style={{ color: t.primary }}
           onClick={() => {
-            navigator.clipboard?.writeText(`https://vscan.biz/${slug}`);
+            navigator.clipboard?.writeText(`${baseUrl}/profile/${slug}?tab=website`);
             toast.success("Link copied!");
           }}
         >
@@ -328,6 +330,8 @@ function PreviewPanel({ t, selectedTemplate, data }) {
 }
 
 export default function MiniWebsiteBuilder() {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz";
+  const displayDomain = baseUrl.replace(/^https?:\/\//, "");
 
   const [mobileTab, setMobileTab] = useState("editor");
   const [saved, setSaved] = useState(false);
@@ -352,6 +356,7 @@ export default function MiniWebsiteBuilder() {
     facebook: "yourfacebook",
     youtube: "",
     theme: "blue",
+    customSlug: "",
     selectedTemplate: "it-company",
     buttonText: "Contact Us",
     googleFormLink: "",
@@ -455,6 +460,7 @@ export default function MiniWebsiteBuilder() {
             instagram: profileInfo.instagram || prev.instagram,
             facebook: profileInfo.facebook || prev.facebook,
             upiId: profileInfo.upiId || prev.upiId,
+            customSlug: profileInfo.customSlug || prev.customSlug || "",
             services: profileInfo.services || prev.services,
             hours: profileInfo.hours || prev.hours,
             employees: profileInfo.employees || prev.employees,
@@ -598,9 +604,9 @@ export default function MiniWebsiteBuilder() {
             >
               <Globe size={20} className="text-white lg:!w-4 lg:!h-4" />
             </div>
-            <div className="flex flex-col leading-tight min-w-0">
+             <div className="flex flex-col leading-tight min-w-0">
               <span className="font-extrabold text-white text-lg lg:text-sm truncate">Mini Website Builder</span>
-              <span className="text-sm lg:text-[10px] text-app-text-dimmed font-medium truncate">vscan.biz/slug</span>
+              <span className="text-sm lg:text-[10px] text-app-text-dimmed font-medium truncate">{displayDomain}/profile/{data.customSlug || "slug"}?tab=website</span>
             </div>
           </div>
 

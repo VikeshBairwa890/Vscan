@@ -35,6 +35,7 @@ export async function GetMiniWebsiteInfo(userId: string) {
                         isQrGenerated: true,
                         viewCount: true,
                         shareCount: true,
+                        customSlug: true,
                         mondayHours: true,
                         tuesdayHours: true,
                         wednesdayHours: true,
@@ -174,6 +175,7 @@ export async function GetMiniWebsiteInfo(userId: string) {
             isQrGenerated: bp?.isQrGenerated || false,
             viewCount: bp?.viewCount || 0,
             shareCount: bp?.shareCount || 0,
+            customSlug: bp?.customSlug || "",
             hours,
             services
         };
