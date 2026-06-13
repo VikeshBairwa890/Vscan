@@ -25,28 +25,28 @@ export default function PublicProfile() {
     const fetchBusinessData = async () => {
         setTimeout(() => {
             setBusiness({
-                id: "manas-services",
-                name: "Manas Services",
+                id: "Vscan-services",
+                name: "Vscan",
                 tagline: "Your Trusted Service Partner",
                 logo: null,
                 description: "Professional services with 10+ years of experience. Quality work guaranteed at affordable prices.",
                 rating: 4.8,
                 totalReviews: 156,
-                contact: "+91 98765 43210",
-                whatsapp: "+91 98765 43210",
-                email: "manas@services.com",
-                address: "123 Business Park, Andheri East, Mumbai - 400093",
-                website: "https://manasservices.com",
+                contact: "+91 7374852009",
+                whatsapp: "+91 7374852009",
+                email: "vikeshisonline@gmail.com",
+                address: "Mansarovar, Jaipur - 302020",
+                website: "",
                 googleReviewLink: "https://g.page/r/example-review-link",
                 miniWebsiteUrl: "https://manasservices.vscan.biz",
-                upiId: "manas@okhdfcbank",
+                upiId: "7374852009@ybl",
                 upiQR: null,
                 businessCard: {
-                    name: "Manas Services",
+                    name: "Vscan",
                     title: "Service Provider",
-                    phone: "+91 98765 43210",
-                    email: "manas@services.com",
-                    website: "manasservices.com",
+                    phone: "+91 7374852009",
+                    email: "vikeshisonline@gmail.com",
+                    website: "https://vscan-seven.vercel.app/",
                     address: "Mumbai, India",
                 },
             });
@@ -277,7 +277,7 @@ export default function PublicProfile() {
                     {/* Pay Button */}
                     <button
                         onClick={() => setShowPayment(true)}
-                        className="flex-1 flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl py-4 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:brightness-105 active:scale-[0.98] transition-all duration-150"
+                        className="flex-1 flex items-center justify-center gap-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl py-4 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:brightness-105 active:scale-[0.98] transition-all duration-150"
                     >
                         <Wallet className="w-5 h-5 text-white" />
                         <span className="text-white font-bold text-sm">Pay</span>
@@ -286,7 +286,7 @@ export default function PublicProfile() {
                     {/* WhatsApp / Chat Button */}
                     <button
                         onClick={handleWhatsApp}
-                        className="flex-1 flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#25D366] to-[#128C7E] rounded-2xl py-4 shadow-lg shadow-green-500/25 hover:shadow-green-500/40 hover:brightness-105 active:scale-[0.98] transition-all duration-150"
+                        className="flex-1 flex items-center justify-center gap-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl py-4 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:brightness-105 active:scale-[0.98] transition-all duration-150"
                     >
                         <MessageCircle className="w-5 h-5 text-white" />
                         <span className="text-white font-bold text-sm">Chat</span>

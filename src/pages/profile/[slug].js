@@ -12,12 +12,14 @@ import {
     PlayCircle, Package, HeartHandshake, ExternalLink, ShieldAlert,
     Smartphone,
     CreditCard,
-    IndianRupee
+    IndianRupee,
+    Copy
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
 import TemplateRenderer from "@/components/website-builder/TemplateRenderer";
+import { Button } from "@heroui/react";
 
 export default function UnifiedPublicProfile() {
     const router = useRouter();
@@ -480,36 +482,41 @@ export default function UnifiedPublicProfile() {
     // ────────────────────────────────────────────────────────────────────────
     if (tab === "business-card") {
         return (
-            <div className="min-h-screen bg-[#07070b] text-white font-sans flex flex-col max-w-md mx-auto relative overflow-x-hidden pb-24">
+            <div className="h-screen bg-[#07070b] text-white font-sans flex flex-col max-w-md mx-auto relative overflow-hidden">
                 {/* Background glow effects */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-violet-600/10 rounded-full blur-[100px] pointer-events-none z-0" />
+                <div className="absolute bottom-0 right-0 w-64 h-64 bg-fuchsia-600/10 rounded-full blur-[100px] pointer-events-none z-0" />
 
+                {/* Header */}
                 <div className="px-5 pt-8 pb-4 flex items-center justify-between border-b border-white/5 bg-white/[0.02] backdrop-blur-md flex-shrink-0 z-10">
                     <div>
                         <h3 className="text-white font-semibold text-base">Business Card</h3>
-                        <p className="text-zinc-550 text-xs">Contact card download</p>
+                        <p className="text-zinc-500 text-xs">Save contact details</p>
                     </div>
                     <button
                         onClick={() => router.back()}
-                        className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition"
+                        className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center active:bg-white/10 transition"
                     >
                         <ChevronLeft className="w-4 h-4 text-white" />
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-5 pb-28 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] z-10">
-                    <div className="relative bg-gradient-to-br from-violet-600 via-fuchsia-700 to-purple-900 rounded-3xl px-5 pt-5 pb-8 mt-4 overflow-hidden">
+                {/* Content - no scroll, fits one screen */}
+                <div className="flex-1 px-5 pt-4 pb-3 flex flex-col z-10 overflow-hidden">
+
+                    {/* Profile card */}
+                    <div className="relative bg-gradient-to-br from-violet-600 via-fuchsia-700 to-purple-900 rounded-3xl px-5 py-5 overflow-hidden flex-shrink-0">
                         <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full" />
                         <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/5 rounded-full" />
 
                         <div className="relative flex items-center gap-4">
-                            <div className="w-20 h-20 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shadow-xl">
-                                <span className="text-white text-3xl font-black">{business.businessName.charAt(0)}</span>
+                            <div className="w-16 h-16 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shadow-xl flex-shrink-0">
+                                <span className="text-white text-2xl font-black">{business.businessName.charAt(0)}</span>
                             </div>
-                            <div>
-                                <h2 className="text-white text-xl font-bold">{business.businessName}</h2>
-                                <p className="text-violet-200 text-sm mt-1">{business.tagline}</p>
-                                <div className="flex items-center gap-1 mt-2">
+                            <div className="min-w-0">
+                                <h2 className="text-white text-lg font-bold truncate">{business.businessName}</h2>
+                                <p className="text-violet-200 text-xs mt-0.5 truncate">{business.tagline}</p>
+                                <div className="flex items-center gap-1 mt-1.5">
                                     <BadgeCheck className="w-3.5 h-3.5 text-violet-300" />
                                     <span className="text-violet-300 text-xs">Verified Business</span>
                                 </div>
@@ -517,7 +524,8 @@ export default function UnifiedPublicProfile() {
                         </div>
                     </div>
 
-                    <div className="bg-[#101018] border border-white/8 rounded-2xl overflow-hidden mt-4">
+                    {/* Contact details - compact rows */}
+                    <div className="bg-[#101018] border border-white/8 rounded-2xl overflow-hidden mt-3 flex-shrink-0">
                         {[
                             { icon: Phone, label: "Phone", value: business.phone },
                             { icon: Mail, label: "Email", value: business.email },
@@ -526,36 +534,40 @@ export default function UnifiedPublicProfile() {
                         ].map((row, i, arr) => (
                             <div
                                 key={row.label}
-                                className={`flex gap-3 px-4 py-4 ${i !== arr.length - 1 ? "border-b border-white/5" : ""}`}
+                                className={`flex items-center gap-3 px-4 py-3 ${i !== arr.length - 1 ? "border-b border-white/5" : ""}`}
                             >
-                                <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
+                                <div className="w-9 h-9 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
                                     <row.icon className="w-4 h-4 text-violet-400" />
                                 </div>
-                                <div className="min-w-0">
-                                    <p className="text-zinc-550 text-xs">{row.label}</p>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-zinc-500 text-[10px] uppercase tracking-wide">{row.label}</p>
                                     <p className="text-white text-sm truncate">{row.value}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    <div className="bg-[#101018] border border-white/8 rounded-2xl p-4 mt-4">
-                        <p className="text-zinc-400 text-xs uppercase mb-2">About</p>
-                        <p className="text-zinc-350 text-sm leading-6">{business.about || "Digital storefront information."}</p>
+                    {/* About - flexible, fills remaining space */}
+                    <div className="bg-[#101018] border border-white/8 rounded-2xl p-4 mt-3 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <p className="text-zinc-400 text-[10px] uppercase tracking-wide mb-2">About</p>
+                        <p className="text-zinc-300 text-sm leading-6">{business.about || "Digital storefront information."}</p>
                     </div>
                 </div>
 
-                <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 px-4 pb-6 pt-3 bg-gradient-to-t from-[#07070b] via-[#07070b]/95 to-transparent flex gap-3">
+                {/* Action buttons - pinned to bottom, always visible */}
+                <div className="flex-shrink-0 px-5 pb-6 pt-3 bg-gradient-to-t from-[#07070b] via-[#07070b]/95 to-transparent flex gap-3 z-20">
                     <button
                         onClick={saveBusinessCard}
-                        className="flex-1 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition active:scale-95"
+                        className="flex-1 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-medium active:bg-white/10 active:scale-95 transition flex items-center justify-center gap-2"
                     >
-                        Copy Card Info
+                        <Copy className="w-4 h-4" />
+                        Copy Info
                     </button>
                     <button
                         onClick={downloadVCard}
-                        className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-sm font-semibold hover:brightness-105 transition active:scale-95"
+                        className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-sm font-semibold active:brightness-110 active:scale-95 transition flex items-center justify-center gap-2"
                     >
+                        <Download className="w-4 h-4" />
                         Save Contact
                     </button>
                 </div>
@@ -626,7 +638,7 @@ export default function UnifiedPublicProfile() {
             </div>
 
             {/* Hero / Identity Branding */}
-            <div className="relative z-10 mx-4 mb-6">
+            <div className="relative z-10 mx-4 mb-4">
                 <div className="rounded-3xl bg-gradient-to-br from-violet-600/30 via-violet-900/20 to-transparent border border-violet-500/20 backdrop-blur-sm p-5">
                     <div className="flex items-center gap-4">
                         <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 shadow-xl shadow-black/40 border border-white/10 relative">
@@ -709,14 +721,14 @@ export default function UnifiedPublicProfile() {
                 <div className="flex gap-3">
                     <button
                         onClick={() => router.push(`/profile/${slug}?tab=payment`)}
-                        className="flex-1 flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl py-4 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:brightness-105 active:scale-[0.98] transition-all duration-150"
+                        className="flex-1 flex items-center justify-center gap-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl py-4 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:brightness-105 active:scale-[0.98] transition-all duration-150"
                     >
                         <Wallet className="w-5 h-5 text-white" />
                         <span className="text-white font-bold text-sm">Pay</span>
                     </button>
                     <button
                         onClick={handleWhatsApp}
-                        className="flex-1 flex-1 flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#25D366] to-[#128C7E] rounded-2xl py-4 shadow-lg shadow-green-500/25 hover:shadow-green-500/40 hover:brightness-105 active:scale-[0.98] transition-all duration-150"
+                        className="flex-1 flex items-center justify-center gap-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl py-4 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:brightness-105 active:scale-[0.98] transition-all duration-150"
                     >
                         <MessageCircle className="w-5 h-5 text-white" />
                         <span className="text-white font-bold text-sm">Chat</span>

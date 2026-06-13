@@ -35,7 +35,7 @@ export default function SmartQR() {
   const [businessData, setBusinessData] = useState({
     name: "Vikesh Studio",
     logo: "",
-    whatsappNumber: "+91 98765 43210",
+    whatsappNumber: "+91 7374852009",
     website: process.env.NEXT_PUBLIC_APP_URL,
     reviewLink: "https://g.page/r/example",
     miniWebsiteLink: process.env.NEXT_PUBLIC_APP_URL,
