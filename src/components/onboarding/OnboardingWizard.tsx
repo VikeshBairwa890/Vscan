@@ -23,7 +23,7 @@ import {
   DollarSign
 } from "lucide-react";
 import { toast } from "sonner";
-import servicesByCategory from "./Services";
+import servicesByCategory from "./services";
 
 interface OnboardingWizardProps {
   onComplete?: () => void;
