@@ -36,9 +36,9 @@ export default function SmartQR() {
     name: "Vikesh Studio",
     logo: "",
     whatsappNumber: "+91 98765 43210",
-    website: `${process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz"}/profile/vikesh-studio`,
+    website: process.env.NEXT_PUBLIC_APP_URL,
     reviewLink: "https://g.page/r/example",
-    miniWebsiteLink: `${process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz"}/profile/vikesh-studio`,
+    miniWebsiteLink: process.env.NEXT_PUBLIC_APP_URL,
   });
 
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
@@ -60,7 +60,7 @@ export default function SmartQR() {
           const statusData = await res.json();
           setIsPremium(statusData.subscription?.isActive || false);
           if (statusData.hasProfile) {
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz";
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
             setBusinessData(prev => ({
               ...prev,
               name: statusData.businessName || prev.name,
@@ -157,7 +157,7 @@ export default function SmartQR() {
       case "website":
         return `${businessData.miniWebsiteLink}?tab=website`;
       case "custom":
-        return customUrl || (process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz");
+        return customUrl || (process.env.NEXT_PUBLIC_APP_URL);
       default:
         return businessData.miniWebsiteLink;
     }

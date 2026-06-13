@@ -6,7 +6,6 @@ import { useState, useEffect, useRef } from "react";
 import { Camera, Save, CreditCard, QrCode, Building2, Phone, Globe, Star, MapPin, Link as LinkIcon, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { FaWhatsapp } from "react-icons/fa";
-
 export default function Profile() {
     const [profileData, setProfileData] = useState({
         name: "",
@@ -141,7 +140,7 @@ export default function Profile() {
                     customSlug: profileData.customSlug,
                 }),
             });
- 
+
             const resData = await response.json();
             if (response.ok && resData.success !== false) {
                 toast.success('Profile settings saved successfully!');
