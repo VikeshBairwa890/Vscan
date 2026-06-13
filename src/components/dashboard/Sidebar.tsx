@@ -178,6 +178,7 @@ export default function Sidebar({
           )}
 
           <button
+            suppressHydrationWarning={true}
             className={`
               mt-5 flex items-center text-app-error hover:opacity-85 transition-opacity
 

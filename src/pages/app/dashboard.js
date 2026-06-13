@@ -9,6 +9,7 @@ import {
 
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, } from "recharts";
 import { THEME_COLORS } from "@/config/theme";
+import { toast } from "sonner";
 
 // Mock Recharts Data for Bottom Analytics Section
 const trafficData = {
@@ -31,20 +32,19 @@ export default function Dashboard() {
   const [status, setStatus] = useState(null);
 
   const fetchStatus = async () => {
-    const userStr = localStorage.getItem("currentUser");
-    if (!userStr) {
-      router.push("/auth/login");
-      return;
-    }
-
     try {
-      const user = JSON.parse(userStr);
-      const res = await fetch(`/api/business/dashboard-status?userId=${user.id}`);
-      if (res.ok) {
-        const data = await res.json();
-        console.log(data);
-        setStatus(data);
+      const res = await fetch(`/api/business/dashboard-status`);
+      if (!res.ok) {
+        toast.error("Failed to fetch dashboard status");
+        return;
       }
+      const responseBody = await res.json();
+      if (responseBody.success == false) {
+        toast.error(responseBody.message);
+        return;
+      }
+      setStatus(responseBody.data);
+      setLoading(false);
     } catch (e) {
       console.error("Error loading status", e);
     } finally {

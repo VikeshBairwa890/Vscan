@@ -25,6 +25,7 @@ export default function Navbar({
         {/* MOBILE MENU */}
         <button
           onClick={onMobileMenuOpen}
+          suppressHydrationWarning={true}
           className="lg:hidden text-app-text-muted hover:text-white"
         >
           <PanelLeftOpen size={24} />
@@ -33,6 +34,7 @@ export default function Navbar({
         {/* DESKTOP TOGGLE */}
         <button
           onClick={onToggleSidebar}
+          suppressHydrationWarning={true}
           className="hidden rounded-lg border border-app-border p-2 text-app-text-muted hover:text-white hover:bg-app-surface-glass lg:flex transition-colors"
         >
           {collapsed ? (
@@ -47,7 +49,10 @@ export default function Navbar({
       {/* RIGHT */}
       <div className="flex items-center gap-5">
 
-        <button className="relative text-app-text-muted hover:text-white transition-colors">
+        <button 
+          suppressHydrationWarning={true}
+          className="relative text-app-text-muted hover:text-white transition-colors"
+        >
           <Bell size={22} />
 
           <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-app-error" />

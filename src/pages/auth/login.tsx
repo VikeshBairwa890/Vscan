@@ -43,7 +43,8 @@ export default function LoginPage() {
         localStorage.setItem("currentUser", JSON.stringify(responseBody.data));
       }
       setTimeout(() => {
-        router.push('/app/dashboard');
+        const redirect = router.query.redirect as string;
+        router.push(redirect || '/app/dashboard');
       }, 1000);
     } catch (error) {
       toast.error("Something went wrong");
