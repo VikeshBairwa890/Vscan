@@ -10,11 +10,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json({ success: false, message: "Method Not Allowed" });
     }
 
-    const userId = (req.headers["x-user-id"] || req.query.userId || req.body.userId) as string;
+    const userId = req.headers["x-user-id"] as string;
     if (!userId) {
-        return res.status(200).json({ success: false, message: "User ID is required" });
+        return res.status(200).json({ success: false, message: "Unauthorized: Missing user ID." });
     }
-
     try {
         // Find user's business profile
         let businessProfile = await prisma.businessProfile.findUnique({

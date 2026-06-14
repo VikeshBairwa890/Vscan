@@ -27,16 +27,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Stunning Unsplash business logo template
       returnedUrl = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=150&auto=format&fit=crop&q=80";
     }
-
-    return res.status(200).json({
-      success: true,
-      url: returnedUrl,
-    });
+    return res.status(200).json({ success: true, url: returnedUrl });
   } catch (error: any) {
-    return res.status(200).json({
-      success: false,
-      message: "Simulated upload failed",
-      error: error.message,
-    });
+    return res.status(200).json({ success: false, message: error.message });
   }
 }

@@ -34,11 +34,11 @@ export default function SmartQR() {
 
   // Business Profile Info
   const [businessData, setBusinessData] = useState({
-    name: "Vikesh Studio",
+    name: "",
     logo: "",
-    whatsappNumber: "+91 7374852009",
-    website: process.env.NEXT_PUBLIC_APP_URL,
-    reviewLink: "https://g.page/r/example",
+    whatsappNumber: "",
+    website: "",
+    reviewLink: "",
     miniWebsiteLink: process.env.NEXT_PUBLIC_APP_URL,
   });
 
@@ -49,33 +49,35 @@ export default function SmartQR() {
   useEffect(() => {
     setMounted(true);
     const fetchStatus = async () => {
-      const userStr = localStorage.getItem("currentUser");
-      if (!userStr) {
-        router.push("/auth/login");
-        return;
-      }
+
       try {
-        const user = JSON.parse(userStr);
-        const res = await fetch(`/api/business/status?userId=${user.id}`);
-        if (res.ok) {
-          const statusData = await res.json();
-          setIsPremium(statusData.subscription?.isActive || false);
-          if (statusData.hasProfile) {
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-            setBusinessData(prev => ({
-              ...prev,
-              name: statusData.businessName || prev.name,
-              logo: statusData.logo || prev.logo,
-              reviewLink: statusData.googleReviewLink || prev.reviewLink,
-              miniWebsiteLink: statusData.customSlug
-                ? `${baseUrl}/profile/${statusData.customSlug}`
-                : `${baseUrl}/profile/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
-            }));
-          }
+        const res = await fetch(`/api/business/status`);
+        if (!res.ok) {
+          toast.error("Failed to load business profile");
+          return;
+        }
+        const statusData = await res.json();
+        if (statusData.success == false) {
+          toast.error(statusData.message);
+          return;
         }
 
+        if (statusData.hasProfile) {
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+          setBusinessData(prev => ({
+            ...prev,
+            name: statusData.businessName || prev.name,
+            logo: statusData.logo || prev.logo,
+            reviewLink: statusData.googleReviewLink || prev.reviewLink,
+            miniWebsiteLink: statusData.customSlug
+              ? `${baseUrl}/profile/${statusData.customSlug}`
+              : `${baseUrl}/profile/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
+          }));
+        }
+
+
         // Fetch customized QR Settings
-        const qrRes = await fetch(`/api/business/smart-qr-get?userId=${user.id}`);
+        const qrRes = await fetch(`/api/business/smart-qr-get`);
         if (qrRes.ok) {
           const qrResult = await qrRes.json();
           if (qrResult.success && qrResult.data) {
@@ -100,20 +102,12 @@ export default function SmartQR() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    const userStr = localStorage.getItem("currentUser");
-    if (!userStr) {
-      toast.error("User session expired. Please login again.");
-      setIsSaving(false);
-      return;
-    }
 
     try {
-      const user = JSON.parse(userStr);
       const res = await fetch("/api/business/smart-qr-post", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": user.id
         },
         body: JSON.stringify({
           data: {
@@ -128,18 +122,23 @@ export default function SmartQR() {
         })
       });
 
-      if (res.ok) {
-        const result = await res.json();
-        if (result.success) {
-          setSaved(true);
-          toast.success("QR settings saved successfully!");
-          setTimeout(() => setSaved(false), 2000);
-        } else {
-          toast.error(result.message || "Failed to save QR settings");
-        }
-      } else {
+      if (!res.ok) {
         toast.error("Failed to save QR settings");
+        return;
       }
+      const result = await res.json();
+      if (result.success == false) {
+        toast.error(result.message);
+        return;
+      }
+      if (result.success) {
+        setSaved(true);
+        toast.success("QR settings saved successfully!");
+        setTimeout(() => setSaved(false), 2000);
+      } else {
+        toast.error(result.message || "Failed to save QR settings");
+      }
+
     } catch (err) {
       console.error("Error saving QR settings", err);
       toast.error("Error saving QR settings");

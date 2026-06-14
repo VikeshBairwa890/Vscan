@@ -55,37 +55,41 @@ export default function BusinessCardPage() {
   useEffect(() => {
     setMounted(true);
     const loadProfileData = async () => {
-      const userStr = localStorage.getItem("currentUser");
-      if (!userStr) {
-        router.push("/auth/login");
-        return;
-      }
 
       try {
-        const user = JSON.parse(userStr);
         // Call the dashboard status API to fetch profile details
-        const res = await fetch(`/api/business/status?userId=${user.id}`);
-        if (res.ok) {
-          const statusData = await res.json();
-          if (statusData.hasProfile) {
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz";
-            setHasProfile(true);
-            setCardData((prev) => ({
-              ...prev,
-              businessName: statusData.businessName || "",
-              name: user.name || statusData.businessName || "Your Name",
-              email: statusData.email || user.email || "",
-              phone: statusData.contactNumber || statusData.whatsappNumber || "",
-              website: statusData.website || (statusData.customSlug 
-                ? `${baseUrl}/profile/${statusData.customSlug}?tab=website`
-                : `${baseUrl}/profile/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}?tab=website`),
-              address: statusData.businessAddress || "",
-              logo: statusData.logo || "",
-              googleReviewLink: statusData.googleReviewLink || "",
-              upiId: statusData.upiId || "",
-            }));
-          }
+        const res = await fetch(`/api/business/status`);
+        if (!res.ok) {
+          toast.error("Failed to load profile data");
+          return;
         }
+
+        const responseBody = await res.json();
+        if (responseBody.success == false) {
+          toast.error(responseBody.message);
+          return;
+        }
+
+        const statusData = responseBody.data;
+        if (statusData.hasProfile) {
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz";
+          setHasProfile(true);
+          setCardData((prev) => ({
+            ...prev,
+            businessName: statusData.businessName || "",
+            name: statusData.name || statusData.businessName || "Your Name",
+            email: statusData.email || statusData.email || "",
+            phone: statusData.contactNumber || statusData.whatsappNumber || "",
+            website: statusData.website || (statusData.customSlug
+              ? `${baseUrl}/profile/${statusData.customSlug}?tab=website`
+              : `${baseUrl}/profile/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}?tab=website`),
+            address: statusData.businessAddress || "",
+            logo: statusData.logo || "",
+            googleReviewLink: statusData.googleReviewLink || "",
+            upiId: statusData.upiId || "",
+          }));
+        }
+
       } catch (err) {
         console.error("Error loading profile settings:", err);
       } finally {
@@ -149,21 +153,13 @@ export default function BusinessCardPage() {
   // Save Settings
   const handleSaveSettings = async () => {
     setIsSaving(true);
-    const userStr = localStorage.getItem("currentUser");
-    if (!userStr) {
-      toast.error("Session expired, please login again.");
-      setIsSaving(false);
-      return;
-    }
 
     try {
-      const user = JSON.parse(userStr);
       // Persist changes in the profile database using the save API
       const response = await fetch("/api/business/save", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": user.id,
         },
         body: JSON.stringify({
           businessName: cardData.businessName,

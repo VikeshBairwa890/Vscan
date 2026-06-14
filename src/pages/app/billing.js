@@ -25,26 +25,26 @@ export default function BillingSubscription() {
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
   const fetchBillingInfo = async () => {
-    const userStr = localStorage.getItem("currentUser");
-    if (!userStr) {
-      router.push("/auth/login");
-      return;
-    }
+
     try {
       setError(null);
-      const user = JSON.parse(userStr);
-      const res = await fetch(`/api/business/billing?userId=${user.id}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          setSubscription(data.subscription);
-          setTransactions(data.transactions || []);
-        } else {
-          setError(data.message || "Failed to load billing information.");
-        }
-      } else {
-        setError("Failed to fetch billing data from server.");
+      const res = await fetch(`/api/business/billing`);
+      if (!res.ok) {
+        toast.error("Failed to load billing information");
+        return;
       }
+      const data = await res.json();
+      if (data.success == false) {
+        toast.error(data.message);
+        return;
+      }
+      if (data.success) {
+        setSubscription(data.subscription);
+        setTransactions(data.transactions || []);
+      } else {
+        setError(data.message || "Failed to load billing information.");
+      }
+
     } catch (e) {
       console.error(e);
       setError("An error occurred while loading billing data.");
@@ -93,9 +93,6 @@ export default function BillingSubscription() {
         setVerified(true);
         toast.success("Payment verified successfully!");
 
-        // Link transaction to subscription & update in DB
-        const userStr = localStorage.getItem("currentUser");
-        const userId = userStr ? JSON.parse(userStr).id : "";
         const startDate = new Date();
         const endDate = new Date();
         endDate.setFullYear(endDate.getFullYear() + 1);
@@ -104,7 +101,6 @@ export default function BillingSubscription() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-user-id": userId
           },
           body: JSON.stringify({
             plan: "PREMIUM",
@@ -131,14 +127,11 @@ export default function BillingSubscription() {
   const handleCashfreePayment = async () => {
     try {
       setIsCreatingOrder(true);
-      const userStr = localStorage.getItem("currentUser");
-      const userId = userStr ? JSON.parse(userStr).id : "";
 
       const response = await fetch("/api/cashfree/create-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": userId
         },
         body: JSON.stringify({ amount: 3499 })
       });
@@ -164,8 +157,7 @@ export default function BillingSubscription() {
   const handleManualVerify = async () => {
     if (!txnId.trim()) return;
     setVerifying(true);
-    const userStr = localStorage.getItem("currentUser");
-    const userId = userStr ? JSON.parse(userStr).id : "";
+
     try {
       const startDate = new Date();
       const endDate = new Date();
@@ -177,7 +169,6 @@ export default function BillingSubscription() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": userId
         },
         body: JSON.stringify({
           plan: "PREMIUM",
@@ -187,6 +178,10 @@ export default function BillingSubscription() {
           orderId: orderId
         })
       });
+      if (!res.ok) {
+        toast.error("Failed to verify manual payment");
+        return;
+      }
 
       if (res.ok) {
         setVerified(true);

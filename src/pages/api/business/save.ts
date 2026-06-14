@@ -8,22 +8,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const userId = req.headers["x-user-id"] as string;
     if (!userId) {
-        return res.status(200).json({ success: false, message: "Missing user ID header." });
+        return res.status(200).json({ success: false, message: "Unauthorized: Missing user ID." });
     }
-
     try {
-        const {
-            businessName,
-            tagline,
-            logo,
-            phone,
-            email,
-            address,
-            website,
-            googleReviewLink,
-            upiId,
-            customSlug
-        } = req.body;
+        const { businessName, tagline, logo, phone, email, address, website, googleReviewLink, upiId, customSlug } = req.body;
 
         // Verify user exists
         const user = await prisma.user.findUnique({

@@ -401,12 +401,9 @@ export default function MiniWebsiteBuilder() {
   // Load profile from database on mount
   useEffect(() => {
     const loadProfile = async () => {
-      const userStr = localStorage.getItem("currentUser");
-      if (!userStr) return;
 
       try {
-        const user = JSON.parse(userStr);
-        const res = await fetch(`/api/business/mini-website-get?userId=${user.id}`);
+        const res = await fetch(`/api/business/mini-website-get`);
         if (!res.ok) {
           toast.error("Failed to load business profile");
           return;
@@ -513,19 +510,12 @@ export default function MiniWebsiteBuilder() {
   // Save changes to database
   const handleSave = async () => {
     setIsSaving(true);
-    const userStr = localStorage.getItem("currentUser");
-    if (!userStr) {
-      toast.error("User session expired. Please login again.");
-      return;
-    }
 
     try {
-      const user = JSON.parse(userStr);
       const res = await fetch("/api/business/mini-website-post", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": user.id
         },
         body: JSON.stringify({ tamplateData: data })
       });
@@ -548,27 +538,28 @@ export default function MiniWebsiteBuilder() {
   // Toggle Publish Status
   const handlePublishToggle = async () => {
     setIsPublishing(true);
-    const userStr = localStorage.getItem("currentUser");
-    if (!userStr) return;
 
     try {
-      const user = JSON.parse(userStr);
       const res = await fetch("/api/business/publish", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": user.id
         },
         body: JSON.stringify({ isPublished: !isPublished })
       });
 
-      if (res.ok) {
-        const updated = await res.json();
-        setIsPublished(updated.isPublished);
-        toast.success(updated.message);
-      } else {
+      if (!res.ok) {
         toast.error("Failed to toggle publish status");
+        return;
       }
+      const updated = await res.json();
+      if (updated.success == false) {
+        toast.error(updated.message);
+        return;
+      }
+      setIsPublished(updated.isPublished);
+      toast.success(updated.message);
+
     } catch (e) {
       toast.error("Error connecting to server");
     } finally {
@@ -604,7 +595,7 @@ export default function MiniWebsiteBuilder() {
             >
               <Globe size={20} className="text-white lg:!w-4 lg:!h-4" />
             </div>
-             <div className="flex flex-col leading-tight min-w-0">
+            <div className="flex flex-col leading-tight min-w-0">
               <span className="font-extrabold text-white text-lg lg:text-sm truncate">Mini Website Builder</span>
               <span className="text-sm lg:text-[10px] text-app-text-dimmed font-medium truncate">{displayDomain}/profile/{data.customSlug || "slug"}?tab=website</span>
             </div>

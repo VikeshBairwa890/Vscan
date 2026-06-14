@@ -10,7 +10,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!userId) {
         return res.status(200).json({ success: false, message: "Unauthorized: Missing user ID." });
     }
-    console.log('userId ', userId);
 
     const result = await GetDashboardStatus(userId);
 

@@ -35,35 +35,31 @@ export default function Profile() {
         setMounted(true);
 
         const loadProfile = async () => {
-            const userStr = localStorage.getItem("currentUser");
-            if (!userStr) {
-                setIsLoading(false);
-                return;
-            }
-
             try {
-                const user = JSON.parse(userStr);
-                const res = await fetch(`/api/business/status?userId=${user.id}`);
-                if (res.ok) {
-                    const statusData = await res.json();
-                    if (statusData.hasProfile) {
-                        setProfileData({
-                            name: statusData.businessName || "",
-                            about: statusData.about || "",
-                            contact: statusData.contactNumber || "",
-                            whatsapp: statusData.whatsappNumber || "",
-                            email: statusData.email || "",
-                            businessAddress: statusData.businessAddress || "",
-                            companyWebsite: statusData.website || "",
-                            googleReviewLink: statusData.googleReviewLink || "",
-                            upiId: statusData.upiId || "",
-                            logo: statusData.logo || "",
-                            paymentQr: statusData.paymentQrCode || "",
-                            customSlug: statusData.customSlug || "",
-                        });
-                        if (statusData.logo) setLogoPreview(statusData.logo);
-                        if (statusData.paymentQrCode) setQrPreview(statusData.paymentQrCode);
-                    }
+                const res = await fetch(`/api/business/status`);
+                if (!res.ok) {
+                    toast.error("Failed to load profile settings");
+                    setIsLoading(false);
+                    return;
+                }
+                const statusData = await res.json();
+                if (statusData.hasProfile) {
+                    setProfileData({
+                        name: statusData.businessName || "",
+                        about: statusData.about || "",
+                        contact: statusData.contactNumber || "",
+                        whatsapp: statusData.whatsappNumber || "",
+                        email: statusData.email || "",
+                        businessAddress: statusData.businessAddress || "",
+                        companyWebsite: statusData.website || "",
+                        googleReviewLink: statusData.googleReviewLink || "",
+                        upiId: statusData.upiId || "",
+                        logo: statusData.logo || "",
+                        paymentQr: statusData.paymentQrCode || "",
+                        customSlug: statusData.customSlug || "",
+                    });
+                    if (statusData.logo) setLogoPreview(statusData.logo);
+                    if (statusData.paymentQrCode) setQrPreview(statusData.paymentQrCode);
                 }
             } catch (err) {
                 console.error("Error loading profile settings", err);
@@ -89,43 +85,40 @@ export default function Profile() {
                 method: 'POST',
                 body: formData,
             });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (type === 'logo') {
-                    setLogoPreview(data.url);
-                    setProfileData(prev => ({ ...prev, logo: data.url }));
-                    toast.success("Logo uploaded!");
-                } else {
-                    setQrPreview(data.url);
-                    setProfileData(prev => ({ ...prev, paymentQr: data.url }));
-                    toast.success("Payment QR uploaded!");
-                }
-            } else {
+            if (!response.ok) {
                 toast.error("Failed to upload image");
+                return;
             }
+
+
+            const data = await response.json();
+            if (data.success == false) {
+                toast.error(data.message);
+                return;
+            }
+            if (type === 'logo') {
+                setLogoPreview(data.url);
+                setProfileData(prev => ({ ...prev, logo: data.url }));
+                toast.success("Logo uploaded!");
+            } else {
+                setQrPreview(data.url);
+                setProfileData(prev => ({ ...prev, paymentQr: data.url }));
+                toast.success("Payment QR uploaded!");
+            }
+
         } catch (error) {
-            console.error('Error uploading file:', error);
             toast.error("Error uploading file");
         }
     };
 
     const handleSave = async () => {
         setIsSaving(true);
-        const userStr = localStorage.getItem("currentUser");
-        if (!userStr) {
-            toast.error("Session expired, please login again.");
-            setIsSaving(false);
-            return;
-        }
 
         try {
-            const user = JSON.parse(userStr);
             const response = await fetch('/api/business/save', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-user-id': user.id
                 },
                 body: JSON.stringify({
                     businessName: profileData.name,
@@ -140,18 +133,23 @@ export default function Profile() {
                     customSlug: profileData.customSlug,
                 }),
             });
+            if (!response.ok) {
+                toast.error("Failed to save profile settings");
+                return;
+            }
 
             const resData = await response.json();
+            if (resData.success == false) {
+                toast.error(resData.message);
+                return;
+            }
             if (response.ok && resData.success !== false) {
                 toast.success('Profile settings saved successfully!');
                 if (resData.businessProfile?.customSlug) {
                     setProfileData(prev => ({ ...prev, customSlug: resData.businessProfile.customSlug }));
                 }
-            } else {
-                throw new Error(resData.message || 'Failed to save');
             }
         } catch (error) {
-            console.error('Error saving profile:', error);
             toast.error('Failed to save profile settings');
         } finally {
             setIsSaving(false);

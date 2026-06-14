@@ -17,12 +17,8 @@ export default function AISEOManager() {
     useEffect(() => {
         setMounted(true);
         const loadSettings = async () => {
-            const userStr = localStorage.getItem("currentUser");
-            if (!userStr) return;
-
             try {
-                const user = JSON.parse(userStr);
-                const res = await fetch(`/api/business/ai-suggestions-get?userId=${user.id}`);
+                const res = await fetch(`/api/business/ai-suggestions-get`);
                 if (!res.ok) {
                     toast.error("Failed to load AI Suggestions settings");
                     return;
@@ -55,19 +51,11 @@ export default function AISEOManager() {
     };
 
     const handleSave = async () => {
-        const userStr = localStorage.getItem("currentUser");
-        if (!userStr) {
-            toast.error("User session expired. Please login again.");
-            return;
-        }
-
         try {
-            const user = JSON.parse(userStr);
             const res = await fetch("/api/business/ai-suggestions-post", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-user-id": user.id
                 },
                 body: JSON.stringify({
                     data: {
@@ -77,43 +65,35 @@ export default function AISEOManager() {
                     }
                 })
             });
-
-            if (res.ok) {
-                const result = await res.json();
-                if (result.success) {
-                    setSaved(true);
-                    toast.success("Keywords saved successfully!");
-                    setTimeout(() => setSaved(false), 2000);
-                } else {
-                    toast.error(result.message || "Failed to save keywords");
-                }
-            } else {
+            if (!res.ok) {
                 toast.error("Failed to save keywords");
+                return;
+            }
+
+            const result = await res.json();
+            if (result.success) {
+                setSaved(true);
+                toast.success("Keywords saved successfully!");
+                setTimeout(() => setSaved(false), 2000);
+            } else {
+                toast.error(result.message || "Failed to save keywords");
             }
         } catch (err) {
             console.error("Error saving keywords", err);
             toast.error("Error saving keywords");
         }
-    };
+    }
+
 
     const handleRegenerate = () => {
         setRegenerating(true);
-        const userStr = localStorage.getItem("currentUser");
-        if (!userStr) {
-            toast.error("User session expired. Please login again.");
-            setRegenerating(false);
-            return;
-        }
-
         setTimeout(async () => {
             try {
-                const user = JSON.parse(userStr);
                 const nextCount = 25;
                 const res = await fetch("/api/business/ai-suggestions-post", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "x-user-id": user.id
                     },
                     body: JSON.stringify({
                         data: {
@@ -124,17 +104,18 @@ export default function AISEOManager() {
                     })
                 });
 
-                if (res.ok) {
-                    const result = await res.json();
-                    if (result.success) {
-                        setCacheStatus("ready");
-                        setGeneratedCount(nextCount);
-                        toast.success("Review cache generated successfully!");
-                    } else {
-                        toast.error(result.message || "Failed to save generated template cache");
-                    }
-                } else {
+                if (!res.ok) {
                     toast.error("Failed to save generated template cache");
+                    return;
+                }
+
+                const result = await res.json();
+                if (result.success) {
+                    setCacheStatus("ready");
+                    setGeneratedCount(nextCount);
+                    toast.success("Review cache generated successfully!");
+                } else {
+                    toast.error(result.message || "Failed to save generated template cache");
                 }
             } catch (err) {
                 console.error("Error generating templates", err);

@@ -205,28 +205,11 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   // Submit complete onboarding setup
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    const userStr = localStorage.getItem("currentUser");
-    let userId = "";
-    if (userStr) {
-      try {
-        userId = JSON.parse(userStr).id;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    if (!userId) {
-      toast.error("User session expired. Please sign in again.");
-      router.push("/auth/login");
-      return;
-    }
-
     try {
       const response = await fetch("/api/business/onboarding", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": userId
         },
         body: JSON.stringify({
           businessName,
@@ -254,6 +237,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       toast.success("Business profile created successfully!");
       localStorage.setItem("onboardingCompleted", "true");
       localStorage.removeItem("onboardingDraft");
+      localStorage.removeItem("currentUser");
 
       if (onComplete) {
         onComplete();

@@ -6,10 +6,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json({ success: false, message: "Method Not Allowed" });
     }
 
-    // Support user ID from header, query, or body
-    const userId = (req.headers["x-user-id"] || req.query.userId || req.body.userId) as string;
+    const userId = req.headers["x-user-id"] as string;
     if (!userId) {
-        return res.status(200).json({ success: false, message: "Missing user ID." });
+        return res.status(200).json({ success: false, message: "Unauthorized: Missing user ID." });
     }
 
     try {
@@ -17,6 +16,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json(result);
     } catch (error: any) {
         console.error("Status API Error:", error);
-        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+        return res.status(200).json({ success: false, message: error.message });
     }
 }

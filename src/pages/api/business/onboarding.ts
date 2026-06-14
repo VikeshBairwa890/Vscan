@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const userId = req.headers["x-user-id"] as string;
   if (!userId) {
-    return res.status(200).json({ message: "Unauthorized. Missing user ID header." });
+    return res.status(200).json({ success: false, message: "Unauthorized: Missing user ID." });
   }
   const { businessName, businessAbout, category, address, city, state, whatsapp, contactNumber, instagram, googleReviewLink, services = [], upiId, qrCodeImage } = req.body;
   if (!businessName) {

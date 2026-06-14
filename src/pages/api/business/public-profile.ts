@@ -145,6 +145,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json({ success: true, data: mergedData });
     } catch (error: any) {
         console.error("Public profile fetch error:", error);
-        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+        return res.status(200).json({ success: false, message: error.message });
     }
 }

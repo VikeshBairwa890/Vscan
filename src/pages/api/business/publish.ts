@@ -3,12 +3,12 @@ import { prisma } from "../../../lib/prisma";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "PUT" && req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
+    return res.status(200).json({ message: "Method Not Allowed" });
   }
 
   const userId = req.headers["x-user-id"] as string;
   if (!userId) {
-    return res.status(400).json({ success: false, message: "Missing user ID." });
+    return res.status(200).json({ success: false, message: "Unauthorized: Missing user ID." });
   }
 
   try {
@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (!profile) {
-      return res.status(404).json({ success: false, message: "Business profile not found." });
+      return res.status(200).json({ success: false, message: "Business profile not found." });
     }
 
     const updatedProfile = await prisma.businessProfile.update({
@@ -36,10 +36,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } catch (error: any) {
     console.error("Publish API Error:", error);
-    return res.status(500).json({
+    return res.status(200).json({
       success: false,
-      message: "Failed to update publication status",
-      error: error.message
+      message: error.message
     });
   }
 }
