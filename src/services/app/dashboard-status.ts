@@ -58,7 +58,8 @@ export default async function GetDashboardStatus(userId: string) {
         const leads = profile.services.length * 3 + (profile.viewCount ? Math.floor(profile.viewCount * 0.15) : 0);
 
         const plan = profile.subscription?.plan || "FREE";
-        const isPremium = plan === "PREMIUM" && (profile.subscription?.endDate ? new Date(profile.subscription.endDate) > new Date() : true);
+        const isExpired = profile.subscription?.endDate ? new Date(profile.subscription.endDate) < new Date() : false;
+        const isActive = profile.subscription ? (plan !== "FREE" && profile.subscription.isActive && !isExpired) : false;
 
         return {
             success: true,
@@ -95,7 +96,7 @@ export default async function GetDashboardStatus(userId: string) {
             },
             subscription: {
                 plan,
-                isActive: isPremium
+                isActive: isActive
             }
         };
     } catch (error: any) {

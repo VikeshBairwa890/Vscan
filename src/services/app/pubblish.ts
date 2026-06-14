@@ -21,8 +21,9 @@ export default async function PublishProfile(userId: string, email: string, isPu
             return { success: false, message: "Subscription not found." }
         }
         // check subscription is active or not
-        if (subscription.isActive == false) {
-            return { success: false, message: "Subscription is not active." }
+        const isExpired = subscription.endDate ? new Date(subscription.endDate) < new Date() : false;
+        if (subscription.isActive == false || isExpired) {
+            return { success: false, message: "Subscription is not active or has expired." }
         }
 
         // check subscription plan is premium

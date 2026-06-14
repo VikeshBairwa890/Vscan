@@ -2,11 +2,11 @@ import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang="en" suppressHydrationWarning>
       <Head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
       </Head>
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <Main />
         <NextScript />
       </body>

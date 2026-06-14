@@ -20,6 +20,7 @@ export default function SmartQR() {
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [isPremium, setIsPremium] = useState(false);
+  const [isActiveSubscription, setIsActiveSubscription] = useState(false);
 
   // Configuration States
   const [qrDestination, setQrDestination] = useState("smart-menu");
@@ -56,13 +57,14 @@ export default function SmartQR() {
           toast.error("Failed to load business profile");
           return;
         }
-        const statusData = await res.json();
-        if (statusData.success == false) {
-          toast.error(statusData.message);
+        const responseBody = await res.json();
+        if (responseBody.success == false) {
+          toast.error(responseBody.message);
           return;
         }
 
-        if (statusData.hasProfile) {
+        const statusData = responseBody.data;
+        if (statusData && statusData.hasProfile) {
           const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
           setBusinessData(prev => ({
             ...prev,
@@ -73,6 +75,10 @@ export default function SmartQR() {
               ? `${baseUrl}/profile/${statusData.customSlug}`
               : `${baseUrl}/profile/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
           }));
+
+          const sub = statusData.subscription;
+          setIsActiveSubscription(sub?.isActive || false);
+          setIsPremium((sub?.plan === "PREMIUM" || sub?.plan === "ENTERPRISE") && sub?.isActive);
         }
 
 
@@ -270,6 +276,11 @@ export default function SmartQR() {
   };
 
   const printFlyer = () => {
+    if (!isActiveSubscription) {
+      toast.error("Download and print features require an active subscription plan.");
+      setShowUpgradeModal(true);
+      return;
+    }
     const printContent = document.getElementById("flyer-print-area")?.innerHTML;
     if (printContent) {
       const win = window.open("", "_blank");
@@ -622,6 +633,11 @@ export default function SmartQR() {
                     </button>
                     <button
                       onClick={() => {
+                        if (!isActiveSubscription) {
+                          toast.error("Download and print features require an active subscription plan.");
+                          setShowUpgradeModal(true);
+                          return;
+                        }
                         const link = document.createElement("a");
                         link.download = `${selectedFlyerLayout}-flyer.png`;
                         link.href = qrCodeDataUrl;

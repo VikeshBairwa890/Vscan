@@ -23,6 +23,7 @@ export default function BusinessCardPage() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isActiveSubscription, setIsActiveSubscription] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<
     "classic" | "minimal" | "luxury" | "tech" | "creative"
   >("classic");
@@ -72,6 +73,7 @@ export default function BusinessCardPage() {
 
         const statusData = responseBody.data;
         if (statusData.hasProfile) {
+          setIsActiveSubscription(statusData.subscription?.isActive || false);
           const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz";
           setHasProfile(true);
           setCardData((prev) => ({
@@ -197,6 +199,11 @@ export default function BusinessCardPage() {
 
   // Download high-resolution PNG using HTML5 Canvas drawing
   const downloadCardImage = async (side: "front" | "back") => {
+    if (!isActiveSubscription) {
+      toast.error("Downloading business cards requires an active subscription plan.");
+      router.push("/app/billing");
+      return;
+    }
     const canvas = document.createElement("canvas");
     // Standard credit card aspect ratio 3.5:2 (DPI-optimized 1050x600 px)
     canvas.width = 1050;
@@ -699,6 +706,11 @@ export default function BusinessCardPage() {
 
   // Launch A4 Printing Layout Grid (10 cards per page, 3.5"x2" credit card dimensions)
   const handlePrintCards = () => {
+    if (!isActiveSubscription) {
+      toast.error("Printing business cards requires an active subscription plan.");
+      router.push("/app/billing");
+      return;
+    }
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
