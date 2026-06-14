@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         const result = await GetDashboardStatus(userId);
-        return res.status(200).json(result);
+        return res.status(200).json({ success: true, data: result });
     } catch (error: any) {
         console.error("Status API Error:", error);
         return res.status(200).json({ success: false, message: error.message });

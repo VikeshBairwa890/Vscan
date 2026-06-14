@@ -80,6 +80,7 @@ export async function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   if (result.data?.userId) {
     requestHeaders.set('x-user-id', result.data.userId);
+    requestHeaders.set('x-user-email', result.data.email || "");
   }
 
   return NextResponse.next({
