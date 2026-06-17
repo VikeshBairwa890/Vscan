@@ -24,6 +24,7 @@ export default async function GetDashboardStatus(userId: string) {
             return {
                 success: true,
                 hasProfile: false,
+                onboardingCompleted: false,
                 checklist: {
                     hasLogo: false,
                     hasServices: false,
@@ -62,6 +63,7 @@ export default async function GetDashboardStatus(userId: string) {
         return {
             success: true,
             hasProfile: true,
+            onboardingCompleted: profile.onboardingCompleted,
             businessName: profile.businessName || "Your Business",
             category: profile.category || "Local Business",
             about: profile.about || "",

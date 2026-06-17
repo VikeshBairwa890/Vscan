@@ -49,6 +49,7 @@ export default function BusinessCardPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 
   // Load user profile on mount
   useEffect(() => {
@@ -68,6 +69,7 @@ export default function BusinessCardPage() {
           const statusData = await res.json();
           if (statusData.hasProfile) {
             setHasProfile(true);
+            setOnboardingCompleted(statusData.onboardingCompleted === true);
             setCardData((prev) => ({
               ...prev,
               businessName: statusData.businessName || "",
@@ -1085,7 +1087,7 @@ export default function BusinessCardPage() {
   }
 
   // Fallback check: if user has no business profile yet
-  if (!hasProfile) {
+  if (!onboardingCompleted) {
     return (
       <div className="min-h-screen bg-app-bg text-white py-6 px-4 md:px-8 space-y-6 relative overflow-hidden flex flex-col items-center justify-center text-center">
         <div className="absolute top-[-10%] right-[-10%] w-[300px] h-[300px] rounded-full bg-secondary/5 blur-[80px] pointer-events-none" />
@@ -1100,7 +1102,7 @@ export default function BusinessCardPage() {
             </p>
           </div>
           <button
-            onClick={() => router.push("/app/onboarding")}
+            onClick={() => router.push("/app/dashboard")}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-secondary hover:from-primary-light hover:to-secondary-light text-sm font-extrabold text-white transition shadow-lg shadow-primary/20"
           >
             Complete Onboarding Now

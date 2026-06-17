@@ -14,6 +14,7 @@ export async function GetMiniWebsiteInfo(userId: string) {
                 businessProfile: {
                     select: {
                         businessName: true,
+                        logo: true,
                         BusinessLogo: true,
                         category: true,
                         about: true,
@@ -127,14 +128,19 @@ export async function GetMiniWebsiteInfo(userId: string) {
 
         // Construct unified state object using businessProfile as the master source of truth
         const mergedData = {
-            // Builder-specific config (defaults if not present)
-            theme: bp?.seoTitle || profileData.theme || "blue",
+            theme: profileData.theme || bp?.seoTitle || "blue",
             selectedTemplate: profileData.selectedTemplate || "it-company",
+            title: profileData.title || bp?.businessName || "",
+            tagline: profileData.tagline || bp?.aiGeneratedDesc || "",
+            aboutSection: profileData.aboutSection || null,
+            sectionHeaders: profileData.sectionHeaders || null,
+            seoPageTitle: profileData.seoPageTitle || "",
+            seoMetaDescription: profileData.seoMetaDescription || bp?.seoDescription || "",
             buttonText: profileData.buttonText || "Contact Us",
             googleFormLink: profileData.googleFormLink || "",
             announcement: profileData.announcement || { enabled: true, text: "🎉Add your announcement here" },
             showSections: profileData.showSections || {
-                announcement: true, services: true, hours: true, contact: true,
+                announcement: true, about: true, services: true, hours: true, contact: true,
                 showWhatsapp: true, social: true, employees: true, testimonials: true,
                 mediaLinks: true, faqs: true, amenities: true, googleForm: true
             },
@@ -150,11 +156,9 @@ export async function GetMiniWebsiteInfo(userId: string) {
             role: userProfile.role,
             isActive: userProfile.isActive,
             businessName: bp?.businessName || "",
-            title: bp?.businessName || "",
-            tagline: bp?.about || "",
-            about: bp?.about || "",
-            logo: bp?.BusinessLogo || bp?.BusinessLogo || "",
-            BusinessLogo: bp?.BusinessLogo || bp?.BusinessLogo || "",
+            about: profileData.aboutSection?.body || bp?.about || "",
+            logo: bp?.BusinessLogo || bp?.logo || "",
+            BusinessLogo: bp?.BusinessLogo || bp?.logo || "",
             phone: bp?.contactNumber || "",
             contactNumber: bp?.contactNumber || "",
             whatsapp: bp?.whatsappNumber || bp?.contactNumber || "",

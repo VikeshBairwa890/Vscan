@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
   reactStrictMode: true,
+  serverExternalPackages: [
+    "@langchain/core",
+    "@langchain/openai",
+    "@langchain/langgraph",
+  ],
 };
 
 export default nextConfig;

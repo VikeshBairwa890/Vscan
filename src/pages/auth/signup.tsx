@@ -45,6 +45,7 @@ export default function SignupPage() {
         return;
       }
       toast.success(responseBody.message);
+      localStorage.removeItem("onboardingDraft");
       setTimeout(() => {
         router.push('/auth/login');
       }, 1000);
