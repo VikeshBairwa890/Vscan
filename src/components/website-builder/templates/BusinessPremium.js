@@ -31,14 +31,17 @@ function GoldLine({ G }) {
   );
 }
 
-function SectionTitle({ label, sub, G }) {
+function SectionTitle({ label, sub, G, sectionKey, headers }) {
+  const custom = sectionKey && headers?.[sectionKey];
+  const displayLabel = custom?.title || label;
+  const displaySub = custom?.subtitle || sub;
   return (
     <div className="mb-7">
       <div className="flex items-center gap-2.5 mb-1.5">
         <div className="w-5 h-px" style={{ background: G.gold }} />
-        <span className="text-[10px] font-bold uppercase tracking-[0.25em]" style={{ color: G.gold }}>{label}</span>
+        <span className="text-[10px] font-bold uppercase tracking-[0.25em]" style={{ color: G.gold }}>{displayLabel}</span>
       </div>
-      {sub && <p className="text-zinc-500 text-sm">{sub}</p>}
+      {displaySub && <p className="text-zinc-500 text-sm leading-relaxed">{displaySub}</p>}
     </div>
   );
 }
@@ -220,7 +223,7 @@ export default function BusinessPremium({ data }) {
           <div className="flex-1 pt-1">
             <h1 className="text-white text-[22px] font-black leading-tight mb-1"
               style={{ fontFamily: "'DM Serif Display', serif", letterSpacing: "-0.02em" }}>
-              {b.businessName}
+              {b.title || b.businessName}
             </h1>
             <p className="text-zinc-500 text-sm leading-snug">{b.tagline}</p>
             {b.website && (
@@ -282,14 +285,34 @@ export default function BusinessPremium({ data }) {
 
       <GoldLine G={G} />
 
+      {/* ── ABOUT ───────────────────────────────────── */}
+      {ss.about && b.aboutSection?.body && (
+        <section id="about" className="px-5 pb-10 scroll-mt-28">
+          <SectionTitle
+            label={b.aboutSection.title || "About Us"}
+            sub={b.aboutSection.subtitle}
+            sectionKey="about"
+            headers={b.sectionHeaders}
+            G={G}
+          />
+          <div className="text-zinc-400 text-sm leading-relaxed space-y-4">
+            {b.aboutSection.body.split(/\n\n+/).map((para, i) => (
+              <p key={i}>{para.trim()}</p>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {ss.about && b.aboutSection?.body && <GoldLine G={G} />}
+
       {/* ── SERVICES ──────────────────────────────────── */}
       {ss.services && b.services?.length > 0 && (
         <section id="services" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Our Services" sub="Click to enquire on WhatsApp" G={G} />
+          <SectionTitle label="Our Services" sub="Click to enquire on WhatsApp" sectionKey="services" headers={b.sectionHeaders} G={G} />
           <div className="space-y-3">
             {b.services.map((svc, i) => (
               <button key={svc.id} onClick={whatsapp}
-                className="w-full text-left flex items-center gap-4 p-4 rounded-2xl border transition-all hover:border-[#c9a84c44] hover:bg-[rgba(201,168,76,0.04)] active:scale-[0.99]"
+                className="w-full text-left flex flex-col gap-3 p-4 rounded-2xl border transition-all hover:border-[#c9a84c44] hover:bg-[rgba(201,168,76,0.04)] active:scale-[0.99] sm:flex-row sm:items-center sm:gap-4"
                 style={{ background: th.cardBg || "#0f0f0f", borderColor: th.border || "rgba(255,255,255,0.07)" }}>
                 {/* number badge */}
                 <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border"
@@ -304,7 +327,7 @@ export default function BusinessPremium({ data }) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-bold text-sm leading-tight">{svc.name}</p>
-                  <p className="text-zinc-600 text-xs mt-0.5 line-clamp-1">{svc.desc}</p>
+                  <p className="text-zinc-600 text-xs mt-0.5 line-clamp-3 leading-relaxed">{svc.desc}</p>
                   <p className="text-xs font-bold mt-1.5" style={{ color: G.gold }}>{svc.price}</p>
                 </div>
                 <ArrowUpRight className="w-4 h-4 shrink-0" style={{ color: G.goldDim }} />
@@ -319,7 +342,7 @@ export default function BusinessPremium({ data }) {
       {/* ── TEAM ──────────────────────────────────────── */}
       {ss.employees && b.employees?.length > 0 && (
         <section id="team" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Our Team" G={G} />
+          <SectionTitle label="Our Team" sectionKey="team" headers={b.sectionHeaders} G={G} />
           <div className="space-y-3">
             {b.employees.map((emp) => (
               <div key={emp.id}
@@ -366,7 +389,7 @@ export default function BusinessPremium({ data }) {
       {/* ── TESTIMONIALS ──────────────────────────────── */}
       {ss.testimonials && b.testimonials?.length > 0 && (
         <section id="testimonials" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Client Reviews" G={G} />
+          <SectionTitle label="Client Reviews" sectionKey="testimonials" headers={b.sectionHeaders} G={G} />
           <div className="space-y-4">
             {b.testimonials.map((rv) => (
               <div key={rv.id} className="relative p-5 rounded-2xl border overflow-hidden"
@@ -427,7 +450,7 @@ export default function BusinessPremium({ data }) {
       {/* ── HOURS ─────────────────────────────────────── */}
       {ss.hours && b.hours?.length > 0 && (
         <section id="hours" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Business Hours" G={G} />
+          <SectionTitle label="Business Hours" sectionKey="hours" headers={b.sectionHeaders} G={G} />
           <div className="rounded-2xl border overflow-hidden" style={{ background: th.cardBg || "#0f0f0f", borderColor: G.goldBorder }}>
             {b.hours.map((h, i) => (
               <div key={h.day}
@@ -458,8 +481,8 @@ export default function BusinessPremium({ data }) {
       {/* ── AMENITIES ─────────────────────────────────── */}
       {ss.amenities && b.amenities?.length > 0 && (
         <section id="amenities" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="What We Offer" G={G} />
-          <div className="grid grid-cols-2 gap-2">
+          <SectionTitle label="What We Offer" sectionKey="amenities" headers={b.sectionHeaders} G={G} />
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {b.amenities.map((am) => (
               <div key={am} className="flex items-center gap-3 p-3.5 rounded-xl border"
                 style={{ background: G.goldBg, borderColor: G.goldBorder }}>
@@ -476,7 +499,7 @@ export default function BusinessPremium({ data }) {
       {/* ── FAQ ───────────────────────────────────────── */}
       {ss.faqs && b.faqs?.length > 0 && (
         <section id="faq" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Frequently Asked" G={G} />
+          <SectionTitle label="Frequently Asked" sectionKey="faqs" headers={b.sectionHeaders} G={G} />
           <div className="rounded-2xl border px-5" style={{ background: th.cardBg || "#0f0f0f", borderColor: G.goldBorder }}>
             {b.faqs.map((faq) => <FAQItem key={faq.id} q={faq.question} a={faq.answer} G={G} />)}
           </div>
@@ -488,7 +511,7 @@ export default function BusinessPremium({ data }) {
       {/* ── CONTACT ───────────────────────────────────── */}
       {ss.contact && (
         <section id="contact" className="px-5 pb-10 scroll-mt-28">
-          <SectionTitle label="Get In Touch" G={G} />
+          <SectionTitle label="Get In Touch" sectionKey="contact" headers={b.sectionHeaders} G={G} />
           <div className="space-y-2">
             {[
               b.phone && { icon: Phone, label: "Phone", value: b.phone, fn: call },

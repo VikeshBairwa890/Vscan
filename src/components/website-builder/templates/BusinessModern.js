@@ -156,21 +156,38 @@ export default function BusinessModern({ data }) {
         </div>
     );
 
-    // Section heading
-    const SectionHead = ({ icon: Icon, title }) => (
-        <div className="flex items-center gap-3 mb-5">
-            <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: G.soft }}
-            >
-                <Icon size={18} style={{ color: G.primary }} />
+    // Section heading with optional subtitle (SEO-friendly one-page sections)
+    const SectionHead = ({ icon: Icon, title, subtitle, sectionKey }) => {
+        const headers = b.sectionHeaders || {};
+        const custom = sectionKey && headers[sectionKey];
+        const displayTitle = custom?.title || title;
+        const displaySub = custom?.subtitle || subtitle;
+
+        return (
+            <div className="mb-5">
+                <div className="flex items-center gap-3">
+                    <div
+                        className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                        style={{ background: G.soft }}
+                    >
+                        <Icon size={18} style={{ color: G.primary }} />
+                    </div>
+                    <h2 className="text-lg font-bold tracking-tight" style={{ color: th.text }}>
+                        {displayTitle}
+                    </h2>
+                    <div className="flex-1 h-px ml-1" style={{ background: G.border }} />
+                </div>
+                {displaySub && (
+                    <p
+                        className="text-sm leading-relaxed mt-2 pl-12"
+                        style={{ color: th.text, opacity: 0.65 }}
+                    >
+                        {displaySub}
+                    </p>
+                )}
             </div>
-            <h2 className="text-lg font-bold tracking-tight" style={{ color: th.text }}>
-                {title}
-            </h2>
-            <div className="flex-1 h-px ml-1" style={{ background: G.border }} />
-        </div>
-    );
+        );
+    };
 
     // Star rating renderer
     const Stars = ({ count = 5 }) => (
@@ -399,11 +416,31 @@ export default function BusinessModern({ data }) {
             {/* ── Content Wrapper ───────────────────── */}
             <div className="relative z-10 flex flex-col gap-4 px-4 pb-32">
 
+                {/* ── About Us ─────────────────────────── */}
+                {ss.about && b.aboutSection?.body && (
+                    <GlassCard className="p-5" id="about">
+                        <SectionHead
+                            icon={Briefcase}
+                            title={b.aboutSection.title || "About Us"}
+                            subtitle={b.aboutSection.subtitle}
+                            sectionKey="about"
+                        />
+                        <div
+                            className="text-sm leading-relaxed space-y-3"
+                            style={{ color: th.text, opacity: 0.75 }}
+                        >
+                            {b.aboutSection.body.split(/\n\n+/).map((para, i) => (
+                                <p key={i}>{para.trim()}</p>
+                            ))}
+                        </div>
+                    </GlassCard>
+                )}
+
                 {/* ── Services ────────────────────────── */}
                 {ss.services && b.services?.length > 0 && (
                     <GlassCard className="p-5">
-                        <SectionHead icon={Briefcase} title="Services" />
-                        <div className="grid grid-cols-2 gap-3">
+                        <SectionHead icon={Briefcase} title="Services" sectionKey="services" />
+                        <div className="grid grid-cols-1 gap-3">
                             {b.services.map((svc, i) => (
                                 <div
                                     key={i}
@@ -446,12 +483,12 @@ export default function BusinessModern({ data }) {
                                                 {svc.price}
                                             </p>
                                         )}
-                                        {svc.description && (
+                                        {(svc.desc || svc.description) && (
                                             <p
-                                                className="text-xs mt-1 leading-snug line-clamp-2"
+                                                className="text-xs mt-1 leading-snug"
                                                 style={{ color: th.text, opacity: 0.55 }}
                                             >
-                                                {svc.description}
+                                                {svc.desc || svc.description}
                                             </p>
                                         )}
                                     </div>
@@ -464,7 +501,7 @@ export default function BusinessModern({ data }) {
                 {/* ── Team ────────────────────────────── */}
                 {ss.employees && b.employees?.length > 0 && (
                     <GlassCard className="p-5">
-                        <SectionHead icon={Users} title="Our Team" />
+                        <SectionHead icon={Users} title="Our Team" sectionKey="team" />
                         <div className="flex flex-col gap-3">
                             {b.employees.map((emp, i) => (
                                 <div
@@ -511,7 +548,7 @@ export default function BusinessModern({ data }) {
                 {/* ── Testimonials ────────────────────── */}
                 {ss.testimonials && b.testimonials?.length > 0 && (
                     <GlassCard className="p-5">
-                        <SectionHead icon={Star} title="Reviews" />
+                        <SectionHead icon={Star} title="Reviews" sectionKey="testimonials" />
                         <div className="flex flex-col gap-3">
                             {b.testimonials.map((t, i) => (
                                 <div
@@ -605,7 +642,7 @@ export default function BusinessModern({ data }) {
                 {/* ── Business Hours ──────────────────── */}
                 {ss.hours && b.hours?.length > 0 && (
                     <GlassCard className="p-5">
-                        <SectionHead icon={Clock} title="Business Hours" />
+                        <SectionHead icon={Clock} title="Business Hours" sectionKey="hours" />
                         <div className="flex flex-col gap-1.5">
                             {b.hours.map((h, i) => (
                                 <div
@@ -636,7 +673,7 @@ export default function BusinessModern({ data }) {
                 {/* ── Amenities ───────────────────────── */}
                 {ss.amenities && b.amenities?.length > 0 && (
                     <GlassCard className="p-5">
-                        <SectionHead icon={TrendingUp} title="Amenities" />
+                        <SectionHead icon={TrendingUp} title="Amenities" sectionKey="amenities" />
                         <div className="flex flex-wrap gap-2">
                             {b.amenities.map((am, i) => (
                                 <span
@@ -658,7 +695,7 @@ export default function BusinessModern({ data }) {
                 {/* ── FAQs ─────────────────────────────── */}
                 {ss.faqs && b.faqs?.length > 0 && (
                     <GlassCard className="p-5">
-                        <SectionHead icon={ChevronDown} title="FAQs" />
+                        <SectionHead icon={ChevronDown} title="FAQs" sectionKey="faqs" />
                         <div className="flex flex-col gap-2">
                             {b.faqs.map((faq, i) => (
                                 <div
@@ -703,7 +740,7 @@ export default function BusinessModern({ data }) {
                 {/* ── Contact Info ─────────────────────── */}
                 {ss.contact && (
                     <GlassCard className="p-5">
-                        <SectionHead icon={MapPin} title="Contact" />
+                        <SectionHead icon={MapPin} title="Contact" sectionKey="contact" />
                         <div className="flex flex-col gap-3">
                             {b.address && (
                                 <div className="flex items-start gap-3">

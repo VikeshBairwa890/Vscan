@@ -51,6 +51,7 @@ export default function BusinessCardPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 
   // Load user profile on mount
   useEffect(() => {
@@ -59,39 +60,26 @@ export default function BusinessCardPage() {
 
       try {
         // Call the dashboard status API to fetch profile details
-        const res = await fetch(`/api/business/status`);
-        if (!res.ok) {
-          toast.error("Failed to load profile data");
-          return;
+        const res = await fetch(`/api/business/status?userId=${user.id}`);
+        if (res.ok) {
+          const statusData = await res.json();
+          if (statusData.hasProfile) {
+            setHasProfile(true);
+            setOnboardingCompleted(statusData.onboardingCompleted === true);
+            setCardData((prev) => ({
+              ...prev,
+              businessName: statusData.businessName || "",
+              name: user.name || statusData.businessName || "Your Name",
+              email: statusData.email || user.email || "",
+              phone: statusData.contactNumber || statusData.whatsappNumber || "",
+              website: statusData.website || `https://vscan.biz/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
+              address: statusData.businessAddress || "",
+              logo: statusData.logo || "",
+              googleReviewLink: statusData.googleReviewLink || "",
+              upiId: statusData.upiId || "",
+            }));
+          }
         }
-
-        const responseBody = await res.json();
-        if (responseBody.success == false) {
-          toast.error(responseBody.message);
-          return;
-        }
-
-        const statusData = responseBody.data;
-        if (statusData.hasProfile) {
-          setIsActiveSubscription(statusData.subscription?.isActive || false);
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz";
-          setHasProfile(true);
-          setCardData((prev) => ({
-            ...prev,
-            businessName: statusData.businessName || "",
-            name: statusData.name || statusData.businessName || "Your Name",
-            email: statusData.email || statusData.email || "",
-            phone: statusData.contactNumber || statusData.whatsappNumber || "",
-            website: statusData.website || (statusData.customSlug
-              ? `${baseUrl}/profile/${statusData.customSlug}?tab=website`
-              : `${baseUrl}/profile/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}?tab=website`),
-            address: statusData.businessAddress || "",
-            logo: statusData.logo || "",
-            googleReviewLink: statusData.googleReviewLink || "",
-            upiId: statusData.upiId || "",
-          }));
-        }
-
       } catch (err) {
         console.error("Error loading profile settings:", err);
       } finally {
@@ -1103,7 +1091,7 @@ export default function BusinessCardPage() {
   }
 
   // Fallback check: if user has no business profile yet
-  if (!hasProfile) {
+  if (!onboardingCompleted) {
     return (
       <div className="min-h-screen bg-app-bg text-white py-6 px-4 md:px-8 space-y-6 relative overflow-hidden flex flex-col items-center justify-center text-center">
         <div className="absolute top-[-10%] right-[-10%] w-[300px] h-[300px] rounded-full bg-secondary/5 blur-[80px] pointer-events-none" />
@@ -1118,7 +1106,7 @@ export default function BusinessCardPage() {
             </p>
           </div>
           <button
-            onClick={() => router.push("/app/onboarding")}
+            onClick={() => router.push("/app/dashboard")}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-secondary hover:from-primary-light hover:to-secondary-light text-sm font-extrabold text-white transition shadow-lg shadow-primary/20"
           >
             Complete Onboarding Now

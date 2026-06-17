@@ -5,6 +5,10 @@ interface TemplateData {
     businessName: string;
     title: string;
     tagline: string;
+    aboutSection?: { title: string; subtitle: string; body: string };
+    sectionHeaders?: Record<string, { title: string; subtitle: string }>;
+    seoPageTitle?: string;
+    seoMetaDescription?: string;
     logo: string;
     phone: string;
     whatsapp: string;
@@ -80,11 +84,16 @@ export default async function SaveMiniWebsiteData(userId: string, tamplateData: 
         }
 
         // Update standard BusinessProfile fields to keep both tables in sync
+        const aboutBody =
+            (tamplateData as any).aboutSection?.body ||
+            tamplateData.tagline ||
+            "";
+
         await prisma.businessProfile.update({
             where: { id: profile.id },
             data: {
                 businessName: tamplateData.businessName || tamplateData.title,
-                about: tamplateData.tagline,
+                about: aboutBody,
                 logo: tamplateData.logo,
                 BusinessLogo: tamplateData.logo,
                 contactNumber: tamplateData.phone,
@@ -97,13 +106,19 @@ export default async function SaveMiniWebsiteData(userId: string, tamplateData: 
                 upiId: tamplateData.upiId,
                 googleReviewLink: tamplateData.googleReviewLink,
                 seoTitle: tamplateData.theme,
-                seoDescription: JSON.stringify(tamplateData.showSections),
+                seoDescription: tamplateData.seoMetaDescription || profile.seoDescription,
+                aiGeneratedDesc: tamplateData.tagline,
                 ...hoursMap
             }
         });
 
-        // Save ONLY website-builder-specific configuration in MiniWebsiteInfo.data
         const builderSpecificData = {
+            title: tamplateData.title || "",
+            tagline: tamplateData.tagline || "",
+            aboutSection: (tamplateData as any).aboutSection || null,
+            sectionHeaders: (tamplateData as any).sectionHeaders || null,
+            seoPageTitle: (tamplateData as any).seoPageTitle || "",
+            seoMetaDescription: (tamplateData as any).seoMetaDescription || "",
             theme: tamplateData.theme || "",
             selectedTemplate: tamplateData.selectedTemplate || "",
             buttonText: tamplateData.buttonText || "",

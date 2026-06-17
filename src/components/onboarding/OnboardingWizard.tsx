@@ -69,6 +69,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         const data = JSON.parse(draft);
         if (data.businessName) setBusinessName(data.businessName);
         if (data.businessAbout) setBusinessAbout(data.businessAbout);
+        else if (data.businessAbout === undefined && data.about) setBusinessAbout(data.about);
         if (data.category) setCategory(data.category);
         if (data.address) setAddress(data.address);
         if (data.city) setCity(data.city);
@@ -92,6 +93,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     const draftData = {
       businessName,
       businessAbout,
+      about: businessAbout,
       category,
       address,
       city,
@@ -205,6 +207,23 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   // Submit complete onboarding setup
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    const userStr = localStorage.getItem("currentUser");
+    let userId = "";
+    if (userStr) {
+      try {
+        userId = JSON.parse(userStr).id;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    if (!userId) {
+      toast.error("User session expired. Please sign in again.");
+      setIsSubmitting(false);
+      router.push("/auth/login");
+      return;
+    }
+
     try {
       const response = await fetch("/api/business/onboarding", {
         method: "POST",
@@ -213,7 +232,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         },
         body: JSON.stringify({
           businessName,
-          businessAbout,
+          businessAbout: businessAbout.trim() || `Professional ${category} services by ${businessName}`,
           category,
           address,
           city,
@@ -228,14 +247,23 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         })
       });
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || "Failed to save profile");
+      let result: { success?: boolean; message?: string; aiGeneration?: { usedFallback?: boolean } } = {};
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error("Invalid server response. Please try again.");
       }
 
-      // Success
-      toast.success("Business profile created successfully!");
-      localStorage.setItem("onboardingCompleted", "true");
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Failed to save profile");
+      }
+
+      if (result.aiGeneration?.usedFallback) {
+        toast.success(result.message || "Your profile is ready!");
+      } else {
+        toast.success("Your profile is ready! We're building your mini website in the background.");
+      }
+
       localStorage.removeItem("onboardingDraft");
       localStorage.removeItem("currentUser");
 
@@ -245,7 +273,11 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         router.push("/app/dashboard");
       }
     } catch (error: any) {
-      toast.error(error.message || "Something went wrong");
+      const message =
+        error?.message ||
+        (error instanceof TypeError ? "Network error. Check your connection and try again." : null) ||
+        "Something went wrong";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -390,6 +422,17 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                           </button>
                         ))}
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-app-text-muted uppercase tracking-wider mb-2">About Your Business</label>
+                      <textarea
+                        value={businessAbout}
+                        onChange={e => setBusinessAbout(e.target.value)}
+                        placeholder="Briefly describe what you offer and what makes your business special..."
+                        rows={3}
+                        className="w-full bg-app-bg/60 border border-app-border rounded-2xl px-4 py-3 text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                      />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -734,7 +777,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                     </svg>
-                    Launching...
+                    Building your site with AI...
                   </>
                 ) : (
                   <>

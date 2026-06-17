@@ -31,7 +31,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     "src/pages/index.jsx",
-    "src/pages/app/dashboard.js",
     "src/pages/app/dashboard.tsx"
   ],
   "exclude": [

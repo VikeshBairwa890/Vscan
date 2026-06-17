@@ -10,52 +10,64 @@ interface Props {
 export default function UserLayout({ children }: Props) {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [authorized, setAuthorized] = useState(false);
+  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(true);
 
-  // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-    // useEffect(() => {
-    //   if (!mounted) return;
+  useEffect(() => {
+    if (!mounted) return;
 
-    //   const checkStateAndRoute = () => {
-    //     const userStr = localStorage.getItem("currentUser");
-    //     if (!userStr) {
-    //       // Redirection to Login if not authenticated
-    //       router.push("/auth/login");
-    //       return;
-    //     }
+    const checkAuthAndOnboarding = async () => {
+      const userStr = localStorage.getItem("currentUser");
+      if (!userStr) {
+        router.push("/auth/login");
+        return;
+      }
 
-    //     const onboardingCompleted = localStorage.getItem("onboardingCompleted") === "true";
-    //     const path = router.pathname;
+      try {
+        const user = JSON.parse(userStr);
+        const res = await fetch(`/api/business/dashboard-status?userId=${user.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          const completed = data.onboardingCompleted === true;
+          setOnboardingCompleted(completed);
 
-    //     if (!onboardingCompleted && path !== "/app/onboarding") {
-    //       router.push("/app/onboarding");
-    //     } else if (onboardingCompleted && path === "/app/onboarding") {
-    //       // router.push("/app/dashboard");
-    //       router.push("/app/onboarding");
-    //     } else {
-    //       setAuthorized(true);
-    //     }
-    //   };
+          const path = router.pathname;
+          if (!completed && path !== "/app/dashboard" && path !== "/app/onboarding") {
+            router.replace("/app/dashboard");
+          }
+        }
+      } catch (e) {
+        console.error("Failed to check onboarding status", e);
+      } finally {
+        setCheckingOnboarding(false);
+      }
+    };
 
-    //   checkStateAndRoute();
-    // }, [mounted, router.pathname]);
+    checkAuthAndOnboarding();
+  }, [mounted, router.pathname]);
 
-  // if (!mounted || (!authorized && router.pathname !== "/app/onboarding")) {
-  //   return (
-  //     <div className="min-h-screen bg-app-bg flex items-center justify-center text-white">
-  //       <div className="flex flex-col items-center gap-3">
-  //         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
-  //         <p className="text-xs text-app-text-muted font-medium">Checking session...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (!mounted || checkingOnboarding) {
+    return (
+      <div className="min-h-screen bg-app-bg flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+          <p className="text-xs text-app-text-muted font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Do not show the navigation sidebar on the onboarding wizard page
   if (router.pathname === "/app/onboarding") {
+    return <div className="min-h-screen bg-app-bg">{children}</div>;
+  }
+
+  const blockSidebar = !onboardingCompleted && router.pathname === "/app/dashboard";
+
+  if (blockSidebar) {
     return <div className="min-h-screen bg-app-bg">{children}</div>;
   }
 

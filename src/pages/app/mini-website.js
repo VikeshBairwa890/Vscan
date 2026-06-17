@@ -12,6 +12,7 @@ import { toast } from "sonner";
 
 import TemplatePicker from "@/components/website-builder/TemplatePicker";
 import TemplateRenderer from "@/components/website-builder/TemplateRenderer";
+import AIFieldButton from "@/components/website-builder/AIFieldButton";
 import { templates } from "@/components/website-builder/registry";
 import { THEMES, getTheme } from "@/components/website-builder/theme";
 
@@ -144,40 +145,49 @@ function Toggle({ label, checked, onChange }) {
   );
 }
 
-function FInput({ label, type, value, onChange, placeholder, small }) {
+function FInput({ label, type, value, onChange, placeholder, small, aiField }) {
   return (
     <div className="flex flex-col gap-2 lg:gap-1 w-full">
-      {label && (
-        <label className="text-sm lg:text-[10px] font-semibold text-app-text-dimmed uppercase tracking-wider">{label}</label>
+      {(label || aiField) && (
+        <div className="flex items-center justify-between gap-2">
+          {label && (
+            <label className="text-sm lg:text-[10px] font-semibold text-app-text-dimmed uppercase tracking-wider">{label}</label>
+          )}
+          {aiField && (
+            <AIFieldButton field={aiField} currentValue={value} onSuggest={onChange} />
+          )}
+        </div>
       )}
       <input
         value={value || ""}
         type={type || "text"}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`border border-app-border rounded-xl px-4 lg:px-3 bg-app-bg/60 text-white placeholder-app-text-dimmed 
-          focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent 
-          hover:border-app-text-muted/30 transition-all w-full
-          ${small ? "py-3.5 text-[15px] lg:py-1.5 lg:text-xs min-h-[50px] lg:min-h-0" : "py-4 text-[15px] lg:py-2.5 lg:text-sm min-h-[52px] lg:min-h-0"}`}
+        className={`border border-app-border rounded-xl px-4 lg:px-3 bg-app-bg/60 text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent hover:border-app-text-muted/30 transition-all w-full ${small ? "py-3.5 text-[15px] lg:py-1.5 lg:text-xs min-h-[50px] lg:min-h-0" : "py-4 text-[15px] lg:py-2.5 lg:text-sm min-h-[52px] lg:min-h-0"}`}
       />
     </div>
   );
 }
 
-function FTA({ label, value, onChange, placeholder }) {
+function FTA({ label, value, onChange, placeholder, aiField }) {
   return (
     <div className="flex flex-col gap-2 lg:gap-1 w-full">
-      {label && (
-        <label className="text-sm lg:text-[10px] font-semibold text-app-text-dimmed uppercase tracking-wider">{label}</label>
+      {(label || aiField) && (
+        <div className="flex items-center justify-between gap-2">
+          {label && (
+            <label className="text-sm lg:text-[10px] font-semibold text-app-text-dimmed uppercase tracking-wider">{label}</label>
+          )}
+          {aiField && (
+            <AIFieldButton field={aiField} currentValue={value} onSuggest={onChange} />
+          )}
+        </div>
       )}
       <textarea
         value={value || ""}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        rows={3}
-        className="border border-app-border rounded-xl px-4 lg:px-3 py-3.5 lg:py-2 text-[15px] lg:text-xs bg-app-bg/60 text-white placeholder-app-text-dimmed 
-          focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent 
-          hover:border-app-text-muted/30 transition-all resize-none w-full min-h-[96px] lg:min-h-0"
+        rows={5}
+        className="border border-app-border rounded-xl px-4 lg:px-3 py-3.5 lg:py-2 text-[15px] lg:text-xs bg-app-bg/60 text-white placeholder-app-text-dimmed focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent hover:border-app-text-muted/30 transition-all resize-y w-full min-h-[120px] lg:min-h-[96px]"
       />
     </div>
   );
@@ -237,9 +247,7 @@ function AddBtn({ onClick, label }) {
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center justify-center gap-2 py-4 lg:py-3 border-2 border-dashed border-app-border rounded-xl text-[15px] lg:text-xs font-semibold text-app-text-dimmed min-h-[56px] lg:min-h-0
-        hover:border-primary/60 hover:text-primary-light hover:bg-primary/5 
-        active:scale-[0.98] transition-all"
+      className="w-full flex items-center justify-center gap-2 py-4 lg:py-3 border-2 border-dashed border-app-border rounded-xl text-[15px] lg:text-xs font-semibold text-app-text-dimmed min-h-[56px] lg:min-h-0 hover:border-primary/60 hover:text-primary-light hover:bg-primary/5 active:scale-[0.98] transition-all"
     >
       <Plus size={20} className="lg:!w-[13px] lg:!h-[13px]" /> {label}
     </button>
@@ -386,8 +394,16 @@ export default function MiniWebsiteBuilder() {
       { id: uid(), question: "Frequently Asked Question", answer: "Answer to the frequently asked question" },
     ],
     amenities: ["Amenity name", "Amenity name", "Amenity name", "Amenity name", "Amenity name", "Amenity name"],
+    aboutSection: {
+      title: "About Us",
+      subtitle: "Learn more about our business and what makes us different.",
+      body: "",
+    },
+    sectionHeaders: {},
+    seoPageTitle: "",
+    seoMetaDescription: "",
     showSections: {
-      announcement: true, services: true, hours: true, contact: true,
+      announcement: true, about: true, services: true, hours: true, contact: true,
       showWhatsapp: true,
       social: true, employees: true, testimonials: true, mediaLinks: true,
       faqs: true, amenities: true, googleForm: true,
@@ -397,6 +413,7 @@ export default function MiniWebsiteBuilder() {
   const t = getTheme(data.theme);
   const set = (k, v) => setData(d => ({ ...d, [k]: v }));
   const setShow = (k, v) => setData(d => ({ ...d, showSections: { ...d.showSections, [k]: v } }));
+  const setAbout = (k, v) => setData(d => ({ ...d, aboutSection: { ...d.aboutSection, [k]: v } }));
 
   // Load profile from database on mount
   useEffect(() => {
@@ -430,14 +447,8 @@ export default function MiniWebsiteBuilder() {
               showSecs = JSON.parse(showSecs);
             } catch (e) { }
           }
-          if (!showSecs) {
-            let seoDesc = profileInfo.seoDescription;
-            if (typeof seoDesc === "string") {
-              try {
-                seoDesc = JSON.parse(seoDesc);
-              } catch (e) { }
-            }
-            showSecs = seoDesc || prev.showSections;
+          if (!showSecs || typeof showSecs !== "object") {
+            showSecs = prev.showSections;
           }
 
           const themeName = profileInfo.theme || profileInfo.seoTitle || prev.theme;
@@ -448,7 +459,12 @@ export default function MiniWebsiteBuilder() {
             theme: themeName,
             showSections: showSecs,
             businessName: profileInfo.businessName || prev.businessName,
-            tagline: profileInfo.tagline || profileInfo.about || prev.tagline,
+            title: profileInfo.title || profileInfo.businessName || prev.title,
+            tagline: profileInfo.tagline || prev.tagline,
+            aboutSection: profileInfo.aboutSection || prev.aboutSection,
+            sectionHeaders: profileInfo.sectionHeaders || prev.sectionHeaders,
+            seoPageTitle: profileInfo.seoPageTitle || prev.seoPageTitle,
+            seoMetaDescription: profileInfo.seoMetaDescription || prev.seoMetaDescription,
             logo: profileInfo.logo || profileInfo.BusinessLogo || prev.logo,
             phone: profileInfo.phone || profileInfo.whatsappNumber || profileInfo.contactNumber || prev.phone,
             email: profileInfo.email || prev.email,
@@ -694,15 +710,29 @@ export default function MiniWebsiteBuilder() {
             <Section icon={Megaphone} title="Announcement Ribbon" color="text-app-warning" defaultOpen={false}>
               <Toggle label="Display ribbon at top of website" checked={data.showSections.announcement} onChange={v => setShow("announcement", v)} />
               <Toggle label="Enable pulse animations" checked={data.announcement.enabled} onChange={v => set("announcement", { ...data.announcement, enabled: v })} />
-              <FInput value={data.announcement.text} onChange={v => set("announcement", { ...data.announcement, text: v })} placeholder="🎉 20% off on all reservations this weekend!" />
+              <FInput value={data.announcement.text} onChange={v => set("announcement", { ...data.announcement, text: v })} placeholder="🎉 20% off on all reservations this weekend!" aiField="announcement" />
             </Section>
 
-            {/* Section 4: Business Details */}
-            <Section icon={Briefcase} title="Business Information" color="text-primary-light">
-              <FInput label="Title" value={data.title} onChange={v => set("title", v)} placeholder="e.g. Vikesh Studio" />
-              <FInput label="Tagline" value={data.tagline} onChange={v => set("tagline", v)} placeholder="Best local professional photography" />
-              <FInput label="Button Text" value={data.buttonText} onChange={v => set("buttonText", v)} placeholder="Call to Book" />
+            {/* Section 4: Hero & business headline */}
+            <Section icon={Briefcase} title="Hero & Headline" color="text-primary-light">
+              <FInput label="Page Title (H1)" value={data.title} onChange={v => set("title", v)} placeholder="e.g. Vikesh Studio" aiField="title" />
+              <FInput label="Hero Tagline" value={data.tagline} onChange={v => set("tagline", v)} placeholder="One compelling line with your city and specialty" aiField="tagline" />
+              <FInput label="Button Text" value={data.buttonText} onChange={v => set("buttonText", v)} placeholder="Call to Book" aiField="buttonText" />
               <FInput label="Logo URL" value={data.logo} onChange={v => set("logo", v)} placeholder="https://unsplash.com/logo-image-url.png" />
+            </Section>
+
+            {/* Section 4b: About Us (full page content) */}
+            <Section icon={Briefcase} title="About Us Page Content" color="text-secondary-light" defaultOpen>
+              <Toggle label="Show About section on website" checked={data.showSections.about} onChange={v => setShow("about", v)} />
+              <FInput label="Section Title" value={data.aboutSection?.title || ""} onChange={v => setAbout("title", v)} placeholder="About Our Business" aiField="aboutTitle" />
+              <FInput label="Section Subtitle" value={data.aboutSection?.subtitle || ""} onChange={v => setAbout("subtitle", v)} placeholder="Short intro line under the heading" aiField="aboutSubtitle" />
+              <FTA label="About Body" value={data.aboutSection?.body || ""} onChange={v => setAbout("body", v)} placeholder="2-3 paragraphs about your business, services, and why customers trust you..." aiField="aboutBody" />
+            </Section>
+
+            {/* SEO */}
+            <Section icon={Globe} title="SEO (Search)" color="text-app-success" defaultOpen={false}>
+              <FInput label="SEO Page Title" value={data.seoPageTitle || ""} onChange={v => set("seoPageTitle", v)} placeholder="Business Name | Service in City" aiField="seoPageTitle" />
+              <FTA label="Meta Description" value={data.seoMetaDescription || ""} onChange={v => set("seoMetaDescription", v)} placeholder="155-character summary for Google search results..." aiField="seoMetaDescription" />
             </Section>
 
             {/* Section 5: Products & Services */}
@@ -711,12 +741,12 @@ export default function MiniWebsiteBuilder() {
               <div className="space-y-3">
                 {data.services.map(s => (
                   <Card key={s.id} onDelete={() => delService(s.id)}>
-                    <FInput placeholder="Product Name" value={s.name} onChange={v => updService(s.id, "name", v)} small />
+                    <FInput placeholder="Product Name" value={s.name} onChange={v => updService(s.id, "name", v)} small aiField="serviceName" />
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-2">
                       <FInput type="number" placeholder="Pricing (e.g. 1500)" value={s.price} onChange={v => updService(s.id, "price", v)} small />
                       <FInput placeholder="Thumbnail Image Link" value={s.image} onChange={v => updService(s.id, "image", v)} small />
                     </div>
-                    <FTA placeholder="Catalog item description..." value={s.desc} onChange={v => updService(s.id, "desc", v)} />
+                    <FTA placeholder="Catalog item description..." value={s.desc} onChange={v => updService(s.id, "desc", v)} aiField="serviceDesc" />
                   </Card>
                 ))}
               </div>
@@ -789,7 +819,7 @@ export default function MiniWebsiteBuilder() {
               <Toggle label="Show social contacts strip" checked={data.showSections.contact} onChange={v => setShow("contact", v)} />
               <FInput label="Phone Call Helpline" value={data.phone} onChange={v => set("phone", v)} placeholder="+91 98765 43210" />
               <FInput label="Inquiry Email Address" value={data.email} onChange={v => set("email", v)} placeholder="hello@store.com" />
-              <FInput label="Physical Store Address" value={data.address} onChange={v => set("address", v)} placeholder="Jaipur, Rajasthan" />
+              <FInput label="Physical Store Address" value={data.address} onChange={v => set("address", v)} placeholder="Jaipur, Rajasthan" aiField="address" />
               <FInput label="Official Website URL" value={data.website} onChange={v => set("website", v)} placeholder="www.domain.com" />
 
               <div className="border-t border-app-border pt-3 mt-2">
@@ -808,7 +838,7 @@ export default function MiniWebsiteBuilder() {
                 {data.employees?.map(e => (
                   <Card key={e.id} onDelete={() => delEmployee(e.id)}>
                     <FInput placeholder="Name" value={e.name} onChange={v => updEmployee(e.id, "name", v)} small />
-                    <FInput placeholder="Role / Bio" value={e.bio} onChange={v => updEmployee(e.id, "bio", v)} small />
+                    <FInput placeholder="Role / Bio" value={e.bio} onChange={v => updEmployee(e.id, "bio", v)} small aiField="employeeBio" />
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-2">
                       <FInput placeholder="Phone" value={e.phone} onChange={v => updEmployee(e.id, "phone", v)} small />
                       <FInput placeholder="Email" value={e.email} onChange={v => updEmployee(e.id, "email", v)} small />
@@ -826,13 +856,13 @@ export default function MiniWebsiteBuilder() {
               <div className="space-y-3">
                 {data.testimonials?.map(t => (
                   <Card key={t.id} onDelete={() => delTestimonial(t.id)}>
-                    <FInput placeholder="Customer Name" value={t.name} onChange={v => updTestimonial(t.id, "name", v)} small />
-                    <FInput placeholder="Company / Role (Optional)" value={t.company} onChange={v => updTestimonial(t.id, "company", v)} small />
+                    <FInput placeholder="Customer Name" value={t.name} onChange={v => updTestimonial(t.id, "name", v)} small aiField="testimonialName" />
+                    <FInput placeholder="Company / Role (Optional)" value={t.company} onChange={v => updTestimonial(t.id, "company", v)} small aiField="testimonialCompany" />
                     <div className="flex items-center gap-3 py-1">
                       <span className="text-[15px] lg:text-xs text-app-text-muted">Rating:</span>
                       <StarRow count={t.stars} onChange={val => updTestimonial(t.id, "stars", val)} />
                     </div>
-                    <FTA placeholder="Testimonial content..." value={t.content} onChange={v => updTestimonial(t.id, "content", v)} />
+                    <FTA placeholder="Testimonial content..." value={t.content} onChange={v => updTestimonial(t.id, "content", v)} aiField="testimonialContent" />
                   </Card>
                 ))}
               </div>
@@ -845,7 +875,7 @@ export default function MiniWebsiteBuilder() {
               <div className="space-y-3">
                 {data.mediaLinks?.map(m => (
                   <Card key={m.id} onDelete={() => delMedia(m.id)}>
-                    <FInput placeholder="Link Title" value={m.title} onChange={v => updMedia(m.id, "title", v)} small />
+                    <FInput placeholder="Link Title" value={m.title} onChange={v => updMedia(m.id, "title", v)} small aiField="mediaTitle" />
                     <FInput placeholder="URL (e.g. YouTube, PDF, Gallery)" value={m.url} onChange={v => updMedia(m.id, "url", v)} small />
                   </Card>
                 ))}
@@ -859,8 +889,8 @@ export default function MiniWebsiteBuilder() {
               <div className="space-y-3">
                 {data.faqs?.map(f => (
                   <Card key={f.id} onDelete={() => delFaq(f.id)}>
-                    <FInput placeholder="Question" value={f.question} onChange={v => updFaq(f.id, "question", v)} small />
-                    <FTA placeholder="Answer..." value={f.answer} onChange={v => updFaq(f.id, "answer", v)} />
+                    <FInput placeholder="Question" value={f.question} onChange={v => updFaq(f.id, "question", v)} small aiField="faqQuestion" />
+                    <FTA placeholder="Answer..." value={f.answer} onChange={v => updFaq(f.id, "answer", v)} aiField="faqAnswer" />
                   </Card>
                 ))}
               </div>

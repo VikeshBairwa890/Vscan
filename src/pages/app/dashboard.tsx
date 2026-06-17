@@ -1,4 +1,3 @@
-'use client'
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
@@ -7,11 +6,11 @@ import {
   ArrowUpRight, Star, Eye, Award
 } from "lucide-react";
 
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { THEME_COLORS } from "@/config/theme";
 import { toast } from "sonner";
+import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 
-// Mock Recharts Data for Bottom Analytics Section
 const trafficData = {
   Today: [{ d: "Now", v: 3 }],
   "7 Days": [
@@ -29,7 +28,8 @@ export default function Dashboard() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState<Record<string, unknown> | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const fetchStatus = async () => {
     try {
@@ -44,12 +44,19 @@ export default function Dashboard() {
         return;
       }
       setStatus(responseBody.data);
+      setShowOnboarding(responseBody.data?.onboardingCompleted !== true);
       setLoading(false);
     } catch (e) {
       console.error("Error loading status", e);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOnboardingComplete = async () => {
+    setShowOnboarding(false);
+    setLoading(true);
+    await fetchStatus();
   };
 
   useEffect(() => {
@@ -68,29 +75,31 @@ export default function Dashboard() {
     );
   }
 
-  // Fallback defaults if profile doesn't exist yet
-  const businessName = status?.businessName || "Valued Merchant";
-  const checklist = status?.checklist || {
+  const businessName = (status?.businessName as string) || "Valued Merchant";
+  const checklist = (status?.checklist as Record<string, boolean>) || {
     hasLogo: false,
     hasServices: false,
     hasQr: false,
     hasReviewLink: false,
-    isPublished: false
+    isPublished: false,
   };
-  const stats = status?.stats || { views: 0, scans: 0, reviews: 0, leads: 0 };
-  const isPremium = status?.subscription?.isActive || false;
+  const stats = (status?.stats as Record<string, number>) || { views: 0, scans: 0, reviews: 0, leads: 0 };
+  const isPremium = (status?.subscription as { isActive?: boolean })?.isActive || false;
 
-  // Calculate completed steps
   const completedSteps = Object.values(checklist).filter(Boolean).length;
   const totalSteps = 5;
 
   return (
+    <>
+    {showOnboarding && (
+      <div className="fixed inset-0 z-[200] bg-app-bg">
+        <OnboardingWizard onComplete={handleOnboardingComplete} />
+      </div>
+    )}
     <div className="min-h-screen bg-app-bg text-white py-6 px-4 md:px-8 space-y-6 relative overflow-hidden font-sans">
-      {/* Background gradients for premium glassmorphism aesthetic */}
       <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-secondary/5 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
 
-      {/* 1. Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-app-border pb-5">
         <div>
           <div className="flex items-center gap-2">
@@ -106,7 +115,6 @@ export default function Dashboard() {
           <p className="text-app-text-muted text-sm mt-1">Manage your digital presence, payments and smart routing.</p>
         </div>
 
-        {/* Publication Status Badge */}
         <div className="flex items-center gap-3">
           <div className={`flex items-center gap-2 px-4 py-2 rounded-2xl border backdrop-blur-md ${checklist.isPublished
             ? "bg-app-success/10 border-app-success/30 text-app-success"
@@ -120,7 +128,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 2. Top-Level Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Website Views", value: stats.views, icon: Eye, color: "text-secondary-light", bg: "from-secondary/20 to-secondary/5", border: "border-secondary/20" },
@@ -141,7 +148,6 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* 3. Middle Section: Setup Checklist */}
       <div className="bg-app-surface border border-app-border rounded-3xl p-6 md:p-8 backdrop-blur-md relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 p-8 opacity-5">
           <Sparkles className="w-40 h-40 text-primary" />
@@ -150,7 +156,7 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-app-border pb-5">
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              🚀 Smart QR Setup checklist
+              Smart QR Setup checklist
             </h2>
             <p className="text-app-text-muted text-xs mt-0.5">Complete these configuration items to unlock full local SEO visibility.</p>
           </div>
@@ -161,44 +167,13 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Checklist List */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           {[
-            {
-              id: "logo",
-              title: "Upload Business Logo",
-              desc: "Represent your local storefront brand digitally.",
-              checked: checklist.hasLogo,
-              link: "/app/profile-settings"
-            },
-            {
-              id: "services",
-              title: "Add your Services/Products",
-              desc: "Create beautiful interactive items for customers to see.",
-              checked: checklist.hasServices,
-              link: "/app/mini-website"
-            },
-            {
-              id: "qr",
-              title: "Generate Smart QR Code",
-              desc: "Customize payment gradients and Google review redirect routing.",
-              checked: checklist.hasQr,
-              link: "/app/smart-qr"
-            },
-            {
-              id: "reviews",
-              title: "Connect Google Reviews",
-              desc: "Provide feedback redirection routing link.",
-              checked: checklist.hasReviewLink,
-              link: "/app/profile-settings"
-            },
-            {
-              id: "publish",
-              title: "Publish Business Mini-Website",
-              desc: "Publish drafts so your website and QR redirect links are live.",
-              checked: checklist.isPublished,
-              link: "/app/mini-website"
-            }
+            { id: "logo", title: "Upload Business Logo", desc: "Represent your local storefront brand digitally.", checked: checklist.hasLogo, link: "/app/profile-settings" },
+            { id: "services", title: "Add your Services/Products", desc: "Create beautiful interactive items for customers to see.", checked: checklist.hasServices, link: "/app/mini-website" },
+            { id: "qr", title: "Generate Smart QR Code", desc: "Customize payment gradients and Google review redirect routing.", checked: checklist.hasQr, link: "/app/smart-qr" },
+            { id: "reviews", title: "Connect Google Reviews", desc: "Provide feedback redirection routing link.", checked: checklist.hasReviewLink, link: "/app/profile-settings" },
+            { id: "publish", title: "Publish Business Mini-Website", desc: "Publish drafts so your website and QR redirect links are live.", checked: checklist.isPublished, link: "/app/mini-website" },
           ].map((item, idx) => (
             <div
               key={item.id}
@@ -218,12 +193,9 @@ export default function Dashboard() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <h3 className={`text-sm font-bold truncate ${item.checked ? "text-app-text-muted/60 line-through" : "text-white"}`}>
-                    {item.title}
-                  </h3>
-                  {!item.checked && <ArrowUpRight className="w-3.5 h-3.5 text-primary-light opacity-0 group-hover:opacity-100 transition-opacity" />}
-                </div>
+                <h3 className={`text-sm font-bold truncate ${item.checked ? "text-app-text-muted/60 line-through" : "text-white"}`}>
+                  {item.title}
+                </h3>
                 <p className="text-app-text-dimmed text-xs mt-0.5">{item.desc}</p>
               </div>
             </div>
@@ -231,7 +203,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 4. Quick Actions */}
       <div className="space-y-3">
         <h2 className="text-sm font-bold text-app-text-muted uppercase tracking-wider">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -253,7 +224,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 5. Bottom Analytics Widget */}
       <div className="bg-app-surface border border-app-border rounded-3xl p-6 backdrop-blur-md">
         <div className="flex items-center justify-between border-b border-app-border pb-4 mb-4">
           <div className="flex items-center gap-2">
@@ -291,5 +261,6 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    </>
   );
 }
