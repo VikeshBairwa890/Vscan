@@ -32,6 +32,7 @@ export async function GetMiniWebsiteInfo(userId: string) {
                         googleReviewLink: true,
                         seoTitle: true,
                         seoDescription: true,
+                        aiGeneratedDesc: true,
                         isPublished: true,
                         isQrGenerated: true,
                         viewCount: true,

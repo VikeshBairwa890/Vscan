@@ -30,6 +30,7 @@ const FIELD_AI_TYPE: Record<string, AiType> = {
   aboutBody: "DESCRIPTION",
   seoPageTitle: "SEO",
   seoMetaDescription: "SEO",
+};
 
 export default async function PostAiGenerateField(
   userId: string,

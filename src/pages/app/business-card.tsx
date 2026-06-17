@@ -57,28 +57,40 @@ export default function BusinessCardPage() {
   useEffect(() => {
     setMounted(true);
     const loadProfileData = async () => {
+      let userName = "";
+      let userEmail = "";
+      const userStr = localStorage.getItem("currentUser");
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          userName = user.name || "";
+          userEmail = user.email || "";
+        } catch {
+          // ignore invalid local user cache
+        }
+      }
 
       try {
-        // Call the dashboard status API to fetch profile details
-        const res = await fetch(`/api/business/status?userId=${user.id}`);
-        if (res.ok) {
-          const statusData = await res.json();
-          if (statusData.hasProfile) {
-            setHasProfile(true);
-            setOnboardingCompleted(statusData.onboardingCompleted === true);
-            setCardData((prev) => ({
-              ...prev,
-              businessName: statusData.businessName || "",
-              name: user.name || statusData.businessName || "Your Name",
-              email: statusData.email || user.email || "",
+        const res = await fetch(`/api/business/status`);
+        if (!res.ok) return;
+        const responseBody = await res.json();
+        if (responseBody.success === false) return;
+        const statusData = responseBody.data;
+        if (statusData?.hasProfile) {
+          setHasProfile(true);
+          setOnboardingCompleted(statusData.onboardingCompleted === true);
+          setCardData((prev) => ({
+            ...prev,
+            businessName: statusData.businessName || "",
+            name: userName || statusData.businessName || "Your Name",
+            email: statusData.email || userEmail || "",
               phone: statusData.contactNumber || statusData.whatsappNumber || "",
               website: statusData.website || `https://vscan.biz/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
               address: statusData.businessAddress || "",
               logo: statusData.logo || "",
               googleReviewLink: statusData.googleReviewLink || "",
               upiId: statusData.upiId || "",
-            }));
-          }
+          }));
         }
       } catch (err) {
         console.error("Error loading profile settings:", err);
