@@ -338,7 +338,7 @@ function PreviewPanel({ t, selectedTemplate, data }) {
 }
 
 export default function MiniWebsiteBuilder() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vscan.biz";
   const displayDomain = baseUrl.replace(/^https?:\/\//, "");
 
   const [mobileTab, setMobileTab] = useState("editor");

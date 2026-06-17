@@ -20,25 +20,25 @@ export default function UserLayout({ children }: Props) {
   useEffect(() => {
     if (!mounted) return;
 
-    const checkAuthAndOnboarding = async () => {
-      const userStr = localStorage.getItem("currentUser");
-      if (!userStr) {
-        router.push("/auth/login");
-        return;
+    const refreshOnboardingStatus = async (showLoader = true) => {
+      if (showLoader) {
+        setCheckingOnboarding(true);
       }
 
       try {
-        const user = JSON.parse(userStr);
-        const res = await fetch(`/api/business/dashboard-status?userId=${user.id}`);
-        if (res.ok) {
-          const data = await res.json();
-          const completed = data.onboardingCompleted === true;
-          setOnboardingCompleted(completed);
+        const res = await fetch(`/api/business/dashboard-status`);
+        if (!res.ok) return;
 
-          const path = router.pathname;
-          if (!completed && path !== "/app/dashboard" && path !== "/app/onboarding") {
-            router.replace("/app/dashboard");
-          }
+        const responseBody = await res.json();
+        if (responseBody.success === false) return;
+
+        const status = responseBody.data ?? responseBody;
+        const completed = status.onboardingCompleted === true;
+        setOnboardingCompleted(completed);
+
+        const path = router.pathname;
+        if (!completed && path !== "/app/dashboard" && path !== "/app/onboarding") {
+          router.replace("/app/dashboard");
         }
       } catch (e) {
         console.error("Failed to check onboarding status", e);
@@ -47,7 +47,14 @@ export default function UserLayout({ children }: Props) {
       }
     };
 
-    checkAuthAndOnboarding();
+    refreshOnboardingStatus();
+
+    const onOnboardingComplete = () => {
+      refreshOnboardingStatus(false);
+    };
+
+    window.addEventListener("vscan:onboarding-complete", onOnboardingComplete);
+    return () => window.removeEventListener("vscan:onboarding-complete", onOnboardingComplete);
   }, [mounted, router.pathname]);
 
   if (!mounted || checkingOnboarding) {

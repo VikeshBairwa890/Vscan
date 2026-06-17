@@ -57,6 +57,7 @@ export default function Dashboard() {
     setShowOnboarding(false);
     setLoading(true);
     await fetchStatus();
+    window.dispatchEvent(new CustomEvent("vscan:onboarding-complete"));
   };
 
   useEffect(() => {

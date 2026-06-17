@@ -265,7 +265,6 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       }
 
       localStorage.removeItem("onboardingDraft");
-      localStorage.removeItem("currentUser");
 
       if (onComplete) {
         onComplete();
