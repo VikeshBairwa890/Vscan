@@ -26,6 +26,7 @@ model User {
   businessProfile BusinessProfile?
   sessions        Session[]
   paymentTransactions PaymentTransaction[]
+  notifications   Notification[]
   
   @@index([email])
 }
@@ -38,6 +39,25 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@index([sessionToken])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title     String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  type      String   @default("INFO")
+  link      String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
 }
 model BusinessProfile {
   id               String   @id @default(cuid())

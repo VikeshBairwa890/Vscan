@@ -1,5 +1,6 @@
 import {
   useState,
+  useEffect,
   ReactNode,
 } from "react";
 
@@ -36,6 +37,41 @@ export default function Sidebar({
   // DESKTOP COLLAPSE
   const [collapsed, setCollapsed] =
     useState(false);
+
+  // USER DETAILS
+  const [user, setUser] = useState<{name?: string, email?: string, role?: string} | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success) {
+            setUser(json.data);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch user", e);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+      if (res.ok) {
+        router.push("/auth/login");
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Logout error", error);
+    }
+  };
 
   return (
     <div className="flex min-h-screen">
@@ -172,15 +208,16 @@ export default function Sidebar({
               </p>
 
               <p className="mt-1 break-all text-sm font-medium text-white">
-                user@example.com
+                {user?.email || "Loading..."}
               </p>
             </>
           )}
 
           <button
+            onClick={handleLogout}
             suppressHydrationWarning={true}
             className={`
-              mt-5 flex items-center text-app-error hover:opacity-85 transition-opacity
+              mt-5 flex items-center text-app-error hover:opacity-85 transition-opacity cursor-pointer
 
               ${collapsed
                 ? "justify-center"
@@ -212,6 +249,7 @@ export default function Sidebar({
       >
 
         <Navbar
+          user={user}
           collapsed={collapsed}
           onToggleSidebar={() =>
             setCollapsed(!collapsed)
