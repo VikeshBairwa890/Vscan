@@ -30,7 +30,14 @@ export default function UnifiedPublicProfile() {
     const [error, setError] = useState(null);
     const [paymentQr, setPaymentQr] = useState("");
 
-
+    // Review page states
+    const [userRating, setUserRating] = useState(0);
+    const [aiReviews, setAiReviews] = useState([]);
+    const [loadingAiReviews, setLoadingAiReviews] = useState(false);
+    const [privateFeedback, setPrivateFeedback] = useState("");
+    const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+    const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+    const [copiedIndex, setCopiedIndex] = useState(null);
     useEffect(() => {
         if (!slug) return;
         fetchBusinessData(slug);
@@ -76,8 +83,75 @@ export default function UnifiedPublicProfile() {
         }
     }, [business]);
 
+    const fetchAiReviews = async () => {
+        if (!slug) return;
+        setLoadingAiReviews(true);
+        try {
+            const res = await fetch(`/api/reviews/get-or-generate?slug=${slug}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success && data.reviews) {
+                    setAiReviews(data.reviews);
+                }
+            }
+        } catch (err) {
+            console.error("Failed to load reviews:", err);
+        } finally {
+            setLoadingAiReviews(false);
+        }
+    };
+
+    // Reset review state on tab load and fetch reviews if needed
+    useEffect(() => {
+        if (tab === "review") {
+            setUserRating(0);
+            setPrivateFeedback("");
+            setFeedbackSubmitted(false);
+            setCopiedIndex(null);
+            fetchAiReviews();
+        }
+    }, [tab]);
+
     const handleGoogleReview = () => {
-        if (business?.googleReviewLink) window.open(business.googleReviewLink, "_blank");
+        router.push(`/profile/${slug}?tab=review`);
+    };
+
+    const submitFeedback = async (e) => {
+        e.preventDefault();
+        if (!privateFeedback.trim()) {
+            alert("Please enter your feedback.");
+            return;
+        }
+        setIsSubmittingFeedback(true);
+        try {
+            const res = await fetch("/api/reviews/submit", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    slug,
+                    rating: userRating,
+                    comment: privateFeedback,
+                    customerName: "Public Storefront Visitor"
+                })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success) {
+                    setFeedbackSubmitted(true);
+                } else {
+                    alert(data.message || "Failed to submit feedback.");
+                }
+            } else {
+                alert("Failed to submit feedback.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Error connecting to server.");
+        } finally {
+            setIsSubmittingFeedback(false);
+        }
     };
 
     const handleMiniWebsite = () => {
@@ -569,6 +643,184 @@ export default function UnifiedPublicProfile() {
                     >
                         <Download className="w-4 h-4" />
                         Save Contact
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (tab === "review") {
+        return (
+            <div className="h-screen bg-[#07070b] text-white font-sans flex flex-col max-w-md mx-auto relative overflow-hidden">
+                {/* Background glow effects */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-violet-600/10 rounded-full blur-[100px] pointer-events-none z-0" />
+                <div className="absolute top-80 right-[-10%] w-48 h-48 bg-amber-500/5 rounded-full blur-[80px] pointer-events-none z-0" />
+
+                {/* Header */}
+                <div className="flex justify-between items-center px-6 pt-8 pb-4 z-10">
+                    <div>
+                        <h3 className="text-white text-lg font-bold">Leave a Review</h3>
+                        <p className="text-zinc-550 text-xs mt-0.5">Rate your experience with {business?.businessName || business?.name}</p>
+                    </div>
+                    <button
+                        onClick={() => router.back()}
+                        className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                    >
+                        <ChevronLeft className="w-4 h-4 text-zinc-400" />
+                    </button>
+                </div>
+
+                <div className="px-5 space-y-4 pb-28 flex-1 z-10 overflow-y-auto">
+                    {/* Rating Selector */}
+                    {!feedbackSubmitted && (
+                        <div className="bg-[#101018] border border-white/8 rounded-2xl p-6 flex flex-col items-center">
+                            <p className="text-zinc-400 text-xs mb-4 font-semibold uppercase tracking-wider">How was your visit?</p>
+                            <div className="flex gap-3">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        onClick={() => {
+                                            setUserRating(star);
+                                            setCopiedIndex(null);
+                                        }}
+                                        className="hover:scale-110 active:scale-95 transition-transform p-1"
+                                    >
+                                        <Star
+                                            className={`w-10 h-10 ${star <= userRating ? "text-amber-400 fill-amber-400" : "text-zinc-700"}`}
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                            {userRating > 0 && (
+                                <p className="text-white font-bold text-sm mt-4">
+                                    {userRating === 5 && "Excellent! ⭐⭐⭐⭐⭐"}
+                                    {userRating === 4 && "Very Good! ⭐⭐⭐⭐"}
+                                    {userRating === 3 && "Average ⭐⭐⭐"}
+                                    {userRating === 2 && "Poor ⭐⭐"}
+                                    {userRating === 1 && "Terrible ⭐"}
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Case 1: Rating <= 3 -> Show Feedback Form */}
+                    {userRating > 0 && userRating <= 3 && !feedbackSubmitted && (
+                        <form onSubmit={submitFeedback} className="space-y-4">
+                            <div className="bg-[#101018] border border-white/8 rounded-2xl p-5">
+                                <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">We value your feedback</label>
+                                <p className="text-zinc-555 text-xs mb-4">Please let us know what went wrong and how we can improve. Your comments will be sent privately to the business owner.</p>
+                                <textarea
+                                    value={privateFeedback}
+                                    onChange={(e) => setPrivateFeedback(e.target.value)}
+                                    placeholder="Write your feedback here..."
+                                    rows={5}
+                                    className="w-full bg-black/40 border border-white/8 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-amber-500/50 resize-none text-sm leading-relaxed"
+                                    required
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={isSubmittingFeedback}
+                                className="w-full py-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                {isSubmittingFeedback ? "Submitting..." : "Submit Feedback"}
+                            </button>
+                        </form>
+                    )}
+
+                    {/* Feedback Submitted Screen */}
+                    {feedbackSubmitted && (
+                        <div className="bg-[#101018] border border-white/8 rounded-2xl p-8 text-center space-y-4">
+                            <div className="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center border border-emerald-500/20 text-3xl mx-auto">
+                                ✓
+                            </div>
+                            <h4 className="text-white font-bold text-lg">Thank You!</h4>
+                            <p className="text-zinc-400 text-sm max-w-xs mx-auto leading-relaxed">
+                                Your feedback has been received privately. We appreciate your input and will use it to improve our services.
+                            </p>
+                            <button
+                                onClick={() => router.back()}
+                                className="w-full py-3.5 mt-4 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition"
+                            >
+                                Go Back
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Case 2: Rating >= 4 -> Show AI Reviews Selection */}
+                    {userRating >= 4 && (
+                        <div className="space-y-4">
+                            <div className="bg-[#101018] border border-white/8 rounded-2xl p-5">
+                                <div className="flex items-center gap-1.5 text-amber-400 mb-1">
+                                    <Sparkles className="w-4 h-4 fill-amber-400" />
+                                    <p className="text-xs font-bold uppercase tracking-wider">Select & Post to Google</p>
+                                </div>
+                                <p className="text-zinc-400 text-xs leading-relaxed">
+                                    Select one of these pre-written reviews. Clicking a card copies the text and opens our Google Reviews page for easy pasting!
+                                </p>
+                            </div>
+
+                            {loadingAiReviews ? (
+                                <div className="flex flex-col items-center gap-2 py-8">
+                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-400"></div>
+                                    <span className="text-xs text-zinc-500">Preparing reviews...</span>
+                                </div>
+                            ) : (
+                                <div className="space-y-3 pb-6 max-h-[380px] overflow-y-auto pr-1">
+                                    {aiReviews.map((rev, idx) => (
+                                        <button
+                                            key={rev.id || idx}
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(rev.comment);
+                                                setCopiedIndex(idx);
+                                                // Track / record review submission
+                                                fetch("/api/reviews/submit", {
+                                                    method: "POST",
+                                                    headers: {
+                                                        "Content-Type": "application/json"
+                                                    },
+                                                    body: JSON.stringify({
+                                                        slug,
+                                                        rating: userRating,
+                                                        comment: rev.comment,
+                                                        customerName: rev.customerName
+                                                    })
+                                                }).catch(err => console.error("Auto log review error:", err));
+
+                                                // Open Google Review Link
+                                                setTimeout(() => {
+                                                    window.open(business?.googleReviewLink || "https://maps.google.com", "_blank");
+                                                }, 300);
+                                            }}
+                                            className={`w-full text-left p-4 rounded-2xl bg-black/45 border transition-all duration-150 relative overflow-hidden flex flex-col gap-2 ${copiedIndex === idx ? "border-emerald-500 bg-emerald-500/5" : "border-white/5 hover:border-white/10 hover:bg-white/[0.02]"}`}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-white text-xs font-semibold">{rev.customerName || "Customer Review"}</span>
+                                                {copiedIndex === idx ? (
+                                                    <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Copied! Opening Google...</span>
+                                                ) : (
+                                                    <span className="text-[10px] text-zinc-500">Click to Copy & Go</span>
+                                                )}
+                                            </div>
+                                            <p className="text-zinc-350 text-xs italic leading-relaxed">
+                                                "{rev.comment}"
+                                            </p>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer Go Back Button */}
+                <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-45 px-4 pb-6 pt-3 bg-gradient-to-t from-[#07070b] via-[#07070b]/95 to-transparent">
+                    <button
+                        onClick={() => router.back()}
+                        className="w-full py-3.5 rounded-2xl bg-white/5 border border-white/10 text-zinc-300 text-sm font-medium hover:bg-white/10 transition-colors"
+                    >
+                        Go Back
                     </button>
                 </div>
             </div>

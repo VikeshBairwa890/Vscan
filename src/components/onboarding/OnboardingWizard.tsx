@@ -34,6 +34,14 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavedBadgeVisible, setIsSavedBadgeVisible] = useState(false);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Reset scroll position when step changes
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [currentStep]);
 
   // Core Form State
   const [businessName, setBusinessName] = useState("");
@@ -315,7 +323,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   };
 
   return (
-    <div className="min-h-screen bg-app-bg text-white flex flex-col justify-between py-6 px-4 md:px-8 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-app-bg text-white flex flex-col justify-between py-6 px-4 md:px-8 relative overflow-x-hidden overflow-y-auto font-sans">
       {/* Background gradients */}
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-secondary/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-primary/5 blur-[130px] pointer-events-none" />
@@ -368,8 +376,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
       {/* Main Wizard Area */}
       <div className="max-w-3xl mx-auto w-full flex-1 flex items-center justify-center my-8 z-10">
-        <div className="w-full bg-app-surface border border-app-border rounded-[32px] p-6 md:p-10 shadow-2xl backdrop-blur-xl">
-          <AnimatePresence mode="wait">
+        <div className="w-full bg-app-surface border border-app-border rounded-[32px] p-6 md:p-10 shadow-2xl backdrop-blur-xl flex flex-col max-h-[75vh] md:max-h-[80vh]">
+          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto pr-1 md:pr-2">
+            <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
               initial={{ opacity: 0, y: 15 }}
@@ -743,9 +752,10 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
               )}
             </motion.div>
           </AnimatePresence>
+          </div>
 
           {/* Footer Navigation buttons */}
-          <div className="flex justify-between items-center mt-10 pt-6 border-t border-app-border">
+          <div className="flex justify-between items-center mt-6 pt-6 border-t border-app-border shrink-0">
             <button
               type="button"
               onClick={prevStep}
