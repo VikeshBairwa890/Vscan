@@ -42,7 +42,13 @@ export default function Profile() {
                     setIsLoading(false);
                     return;
                 }
-                const statusData = await res.json();
+                const responseBody = await res.json();
+                if (responseBody.success == false) {
+                    toast.error(responseBody.message);
+                    setIsLoading(false);
+                    return;
+                }
+                const statusData = responseBody.data;
                 if (statusData.hasProfile) {
                     setProfileData({
                         name: statusData.businessName || "",
