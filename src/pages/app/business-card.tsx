@@ -12,6 +12,7 @@ import {
   RefreshCw,
   ExternalLink,
   Sparkle,
+  Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
@@ -24,6 +25,7 @@ export default function BusinessCardPage() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isActiveSubscription, setIsActiveSubscription] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<
     "classic" | "minimal" | "luxury" | "tech" | "creative"
@@ -54,7 +56,7 @@ export default function BusinessCardPage() {
   const [hasProfile, setHasProfile] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const { status, statusLoading, refreshStatus, user } = useAppContext();
- 
+
   // Load user profile on mount
   useEffect(() => {
     setMounted(true);
@@ -184,8 +186,7 @@ export default function BusinessCardPage() {
   // Download high-resolution PNG using HTML5 Canvas drawing
   const downloadCardImage = async (side: "front" | "back") => {
     if (!isActiveSubscription) {
-      toast.error("Downloading business cards requires an active subscription plan.");
-      router.push("/app/billing");
+      setShowUpgradeModal(true);
       return;
     }
     const canvas = document.createElement("canvas");
@@ -691,8 +692,7 @@ export default function BusinessCardPage() {
   // Launch A4 Printing Layout Grid (10 cards per page, 3.5"x2" credit card dimensions)
   const handlePrintCards = () => {
     if (!isActiveSubscription) {
-      toast.error("Printing business cards requires an active subscription plan.");
-      router.push("/app/billing");
+      setShowUpgradeModal(true);
       return;
     }
     const printWindow = window.open("", "_blank");
@@ -1449,6 +1449,37 @@ export default function BusinessCardPage() {
         </div>
 
       </div>
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4">
+          <div className="bg-app-surface border border-app-border max-w-md w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl">
+            <div className="w-12 h-12 bg-app-warning/10 text-app-warning rounded-2xl flex items-center justify-center mx-auto border border-app-warning/20">
+              <Lock size={22} className="animate-bounce" />
+            </div>
+            <h3 className="text-xl font-bold text-white">Unlock Premium Business Cards</h3>
+            <p className="text-app-text-muted text-sm leading-relaxed">
+              Downloading high-resolution business cards, A4 template printing, and custom templates are reserved for Pro plan subscribers.
+            </p>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="flex-1 py-2.5 rounded-xl border border-app-border hover:bg-app-surface/80 text-xs font-bold transition text-app-text-muted"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowUpgradeModal(false);
+                  router.push("/app/billing");
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary hover:from-primary-light hover:to-secondary-light text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow-lg shadow-primary/20"
+              >
+                <Sparkles size={13} /> Upgrade Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+      }
     </div>
   );
 }
