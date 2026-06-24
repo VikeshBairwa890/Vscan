@@ -10,6 +10,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { THEME_COLORS } from "@/config/theme";
 import { toast } from "sonner";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
+import { useAppContext } from "@/contexts/AppContext";
 
 const trafficData = {
   Today: [{ d: "Now", v: 3 }],
@@ -27,45 +28,26 @@ const trafficData = {
 export default function Dashboard() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<Record<string, unknown> | null>(null);
+  const { status, statusLoading, refreshStatus } = useAppContext();
   const [showOnboarding, setShowOnboarding] = useState(false);
-
-  const fetchStatus = async () => {
-    try {
-      const res = await fetch(`/api/business/dashboard-status`);
-      if (!res.ok) {
-        toast.error("Failed to fetch dashboard status");
-        return;
-      }
-      const responseBody = await res.json();
-      if (responseBody.success == false) {
-        toast.error(responseBody.message);
-        return;
-      }
-      setStatus(responseBody.data);
-      setShowOnboarding(responseBody.data?.onboardingCompleted !== true);
-      setLoading(false);
-    } catch (e) {
-      console.error("Error loading status", e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOnboardingComplete = async () => {
-    setShowOnboarding(false);
-    setLoading(true);
-    await fetchStatus();
-    window.dispatchEvent(new CustomEvent("vscan:onboarding-complete"));
-  };
 
   useEffect(() => {
     setMounted(true);
-    fetchStatus();
   }, []);
 
-  if (!mounted || loading) {
+  useEffect(() => {
+    if (status) {
+      setShowOnboarding(status.onboardingCompleted !== true);
+    }
+  }, [status]);
+
+  const handleOnboardingComplete = async () => {
+    setShowOnboarding(false);
+    await refreshStatus();
+    window.dispatchEvent(new CustomEvent("vscan:onboarding-complete"));
+  };
+
+  if (!mounted || statusLoading) {
     return (
       <div className="min-h-screen bg-app-bg text-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">

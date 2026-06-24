@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import QRCode from "qrcode";
 import BusinessCard, { BusinessCardData } from "@/components/dashboard/BusinessCard";
 import { Button } from "@heroui/react";
+import { useAppContext } from "@/contexts/AppContext";
 
 export default function BusinessCardPage() {
   const router = useRouter();
@@ -52,55 +53,37 @@ export default function BusinessCardPage() {
   const [saved, setSaved] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
-
+  const { status, statusLoading, refreshStatus, user } = useAppContext();
+ 
   // Load user profile on mount
   useEffect(() => {
     setMounted(true);
-    const loadProfileData = async () => {
-      let userName = "";
-      let userEmail = "";
-      const userStr = localStorage.getItem("currentUser");
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          userName = user.name || "";
-          userEmail = user.email || "";
-        } catch {
-          // ignore invalid local user cache
-        }
-      }
+    if (statusLoading) return;
 
-      try {
-        const res = await fetch(`/api/business/status`);
-        if (!res.ok) return;
-        const responseBody = await res.json();
-        if (responseBody.success === false) return;
-        const statusData = responseBody.data;
-        if (statusData?.hasProfile) {
-          setHasProfile(true);
-          setOnboardingCompleted(statusData.onboardingCompleted === true);
-          setCardData((prev) => ({
-            ...prev,
-            businessName: statusData.businessName || "",
-            name: userName || statusData.businessName || "Your Name",
-            email: statusData.email || userEmail || "",
-              phone: statusData.contactNumber || statusData.whatsappNumber || "",
-              website: statusData.website || `https://vscan.biz/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
-              address: statusData.businessAddress || "",
-              logo: statusData.logo || "",
-              googleReviewLink: statusData.googleReviewLink || "",
-              upiId: statusData.upiId || "",
-          }));
-        }
-      } catch (err) {
-        console.error("Error loading profile settings:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (status && status.hasProfile) {
+      setHasProfile(true);
+      setOnboardingCompleted(status.onboardingCompleted === true);
+      const userName = user?.name || "";
+      const userEmail = user?.email || "";
 
-    loadProfileData();
-  }, [router]);
+      setCardData((prev) => ({
+        ...prev,
+        businessName: status.businessName || "",
+        name: userName || status.businessName || "Your Name",
+        email: status.email || userEmail || "",
+        phone: status.contactNumber || status.whatsappNumber || "",
+        website: status.website || `https://vscan.biz/${(status.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
+        address: status.businessAddress || "",
+        logo: status.logo || "",
+        googleReviewLink: status.googleReviewLink || "",
+        upiId: status.upiId || "",
+      }));
+
+      const sub = status.subscription;
+      setIsActiveSubscription(sub?.isActive || false);
+    }
+    setLoading(false);
+  }, [status, statusLoading, user]);
 
   // Compute QR Code URL Destination
   const getQrRedirectUrl = () => {
@@ -188,6 +171,7 @@ export default function BusinessCardPage() {
       }
       setSaved(true);
       toast.success(result.message);
+      await refreshStatus();
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       console.error(err);

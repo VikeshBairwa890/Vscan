@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 import QRCode from "qrcode";
 import { Button } from "@heroui/react";
+import { useAppContext } from "@/contexts/AppContext";
 
 const uid = () => Math.random().toString(36).slice(2, 8);
 
@@ -17,6 +18,7 @@ export default function SmartQR() {
   const router = useRouter();
   const canvasRef = useRef(null);
   const [mounted, setMounted] = useState(false);
+  const { status, statusLoading, refreshStatus } = useAppContext();
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [isPremium, setIsPremium] = useState(false);
@@ -46,43 +48,30 @@ export default function SmartQR() {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Fetch status on mount
+  // Fetch status and QR settings on mount
   useEffect(() => {
     setMounted(true);
-    const fetchStatus = async () => {
+    if (statusLoading) return;
 
+    if (status && status.hasProfile) {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+      setBusinessData(prev => ({
+        ...prev,
+        name: status.businessName || prev.name,
+        logo: status.logo || prev.logo,
+        reviewLink: status.googleReviewLink || prev.reviewLink,
+        miniWebsiteLink: status.customSlug
+          ? `${baseUrl}/profile/${status.customSlug}`
+          : `${baseUrl}/profile/${(status.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
+      }));
+
+      const sub = status.subscription;
+      setIsActiveSubscription(sub?.isActive || false);
+      setIsPremium((sub?.plan === "PREMIUM" || sub?.plan === "ENTERPRISE") && sub?.isActive);
+    }
+
+    const fetchQrSettings = async () => {
       try {
-        const res = await fetch(`/api/business/status`);
-        if (!res.ok) {
-          toast.error("Failed to load business profile");
-          return;
-        }
-        const responseBody = await res.json();
-        if (responseBody.success == false) {
-          toast.error(responseBody.message);
-          return;
-        }
-
-        const statusData = responseBody.data;
-        if (statusData && statusData.hasProfile) {
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-          setBusinessData(prev => ({
-            ...prev,
-            name: statusData.businessName || prev.name,
-            logo: statusData.logo || prev.logo,
-            reviewLink: statusData.googleReviewLink || prev.reviewLink,
-            miniWebsiteLink: statusData.customSlug
-              ? `${baseUrl}/profile/${statusData.customSlug}`
-              : `${baseUrl}/profile/${(statusData.businessName || "").toLowerCase().replace(/\s+/g, "-")}`,
-          }));
-
-          const sub = statusData.subscription;
-          setIsActiveSubscription(sub?.isActive || false);
-          setIsPremium((sub?.plan === "PREMIUM" || sub?.plan === "ENTERPRISE") && sub?.isActive);
-        }
-
-
-        // Fetch customized QR Settings
         const qrRes = await fetch(`/api/business/smart-qr-get`);
         if (qrRes.ok) {
           const qrResult = await qrRes.json();
@@ -103,8 +92,9 @@ export default function SmartQR() {
         setLoading(false);
       }
     };
-    fetchStatus();
-  }, []);
+
+    fetchQrSettings();
+  }, [status, statusLoading]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -140,6 +130,7 @@ export default function SmartQR() {
       if (result.success) {
         setSaved(true);
         toast.success("QR settings saved successfully!");
+        await refreshStatus();
         setTimeout(() => setSaved(false), 2000);
       } else {
         toast.error(result.message || "Failed to save QR settings");

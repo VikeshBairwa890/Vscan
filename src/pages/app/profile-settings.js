@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { Camera, Save, CreditCard, QrCode, Building2, Phone, Globe, Star, MapPin, Link as LinkIcon, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { FaWhatsapp } from "react-icons/fa";
+import { useAppContext } from "@/contexts/AppContext";
 export default function Profile() {
     const [profileData, setProfileData] = useState({
         name: "",
@@ -22,9 +23,9 @@ export default function Profile() {
         customSlug: "",
     });
 
+    const { status, statusLoading, refreshStatus } = useAppContext();
     const [logoPreview, setLogoPreview] = useState(null);
     const [qrPreview, setQrPreview] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [mounted, setMounted] = useState(false);
 
@@ -33,49 +34,25 @@ export default function Profile() {
 
     useEffect(() => {
         setMounted(true);
-
-        const loadProfile = async () => {
-            try {
-                const res = await fetch(`/api/business/status`);
-                if (!res.ok) {
-                    toast.error("Failed to load profile settings");
-                    setIsLoading(false);
-                    return;
-                }
-                const responseBody = await res.json();
-                if (responseBody.success == false) {
-                    toast.error(responseBody.message);
-                    setIsLoading(false);
-                    return;
-                }
-                const statusData = responseBody.data;
-                if (statusData.hasProfile) {
-                    setProfileData({
-                        name: statusData.businessName || "",
-                        about: statusData.about || "",
-                        contact: statusData.contactNumber || "",
-                        whatsapp: statusData.whatsappNumber || "",
-                        email: statusData.email || "",
-                        businessAddress: statusData.businessAddress || "",
-                        companyWebsite: statusData.website || "",
-                        googleReviewLink: statusData.googleReviewLink || "",
-                        upiId: statusData.upiId || "",
-                        logo: statusData.logo || "",
-                        paymentQr: statusData.paymentQrCode || "",
-                        customSlug: statusData.customSlug || "",
-                    });
-                    if (statusData.logo) setLogoPreview(statusData.logo);
-                    if (statusData.paymentQrCode) setQrPreview(statusData.paymentQrCode);
-                }
-            } catch (err) {
-                console.error("Error loading profile settings", err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadProfile();
-    }, []);
+        if (status && status.hasProfile) {
+            setProfileData({
+                name: status.businessName || "",
+                about: status.about || "",
+                contact: status.contactNumber || "",
+                whatsapp: status.whatsappNumber || "",
+                email: status.email || "",
+                businessAddress: status.businessAddress || "",
+                companyWebsite: status.website || "",
+                googleReviewLink: status.googleReviewLink || "",
+                upiId: status.upiId || "",
+                logo: status.logo || "",
+                paymentQr: status.paymentQrCode || "",
+                customSlug: status.customSlug || "",
+            });
+            if (status.logo) setLogoPreview(status.logo);
+            if (status.paymentQrCode) setQrPreview(status.paymentQrCode);
+        }
+    }, [status]);
 
     const handleInputChange = (field, value) => {
         setProfileData(prev => ({ ...prev, [field]: value }));
@@ -151,6 +128,7 @@ export default function Profile() {
             }
             if (response.ok && resData.success !== false) {
                 toast.success('Profile settings saved successfully!');
+                await refreshStatus();
                 if (resData.businessProfile?.customSlug) {
                     setProfileData(prev => ({ ...prev, customSlug: resData.businessProfile.customSlug }));
                 }
@@ -162,7 +140,7 @@ export default function Profile() {
         }
     };
 
-    if (!mounted || isLoading) {
+    if (!mounted || statusLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-app-bg text-white">
                 <div className="flex flex-col items-center gap-3">

@@ -7,6 +7,7 @@ import "@/styles/globals.css";
 import UserLayout from "@/components/layouts/UserLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { Toaster } from "sonner";
+import { AppContextProvider } from "@/contexts/AppContext";
 
 export default function App({
   Component,
@@ -40,11 +41,11 @@ export default function App({
   };
 
   return (
-    <>
+    <AppContextProvider>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </Head>
       {renderContent()}
-    </>
+    </AppContextProvider>
   );
 }

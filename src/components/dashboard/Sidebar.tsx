@@ -17,6 +17,7 @@ import { Button } from "@heroui/react";
 import Navbar from "./Navbar";
 
 import { SidebarMenuItem } from "@/types/sidebar";
+import { useAppContext } from "@/contexts/AppContext";
 
 interface SidebarProps {
   children: ReactNode;
@@ -39,24 +40,7 @@ export default function Sidebar({
     useState(false);
 
   // USER DETAILS
-  const [user, setUser] = useState<{name?: string, email?: string, role?: string} | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/api/auth/me");
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success) {
-            setUser(json.data);
-          }
-        }
-      } catch (e) {
-        console.error("Failed to fetch user", e);
-      }
-    };
-    fetchUser();
-  }, []);
+  const { user, clearSession } = useAppContext();
 
   const handleLogout = async () => {
     try {
@@ -64,7 +48,7 @@ export default function Sidebar({
         method: "POST",
       });
       if (res.ok) {
-        localStorage.removeItem("currentUser");
+        clearSession();
         router.push("/auth/login");
       } else {
         console.error("Logout failed");

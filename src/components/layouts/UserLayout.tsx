@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { userSidebarMenu } from "@/config/user-sidebar-menu";
+import { useAppContext } from "@/contexts/AppContext";
 
 interface Props {
   children: ReactNode;
@@ -10,54 +11,32 @@ interface Props {
 export default function UserLayout({ children }: Props) {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
-  const [onboardingCompleted, setOnboardingCompleted] = useState(true);
+  const { status, statusLoading, refreshStatus } = useAppContext();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || statusLoading || !status) return;
 
-    const refreshOnboardingStatus = async (showLoader = true) => {
-      if (showLoader) {
-        setCheckingOnboarding(true);
-      }
+    const completed = status.onboardingCompleted === true;
+    const path = router.pathname;
+    if (!completed && path !== "/app/dashboard" && path !== "/app/onboarding") {
+      router.replace("/app/dashboard");
+    }
+  }, [mounted, status, statusLoading, router.pathname]);
 
-      try {
-        const res = await fetch(`/api/business/dashboard-status`);
-        if (!res.ok) return;
-
-        const responseBody = await res.json();
-        if (responseBody.success === false) return;
-
-        const status = responseBody.data ?? responseBody;
-        const completed = status.onboardingCompleted === true;
-        setOnboardingCompleted(completed);
-
-        const path = router.pathname;
-        if (!completed && path !== "/app/dashboard" && path !== "/app/onboarding") {
-          router.replace("/app/dashboard");
-        }
-      } catch (e) {
-        console.error("Failed to check onboarding status", e);
-      } finally {
-        setCheckingOnboarding(false);
-      }
-    };
-
-    refreshOnboardingStatus();
-
+  useEffect(() => {
     const onOnboardingComplete = () => {
-      refreshOnboardingStatus(false);
+      refreshStatus();
     };
 
     window.addEventListener("vscan:onboarding-complete", onOnboardingComplete);
     return () => window.removeEventListener("vscan:onboarding-complete", onOnboardingComplete);
-  }, [mounted, router.pathname]);
+  }, [refreshStatus]);
 
-  if (!mounted || checkingOnboarding) {
+  if (!mounted || statusLoading) {
     return (
       <div className="min-h-screen bg-app-bg flex items-center justify-center text-white">
         <div className="flex flex-col items-center gap-3">
@@ -72,6 +51,7 @@ export default function UserLayout({ children }: Props) {
     return <div className="min-h-screen bg-app-bg">{children}</div>;
   }
 
+  const onboardingCompleted = status?.onboardingCompleted === true;
   const blockSidebar = !onboardingCompleted && router.pathname === "/app/dashboard";
 
   if (blockSidebar) {
