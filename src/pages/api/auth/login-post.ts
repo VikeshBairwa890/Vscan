@@ -15,10 +15,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     const result = await Login.loginPost(req.body);
     if (result.success == false) {
-        res.status(200).json({ success: false, message: result.message })
+        return res.status(200).json({ success: false, message: result.message });
     }
     // set cookie hare , cookie name userSession, in which set expire date and token
-    res.setHeader('Set-Cookie', `userSession=${result?.session?.sessionToken}; HttpOnly; Path=/; Secure; SameSite=Lax; Expires=${result?.session?.expires}`);
-    res.status(200).json({ success: true, message: result.message });
+    const expiresDate = result?.session?.expires ? new Date(result.session.expires).toUTCString() : '';
+    res.setHeader('Set-Cookie', `userSession=${result?.session?.sessionToken}; HttpOnly; Path=/; Secure; SameSite=Lax; Expires=${expiresDate}`);
+    return res.status(200).json({ success: true, message: result.message, data: result.data });
 
 }

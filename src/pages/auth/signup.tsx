@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/router'
 
 export default function SignupPage() {
+  const [isBusy, setIsBusy] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: '',
@@ -25,6 +26,7 @@ export default function SignupPage() {
 
   async function handleSubmit() {
     try {
+      setIsBusy(true);
       const response = await fetch("/api/auth/signup-post", {
         method: "POST",
         headers: {
@@ -32,6 +34,7 @@ export default function SignupPage() {
         },
         body: JSON.stringify(formData),
       });
+      setIsBusy(false);
       if (!response.ok) {
         toast.error("Something went wrong", {
           description: "Please try again later"
@@ -53,6 +56,7 @@ export default function SignupPage() {
       toast.error("Something went wrong", {
         description: "Please try again later"
       });
+      setIsBusy(false);
     }
 
   }
@@ -110,8 +114,8 @@ export default function SignupPage() {
               onChange={handleChange}
             />
 
-            <button onClick={handleSubmit} className="w-full btn-primary py-2.5 text-sm font-semibold text-white rounded-xl">
-              Create account
+            <button disabled={isBusy} onClick={handleSubmit} className="w-full btn-primary py-2.5 text-sm font-semibold text-white rounded-xl">
+              {isBusy ? "Creating account..." : "Create account"}
             </button>
           </div>
 

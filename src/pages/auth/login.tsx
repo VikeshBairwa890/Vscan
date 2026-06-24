@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
+  const [isBusy, setIsBusy] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
@@ -21,6 +22,7 @@ export default function LoginPage() {
   }
   async function handleSubmit() {
     try {
+      setIsBusy(true);
       const response = await fetch("/api/auth/login-post", {
         method: "POST",
         headers: {
@@ -28,12 +30,12 @@ export default function LoginPage() {
         },
         body: JSON.stringify(formData),
       });
+      setIsBusy(false);
       if (!response.ok) {
         toast.error("Something went wrong");
         return;
       }
       const responseBody = await response.json();
-      console.log(responseBody)
       if (responseBody.success == false) {
         toast.error(responseBody.message);
         return;
@@ -48,6 +50,7 @@ export default function LoginPage() {
       }, 1000);
     } catch (error) {
       toast.error("Something went wrong");
+      setIsBusy(false);
     }
 
   }
@@ -96,8 +99,8 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <button onClick={handleSubmit} className="w-full btn-primary py-2.5 text-sm font-semibold text-white rounded-xl">
-              Continue
+            <button disabled={isBusy} onClick={handleSubmit} className="w-full btn-primary py-2.5 text-sm font-semibold text-white rounded-xl">
+              {isBusy ? "Logging in..." : "Continue"}
             </button>
           </div>
 

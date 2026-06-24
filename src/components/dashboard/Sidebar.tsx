@@ -64,6 +64,7 @@ export default function Sidebar({
         method: "POST",
       });
       if (res.ok) {
+        localStorage.removeItem("currentUser");
         router.push("/auth/login");
       } else {
         console.error("Logout failed");
