@@ -243,6 +243,8 @@ export default function Sidebar({
             setMobileOpen(true)
           }
         />
+        {/* Spacer to push main content down below the fixed top navbar */}
+        <div className="h-16 shrink-0" />
 
         <main className="flex-1 w-full min-w-0 overflow-x-hidden">
           {children}

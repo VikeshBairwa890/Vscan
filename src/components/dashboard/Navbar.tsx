@@ -51,7 +51,7 @@ export default function Navbar({
         console.error("Failed to fetch notifications", error);
       }
     };
-    
+
     if (user) {
       fetchNotifications();
     }
@@ -87,7 +87,7 @@ export default function Navbar({
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-app-border bg-app-bg/85 backdrop-blur-md px-4 lg:px-6 text-white">
+    <header className={`fixed top-0 right-0 z-30 flex h-16 items-center justify-between border-b border-app-border bg-app-bg/85 backdrop-blur-md px-4 lg:px-6 text-white transition-all duration-300 left-0 ${collapsed ? "lg:left-20" : "lg:left-70"}`}>
 
       {/* LEFT */}
       <div className="flex items-center gap-3">
@@ -140,7 +140,7 @@ export default function Navbar({
               <div className="flex items-center justify-between border-b border-app-border p-4 bg-app-bg/50">
                 <h3 className="font-semibold text-white">Notifications</h3>
                 {unreadCount > 0 && (
-                  <button 
+                  <button
                     onClick={() => markAsRead()}
                     className="text-xs text-primary hover:text-primary/80 font-medium transition-colors cursor-pointer"
                   >
@@ -148,7 +148,7 @@ export default function Navbar({
                   </button>
                 )}
               </div>
-              
+
               <div className="max-h-[60vh] overflow-y-auto scrollbar-hide">
                 {notifications.length === 0 ? (
                   <div className="p-6 text-center text-sm text-app-text-muted">
@@ -157,11 +157,11 @@ export default function Navbar({
                 ) : (
                   <div className="flex flex-col">
                     {notifications.map((notification) => (
-                      <div 
+                      <div
                         key={notification.id}
                         className={`flex gap-3 p-4 border-b border-app-border/50 hover:bg-app-surface-glass transition-colors cursor-pointer ${!notification.isRead ? 'bg-primary/5' : ''}`}
                         onClick={() => {
-                           if (!notification.isRead) markAsRead(notification.id);
+                          if (!notification.isRead) markAsRead(notification.id);
                         }}
                       >
                         <div className="flex-1 min-w-0">
@@ -177,7 +177,7 @@ export default function Navbar({
                             {notification.message}
                           </p>
                           {notification.link && (
-                            <Link 
+                            <Link
                               href={notification.link}
                               className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors"
                             >
