@@ -1,5 +1,6 @@
 "use client";
 
+import { LayoutTemplate } from "lucide-react";
 import { templates } from "./registry";
 
 function TemplateStack({ selected, onSelect }) {
@@ -11,9 +12,8 @@ function TemplateStack({ selected, onSelect }) {
           <button
             key={t.id}
             onClick={() => onSelect(t.id)}
-            className={`w-full flex items-center gap-4 rounded-2xl border-2 bg-white text-left transition-all duration-200 overflow-hidden shadow-sm active:scale-[0.99] min-h-[72px] ${
-              active ? "border-violet-500 ring-2 ring-violet-300/50" : "border-gray-100"
-            }`}
+            className={`w-full flex items-center gap-4 rounded-xl border-2 bg-white text-left transition-all duration-200 overflow-hidden shadow-sm active:scale-[0.99] min-h-[72px] ${active ? "border-violet-500 ring-2 ring-violet-300/50" : "border-gray-100"
+              }`}
           >
             <div className={`h-[72px] w-[72px] flex-shrink-0 relative overflow-hidden ${t.preview}`}>
               <div className="absolute inset-0 flex flex-col justify-end p-2 gap-1">
@@ -47,35 +47,23 @@ function TemplateScroll({ selected, onSelect }) {
         return (
           <button
             key={t.id}
+            type="button"
             onClick={() => onSelect(t.id)}
-            className={`flex-shrink-0 w-[140px] rounded-2xl border-2 bg-white text-left transition-all duration-200 overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 ${
-              active ? "border-violet-500 ring-2 ring-violet-200" : "border-gray-100"
-            }`}
+            className={`flex-shrink-0 w-[200px] rounded-xl border bg-app-surface/40 hover:bg-app-surface/80 text-left transition-all duration-200 overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 ${active ? "border-primary ring-2 ring-primary/20" : "border-app-border"
+              }`}
           >
-            <div className={`h-[88px] w-full relative overflow-hidden ${t.preview}`}>
-              <div className="absolute inset-0 flex flex-col justify-end p-2.5 gap-1.5">
-                <div className="w-12 h-1.5 rounded-full bg-white/60" />
-                <div className="w-20 h-1.5 rounded-full bg-white/40" />
-                <div className="w-8 h-1.5 rounded-full bg-white/30" />
+            <div className="px-3.5 py-3 flex items-center gap-2.5">
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${active ? "bg-primary/20 text-primary-light" : "bg-app-bg border border-app-border text-app-text-dimmed"
+                }`}>
+                <LayoutTemplate size={14} />
+              </div>
+              <div className="flex-1 min-w-0 flex flex-col">
+                <p className="font-bold text-white text-xs truncate leading-snug">{t.name}</p>
+                <p className="text-[10px] text-app-text-dimmed capitalize font-medium mt-0.5">{t.category}</p>
               </div>
               {active && (
-                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center shadow">
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
+                <span className="w-1.5 h-1.5 rounded-full bg-primary-light flex-shrink-0 animate-pulse" />
               )}
-            </div>
-            <div className="px-3 py-2.5">
-              <div className="flex items-center justify-between gap-1">
-                <p className="font-bold text-gray-800 text-xs truncate">{t.name}</p>
-                {active && (
-                  <span className="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full font-bold flex-shrink-0">
-                    Active
-                  </span>
-                )}
-              </div>
-              <p className="text-[10px] text-gray-400 capitalize mt-0.5">{t.category}</p>
             </div>
           </button>
         );

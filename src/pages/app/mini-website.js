@@ -91,7 +91,7 @@ function ThemeGrid({ selected, onSelect, inModal = false }) {
             type="button"
             onClick={() => onSelect(name)}
             title={name}
-            className={`relative flex items-center gap-3 lg:block h-14 rounded-2xl transition-all duration-200 active:scale-[0.98] border border-app-border px-3 lg:px-0 ${active
+            className={`relative flex items-center gap-3 lg:block h-14 rounded-xl transition-all duration-200 active:scale-[0.98] border border-app-border px-3 lg:px-0 ${active
               ? "ring-2 ring-offset-2 ring-primary shadow-[0_0_15px_rgba(124,58,237,0.3)] border-primary"
               : "shadow-sm"
               }`}

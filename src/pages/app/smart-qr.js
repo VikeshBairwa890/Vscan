@@ -624,7 +624,6 @@ export default function SmartQR() {
                     <button
                       onClick={() => {
                         if (!isActiveSubscription) {
-                          toast.error("Download and print features require an active subscription plan.");
                           setShowUpgradeModal(true);
                           return;
                         }
